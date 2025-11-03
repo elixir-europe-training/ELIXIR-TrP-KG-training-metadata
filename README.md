@@ -6,10 +6,86 @@ Knowledge graphs (KGs) can greatly increase the potential of data by revealing h
 
 ELIXIR and its Nodes are making a major effort to make the wealth of open training materials on the computational life sciences reusable, amongst others by guidelines and support for annotating training materials with standardized metadata. One major step in standardizing metadata is the use of the Bioschemas training profile, which became a standard for representing training metadata. Despite being standardized and interoperable, there is still a lot of potential to turn these resources into valuable information, linking training data across various databases.
 
-In this project, we aim to create queryable KGs derived from training metadata in the Bioschemas format available from platforms like TeSS and glittr.org. In a subsequent step, we will investigate the potential of such KGs for several use cases, including construction of custom learning paths, creation of detailed trainer profiles, and connection of  training metadata to other databases. These use-cases will also shed light on the limits on the currently available metadata, and will help to make future choices on richer metadata and standards. 
-
+In this project, we aim to create queryable KGs derived from training metadata in the Bioschemas format available from platforms like TeSS and glittr.org. In a subsequent step, we will investigate the potential of such KGs for several use cases, including construction of custom learning paths, creation of detailed trainer profiles, and connection of  training metadata to other databases. These use-cases will also shed light on the limits on the currently available metadata, and will help to make future choices on richer metadata and standards.
 
 ## Leads
 
 Geert van Geest, Harshita Gupta, Vincent Emonet
 
+## 💬 MCP server
+
+A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server to access and search through the training materials of multiple Elixir repositories, such as [TeSS](https://tess.elixir-europe.org/) and [Glittr](https://glittr.org/).
+
+### ⚡️ Usage
+
+> [!IMPORTANT]
+>
+> Requirement: [`uv`](https://docs.astral.sh/uv/getting-started/installation/), to easily handle python scripts and virtual environments
+
+Use with STDIO transport:
+
+```sh
+uv run elixir-training-mcp
+```
+
+Use with Deploy as Streamable HTTP server:
+
+```sh
+uv run elixir-training-mcp --http
+```
+
+### 🔌 Connect client to MCP server
+
+Follow the instructions of your favorite chat client.
+
+To add a new MCP server to [**VSCode GitHub Copilot**](https://code.visualstudio.com/docs/copilot/overview):
+
+- Install the [`GitHub.copilot`](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) extension
+- Open the Command Palette (`ctrl+shift+p` or `cmd+shift+p`)
+- Search for `MCP: Add Server...`
+  - Choose `STDIO`, and provide the command: `uvx elixir-training-mcp`
+  - Or cChoose `HTTP`, and provide the MCP server URL, e.g. http://localhost:8000/mcp
+
+To use it with STDIO transport, your VSCode `mcp.json` should look like:
+
+```json
+{
+   "servers": {
+      "elixir-training-mcp": {
+         "type": "stdio",
+         "command": "uvx",
+         "args": ["elixir-training-mcp"]
+      }
+   }
+}
+```
+
+> [!TIP]
+>
+> You can use a local folder for development:
+>
+> ```json
+> {
+>    "servers": {
+>       "elixir-training-mcp": {
+>          "type": "stdio",
+>          "cwd": "~/dev/ELIXIR-TrP-KG-training-metadata",
+>          "command": "uv",
+>          "args": ["run", "elixir-training-mcp"]
+>       }
+>    }
+> }
+> ```
+
+You can also connect to a running server using Streamable HTTP:
+
+```json
+{
+    "servers": {
+        "elixir-training-mcp-http": {
+            "url": "http://localhost:8000/mcp",
+            "type": "http"
+        }
+    }
+}
+```
