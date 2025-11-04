@@ -5,7 +5,7 @@ This document contains SPARQL queries to search through the ELIXIR training mate
 Deploy a SPARQL endpoint on http://localhost:8000:
 
 ```sh
-uv run rdflib-endpoint serve data/tess_harvest.ttl
+uv run rdflib-endpoint serve data/*_harvest.ttl
 ```
 
 > [!NOTE]
