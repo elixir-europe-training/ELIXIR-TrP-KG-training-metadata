@@ -86,6 +86,11 @@ In this project, we represented training metadata stored in TeSS as queryable kn
 
 # Discussion
 
+# Future work
+
+- Host the knowledge graph on a public SPARQL endpoint to allow users to query the data directly.
+- Host a chatbot that connects to the MCP server for easier access to the training materials knowledge graph.
+- Extend the knowledge graph by integrating additional data sources, such as trainer profiles and related publications.
 
 
 ## Acknowledgements
