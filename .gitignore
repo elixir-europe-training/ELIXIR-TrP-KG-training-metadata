@@ -2,5 +2,10 @@ __pycache__/
 .venv/
 .mypy_cache/
 .coverage
-.env
 data/
+.env.*
+.idea/
+.vscode/
+.pytest_cache/
+.ruff_cache/
+.DS_Store
