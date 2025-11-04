@@ -1,0 +1,20 @@
+# Repository Guidelines
+
+## Project Structure & Module Organization
+The MCP server lives under `src/elixir_training_mcp/`. `mcp_server.py` exposes the Typer CLI entry point `cli()` and wraps request routing. `models.py` defines Pydantic payload models for TeSS and Glittr queries, while `__init__.py` stores package metadata. Runtime configuration stays in `pyproject.toml`; generated lockfiles sit in `uv.lock`. When adding tests, place them in a new `tests/` directory mirroring the source layout (for example, `tests/test_mcp_server.py`).
+
+## Build, Test, and Development Commands
+- `uv run elixir-training-mcp` runs the STDIO MCP server for local client integration.
+- `uv run elixir-training-mcp --http` starts the HTTP transport on the default port for remote clients.
+- `uv run --group dev pytest` executes the test suite with coverage settings from `pyproject.toml`.
+- `uv run --group dev ruff check src` enforces the lint ruleset; add `--fix` only after reviewing changes.
+- `uv run --group dev mypy src` validates typing expectations across the service layer.
+
+## Coding Style & Naming Conventions
+Follow Python 3.10+ typing with explicit return types on public functions. Keep imports sorted and grouped; Ruff enforces `I` and `TID` rules. Prefer descriptive module names and snake_case for functions, while Pydantic models use PascalCase. Maintain four-space indentation and target 120-character lines; document HTTP schemas or dataset constants as module-level enums when practical.
+
+## Testing Guidelines
+Use pytest with asyncio support already configured. Name new tests `test_*` and scope async fixtures at session level when they reach remote APIs. Add contract tests for each tool or resource exposed by `mcp_server.py`, and isolate network-dependent tests behind custom markers so they can be skipped offline (`pytest -m "not network"`). Keep coverage above the default threshold reported by `--cov=src`, and add regression cases whenever updating query adapters.
+
+## Commit & Pull Request Guidelines
+The history follows Conventional Commits (`feat:`, `fix:`, `doc:`); include scope names like `feat(models): ...` when touching isolated modules. Describe behavioral changes and reference GitHub issues using `Closes #ID`. Before opening a PR, run linting and tests locally and note the results in the description. Include screenshots or sample MCP payloads whenever you change request/response schemas, and call out breaking interface changes with the `!` syntax (`feat!: ...`).
