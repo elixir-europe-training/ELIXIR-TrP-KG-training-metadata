@@ -4,14 +4,14 @@ from pydantic import AnyUrl, BaseModel, Field
 
 
 class TessScientificTopic(BaseModel):
-    preferred_label: str # Data visualisation
-    uri: AnyUrl # http://edamontology.org/topic_0092
+    preferred_label: str  # Data visualisation
+    uri: AnyUrl  # http://edamontology.org/topic_0092
 
 
 class TessTrainingMaterial(BaseModel):
     id: int
-    title: str # fhdsl/better_plots
-    url: AnyUrl # https://tess.elixir-europe.org/materials/fhdsl-better_plots
+    title: str  # fhdsl/better_plots
+    url: AnyUrl  # https://tess.elixir-europe.org/materials/fhdsl-better_plots
     description: str | None = None
     doi: str | None = None
     remote_updated_date: str | None = None

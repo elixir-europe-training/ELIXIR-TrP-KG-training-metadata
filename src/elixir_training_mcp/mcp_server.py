@@ -21,6 +21,15 @@ mcp = FastMCP(
 # https://glittr.org/
 # https://github.com/sib-swiss/glittr
 
+# get all events/materials URLs by crawling through: https://tess.elixir-europe.org/events.json_api?per_page=100
+# more docs here: https://tess.elixir-europe.org/api/json_api
+# https://tess.elixir-europe.org/events/career-guidance-for-phds-and-postdocs-328f5f9f-38a5-4c62-b4d9-823218893d8f.jsonld
+
+
+# curl 'https://tess.elixir-europe.org/events/training-data-stewards-for-life-sciences.jsonld' > training-data-stewards-for-life-sciences.jsonld
+# sparql --data training-data-stewards-for-life-sciences.jsonld 'SELECT * { ?s a ?o}'|less
+
+
 @mcp.tool()
 async def search_training_materials(
     search: str,
@@ -42,9 +51,32 @@ async def search_training_materials(
         return response.json()
 
 
-# (you can get a list of all event/material URLs by crawling through e.g. https://tess.elixir-europe.org/events.json_api?per_page=100 . more docs here: https://tess.elixir-europe.org/api/json_api)
+# @mcp.tool()
+# async def harvest_tess_repository(
+#     repo_url: str,
+#     resource_type: str = "events",
+# ) -> list[dict[str, object]]:
+#     """Harvest all data from a TeSS repository.
 
+#     Fetches all training materials or events from a TeSS repository and retrieves
+#     the full JSON-LD representation for each resource. Processes items page by page,
+#     with parallel fetching of JSON-LD data (5 at a time).
 
+#     Args:
+#         repo_url: Base URL of the TeSS repository
+#             (e.g., "https://tess.elixir-europe.org")
+#         resource_type: Type of resource to harvest - "events" or "materials"
+#             (default: "events")
+
+#     Returns:
+#         List of all harvested resources with their full JSON-LD data
+#     """
+#     return await harvest_tess_data(
+#         repo_url=repo_url,
+#         resource_type=resource_type,
+#         per_page=100,
+#         max_concurrent=5,
+#     )
 
 
 def cli() -> None:
