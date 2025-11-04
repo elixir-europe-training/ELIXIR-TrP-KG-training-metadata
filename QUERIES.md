@@ -2,19 +2,22 @@
 
 This document contains SPARQL queries to search through the ELIXIR training materials RDF data.
 
-Run the script to harvest JSON-LD data (takes ~30min due to parsing JSON-LD being expensive):
+Deploy a SPARQL endpoint on http://localhost:8000:
 
 ```sh
-uv run src/elixir_training_mcp/harvest.py
+uv run rdflib-endpoint serve data/tess_harvest.ttl
 ```
 
-Deploy a SPARQL endpoint on http://localhost:8000
+> [!NOTE]
+>
+> The `data/tess_harvest.ttl` files is included in the repository (7MB), you can run the script to harvest JSON-LD data and build this ttl file, but it takes ~30min due to parsing JSON-LD being expensive:
+>
+> ```sh
+> uv run src/elixir_training_mcp/harvest.py
+> ```
+>
 
-```sh
-uv run rdflib-endpoint serve data/tess_harvested_data.ttl
-```
-
-## 1. Find all Python courses
+## Find all Python courses
 
 ```sparql
 PREFIX schema: <http://schema.org/>
@@ -29,7 +32,7 @@ WHERE {
 }
 ```
 
-## 2. Find courses by location and date range
+## Find courses by location and date range
 
 ```sparql
 PREFIX schema: <http://schema.org/>
@@ -46,11 +49,10 @@ WHERE {
   ?address schema:addressCountry ?country ;
            schema:addressLocality ?locality .
   FILTER(?startDate >= "2025-11-01"^^xsd:date && ?endDate <= "2025-12-31"^^xsd:date)
-}
-ORDER BY ?startDate
+} ORDER BY ?startDate
 ```
 
-## 3. Find courses with specific learning outcomes
+## Find courses with specific learning outcomes
 
 ```sparql
 PREFIX schema: <http://schema.org/>
@@ -64,7 +66,7 @@ WHERE {
 }
 ```
 
-## 4. Find all courses provided by a specific organization
+## Find all courses provided by a specific organization
 
 ```sparql
 PREFIX schema: <http://schema.org/>
@@ -79,7 +81,7 @@ WHERE {
 }
 ```
 
-## 5. Find courses with prerequisites
+## Find courses with prerequisites
 
 ```sparql
 PREFIX schema: <http://schema.org/>
@@ -92,7 +94,7 @@ WHERE {
 }
 ```
 
-## 6. Find courses by capacity and course mode
+## Find courses by capacity and course mode
 
 ```sparql
 PREFIX schema: <http://schema.org/>
@@ -108,11 +110,10 @@ WHERE {
   ?location schema:address ?address .
   ?address schema:addressCountry ?country .
   FILTER(?capacity > 20)
-}
-ORDER BY DESC(?capacity)
+} ORDER BY DESC(?capacity)
 ```
 
-## 7. Find courses with multiple funding organizations
+## Find courses with multiple funding organizations
 
 ```sparql
 PREFIX schema: <http://schema.org/>
@@ -124,12 +125,10 @@ WHERE {
           schema:hasCourseInstance ?instance .
   ?instance schema:funder ?funderOrg .
   ?funderOrg schema:name ?funderNames .
-}
-GROUP BY ?course ?name
-HAVING(COUNT(?funder) > 1)
+} GROUP BY ?course ?name HAVING(COUNT(?funder) > 1)
 ```
 
-## 8. Find courses organized by a specific person
+## Find courses organized by a specific person
 
 ```sparql
 PREFIX schema: <http://schema.org/>
@@ -145,7 +144,7 @@ WHERE {
 }
 ```
 
-## 9. Find courses with specific keywords or topics
+## Find courses with specific keywords or topics
 
 ```sparql
 PREFIX schema: <http://schema.org/>
@@ -161,7 +160,7 @@ WHERE {
 }
 ```
 
-## 10. Find upcoming courses near a geographic location
+## Find upcoming courses near a geographic location
 
 ```sparql
 PREFIX schema: <http://schema.org/>
@@ -179,6 +178,5 @@ WHERE {
   ?address schema:addressLocality ?locality .
   # Filter for courses in Canada as example
   FILTER(CONTAINS(?locality, "Toronto") || CONTAINS(?locality, "Halifax") || CONTAINS(?locality, "Vancouver"))
-}
-ORDER BY ?startDate
+} ORDER BY ?startDate
 ```

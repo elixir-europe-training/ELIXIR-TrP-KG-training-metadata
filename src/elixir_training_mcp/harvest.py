@@ -101,7 +101,7 @@ async def harvest_tess_data(
 
     # Create data folder if it doesn't exist
     Path("data").mkdir(exist_ok=True)
-    g.serialize("data/tess_harvested_data.ttl", format="ttl")
+    g.serialize("data/tess_harvest.ttl", format="ttl")
     print(f"Harvested {len(all_data)} total resources")
     return all_data
 
