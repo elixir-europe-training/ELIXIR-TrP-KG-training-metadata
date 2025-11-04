@@ -22,7 +22,7 @@ authors:
     affiliation: 2
     orcid: 
   - name: Jerven Bolleman
-    orcid: 
+    orcid: 0000-0002-7449-1266
     affiliation: 1
   - name: Finn Bacall
     affiliation: 2
@@ -79,6 +79,9 @@ ELIXIR and its Nodes are making a major effort to make the wealth of open traini
 In this project, we represented training metadata stored in TeSS as queryable knowledge graphs. After that we a developed a model context protocol (MCP) server to access and search through the knowledge graph using a natural language interface. Finally, we defined user stories to evaluate the potential of the tool, including construction of custom learning paths, creation of detailed trainer profiles, and connection of training metadata to other databases. These use-cases also shed light on the limits on the currently available metadata, and will help to make future choices on better defined and richer metadata.
 
 # From bioschemas to knowledge graphs
+
+Bioschemas are RDF and so should be a knowledge graph already. However, while it is technically a graph, there is a lack of knowledge. 
+We see that many nodes in the graph as extracted from existing systems have no identity. For example Organizations could be identified by their [ROR](https://ror.org/) and teachers by [ORCID](https://orcid.org) when available. Instead we have 100's of nodes in the graph about the same concepts (e.g. SIB Swiss Institute of Bioinformatics) but no shared identity. During the hackathon we worked on merging such nodes, and bringing this data cleaning effort back to the different teams.
 
 # MCP server
 
