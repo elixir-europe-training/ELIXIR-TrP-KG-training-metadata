@@ -134,6 +134,7 @@ def literal_to_datetime(value: Optional[Literal]) -> tuple[datetime | None, str 
 
 def _parse_datetime_string(raw: str) -> datetime | None:
     formats = [
+        "%Y-%m-%d %H:%M:%S %z",
         "%Y-%m-%d %H:%M:%S %Z",
         "%Y-%m-%d %H:%M:%S",
         "%Y-%m-%dT%H:%M:%S%z",
