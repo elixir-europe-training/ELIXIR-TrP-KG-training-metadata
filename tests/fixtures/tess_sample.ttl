@@ -34,3 +34,35 @@
             schema:name "ELIXIR"
         ]
     ] .
+
+<https://tess.example.org/courses/winter-metagenomics> a schema:Course ;
+    schema:name "Winter Metagenomics Workshop" ;
+    schema:hasCourseInstance [
+        a schema:CourseInstance ;
+        schema:startDate "2024-12-20"^^schema:Date ;
+        schema:endDate "2025-01-20"^^schema:Date ;
+        schema:location [
+            a schema:Place ;
+            schema:address [
+                a schema:PostalAddress ;
+                schema:addressCountry "Canada" ;
+                schema:addressLocality "Montreal"
+            ]
+        ]
+    ] .
+
+<https://tess.example.org/courses/spring-genomics> a schema:Course ;
+    schema:name "Spring Genomics Bootcamp" ;
+    schema:hasCourseInstance [
+        a schema:CourseInstance ;
+        schema:startDate "2025-03-10"^^schema:Date ;
+        schema:endDate "2025-03-15"^^schema:Date ;
+        schema:location [
+            a schema:Place ;
+            schema:address [
+                a schema:PostalAddress ;
+                schema:addressCountry "Canada" ;
+                schema:addressLocality "Vancouver"
+            ]
+        ]
+    ] .

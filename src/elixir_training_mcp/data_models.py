@@ -139,6 +139,7 @@ def _parse_datetime_string(raw: str) -> datetime | None:
         "%Y-%m-%d %H:%M:%S",
         "%Y-%m-%dT%H:%M:%S%z",
         "%Y-%m-%dT%H:%M:%S",
+        "%Y-%m-%d",
     ]
     for fmt in formats:
         try:
