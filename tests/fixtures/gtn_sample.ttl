@@ -1,0 +1,15 @@
+@prefix schema: <http://schema.org/> .
+
+<https://training.galaxyproject.org/training-material/topics/fair/tutorials/metadata-basics> a schema:LearningResource ;
+    schema:name "FAIR Metadata Basics" ;
+    schema:description "Introduction to FAIR metadata principles with Galaxy workflows." ;
+    schema:keywords "FAIR" ;
+    schema:keywords "metadata" ;
+    schema:learningResourceType "tutorial" ;
+    schema:educationalLevel "Beginner" ;
+    schema:provider [
+        a schema:Organization ;
+        schema:name "Galaxy Training Network"
+    ] ;
+    schema:inLanguage "English" ;
+    schema:url <https://training.galaxyproject.org/training-material/topics/fair/tutorials/metadata-basics.html> .
