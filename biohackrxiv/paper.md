@@ -80,8 +80,10 @@ In this project, we represented training metadata stored in TeSS as queryable kn
 
 # From bioschemas to knowledge graphs
 
-Bioschemas are RDF and so should be a knowledge graph already. However, while it is technically a graph, there is a lack of knowledge. 
-We see that many nodes in the graph as extracted from existing systems have no identity. For example Organizations could be identified by their [ROR](https://ror.org/) and teachers by [ORCID](https://orcid.org) when available. Instead we have 100's of nodes in the graph about the same concepts (e.g. SIB Swiss Institute of Bioinformatics) but no shared identity. During the hackathon we worked on merging such nodes, and bringing this data cleaning effort back to the different teams.
+Bioschemas are RDF and so should be a knowledge graph already. However, while it is technically a graph, there is a lack of knowledge to mine. 
+We see that many nodes in the graph as extracted from existing systems have no identitiers. For example Organizations could be identified by their [ROR](https://ror.org/) and teachers by [ORCID](https://orcid.org) when available. Instead we have 100's of nodes in the graph about the same concepts (e.g. SIB Swiss Institute of Bioinformatics) but no shared identity. During the hackathon we worked on merging such nodes, and bringing this data cleaning effort back to the different teams.
+
+Considering that the FAIR Principle F1 states that digital resources, i.e., data and metadata, must be assigned a globally unique and persistent identifier, and how important FAIR is we hope that this oversight is quickly remidied at the data providers.
 
 # MCP server
 
