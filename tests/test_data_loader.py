@@ -28,7 +28,9 @@ def _skip_if_loader_missing():
 def test_loader_parses_sample_resources(sample_sources: dict[str, Path]) -> None:
     module = _skip_if_loader_missing()
     store = module.load_training_data(sample_sources)
-
+    assert "loaded_at" in store.stats
+    assert store.stats["total_resources"] == 4
+    assert store.stats["per_source"]["tess"] == 3
     assert store.resource_count >= 2
     assert store.per_source_counts["tess"] == 3
     assert store.per_source_counts["gtn"] == 1

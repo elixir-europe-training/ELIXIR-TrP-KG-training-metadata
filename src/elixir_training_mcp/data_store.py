@@ -219,6 +219,7 @@ class TrainingDataStore:
     location_index: "LocationIndex"
     date_index: "DateIndex"
     topic_index: "TopicIndex"
+    stats: Mapping[str, Any]
 
     @property
     def resource_count(self) -> int:
@@ -248,6 +249,7 @@ def load_training_data(source_paths: Mapping[str, Path]) -> TrainingDataStore:
 
     timestamp = datetime.now(timezone.utc)
     keyword_index, provider_index, location_index, date_index, topic_index = _build_indexes(resource_map)
+    stats = _build_stats(resource_map, per_source_counts, timestamp)
 
     return TrainingDataStore(
         dataset=dataset,
@@ -260,6 +262,7 @@ def load_training_data(source_paths: Mapping[str, Path]) -> TrainingDataStore:
         location_index=location_index,
         date_index=date_index,
         topic_index=topic_index,
+        stats=MappingProxyType(stats),
     )
 
 
@@ -645,6 +648,39 @@ def _collect_keyword_tokens(resource: TrainingResource) -> set[str]:
         for token in _tokenize(text):
             tokens.add(token)
     return tokens
+
+
+def _build_stats(
+    resources: Mapping[str, TrainingResource],
+    per_source_counts: Mapping[str, int],
+    timestamp: datetime,
+) -> dict[str, Any]:
+    type_distribution: defaultdict[str, int] = defaultdict(int)
+    access_mode_distribution: defaultdict[str, int] = defaultdict(int)
+    audience_role_distribution: defaultdict[str, int] = defaultdict(int)
+    topic_example: dict[str, str] = {}
+
+    for uri, resource in resources.items():
+        for resource_type in resource.types:
+            type_distribution[resource_type] += 1
+        for access_mode in resource.access_modes:
+            access_mode_distribution[access_mode] += 1
+        for role in resource.audience_roles:
+            audience_role_distribution[role] += 1
+        if resource.topics:
+            topic_example.setdefault(next(iter(resource.topics)), uri)
+
+    stats: dict[str, Any] = {
+        "loaded_at": timestamp.isoformat(),
+        "total_resources": len(resources),
+        "per_source": dict(per_source_counts),
+        "type_distribution": dict(type_distribution),
+        "access_modes": dict(access_mode_distribution),
+        "audience_roles": dict(audience_role_distribution),
+        "sample_topic_examples": topic_example,
+    }
+
+    return stats
 
 
 def _tokenize(text: str | None) -> list[str]:
