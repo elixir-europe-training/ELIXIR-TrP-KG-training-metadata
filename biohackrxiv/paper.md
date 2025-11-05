@@ -80,12 +80,57 @@ In this project, we represented training metadata stored in TeSS as queryable kn
 
 # From bioschemas to knowledge graphs
 
-Bioschemas are RDF and so should be a knowledge graph already. However, while it is technically a graph, there is a lack of knowledge. 
-We see that many nodes in the graph as extracted from existing systems have no identity. For example Organizations could be identified by their [ROR](https://ror.org/) and teachers by [ORCID](https://orcid.org) when available. Instead we have 100's of nodes in the graph about the same concepts (e.g. SIB Swiss Institute of Bioinformatics) but no shared identity. During the hackathon we worked on merging such nodes, and bringing this data cleaning effort back to the different teams.
+In order to create a knowledge graph we extracted training metadata from two resources:
+- TeSS (https://tess.elixir-europe.org/): The ELIXIR Training e-Support System (TeSS) is a platform that aggregates training materials, courses, and events from various providers across Europe. TeSS uses the Bioschemas Training profile to annotate its resources with standardized metadata.
+- Galaxy training network (https://training.galaxyproject.org/): The Galaxy Training Network (GTN) provides a collection of training materials and tutorials for the Galaxy platform. The GTN also uses the Bioschemas Training profile to annotate its resources.
+
+Although the Galaxy training network metadata is already available in TeSS, we extracted it separately, as it contains identitifiers for trainers that are not available from TeSS at the moment. In this way, we could evaluate the impact of having trainer identifiers. 
+
+While going through this process, we acknowledged that there is large potential to improve the available metadata available from TeSS - but also other resources - by adding unique identifiers. For example, Organizations could be identified by their [ROR](https://ror.org/) and teachers by [ORCID](https://orcid.org) when available. During the hackathon we worked on merging such nodes, and bringing this data cleaning effort back to the different teams. Our suggestions for metadata providers can be found in [table 1](table-1).
+
+[Table 1]: table-1	"Proposed usage of @id in bioschemas entries for training"
+
+| Property                                           | Type of identifier                     | Example                                                      |
+| -------------------------------------------------- | -------------------------------------- | ------------------------------------------------------------ |
+| about, keywords                                    | Ontologies, like EDAM                  | "about": [<br/>            {<br/>                **"@id": "http://edamontology.org/topic_3474"**,<br/>                "@type": "DefinedTerm",<br/>                "inDefinedTermSet": "http://edamontology.org",<br/>                "termCode": "topic_3474",<br/>                "url": "http://edamontology.org/topic_3474",<br/>                "name": "Machine learning"<br/>            }<br/>        ] |
+| author, instructor, contributor, funder, organizer | ORCiD for person, ROR for organisation | "author": [<br />                    {<br/>                        "@type": "Person",<br/>                        **"@id": "https://orcid.org/0000-0002-1561-078X"**,<br/>                        "name": "Geert van Geest"<br/>                    },<br/>                    {<br/>                        "@type": "Organization",<br/>                        **"@id": "https://ror.org/002n09z45"**,<br/>                        "name": "SIB Swiss Institute of Bioinformatics"<br/>                    }<br/>                ] |
+| location                                           | OSM Relation, Way or Node              | "location": {<br/>                "@type": "Place",<br/>                **"@id": "https://www.openstreetmap.org/relation/1684625"**,<br/>                "address": {<br/>                    "@type": "PostalAddress",<br/>                    "addressLocality": "Bellinzona",<br/>                    "addressCountry": "Switzerland"<br/>                }<br/>            } |
+|                                                    |                                        |                                                              |
+
+
 
 # MCP server
 
-# Defining and evaluating user stories
+# Defining user stories and testing
+
+To work towards a valuable end-user experiences, we created a list of user stories. These are potential user experiences that are written in the following format:
+
+- As a [user persona]
+- I want to [do task]
+- …so that [outcome/benefit]
+
+Examples of the defined user stories are:
+
+- As a trainer of visualisation techniques
+
+-  want to find other trainers in Germany and France
+
+- …so that I can collaborate on developing new training events for our national audiences
+
+Or: 
+
+- As a bioinformatics scientist
+- want to define a learning path of training materials and/or events
+- …so that I can become a specialist in artificial intelligence within a specified amount of time and resources (e.g. I have 6 months, workload of 14 days, I can travel within Europe once)
+
+ These user stories range from rather 'simple' to advanced queries. We used these user stories to manually test the tool. For testing, we developed a dedicated protocol with the following steps:
+
+1. Send the query by providing the user story in the chat interface
+2. Evaluate the output by:
+   1. Noting down whether the MCP server gave a response and how many queries it needed
+   2. Check whether the response is correct by evaluating URLs, possibly through an additional question, e.g. 'give me the URLs to these courses'
+3. Create a score from 0 to 5 for satisfying the user story
+4. Define where improvements can be made to increase satisfaction  
 
 # Discussion
 
