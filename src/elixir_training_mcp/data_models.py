@@ -53,7 +53,17 @@ class TrainingResource:
     educational_levels: frozenset[str] = field(default_factory=frozenset)
     language: str | None = None
     interactivity_type: str | None = None
+    access_modes: frozenset[str] = field(default_factory=frozenset)
+    access_mode_sufficient: frozenset[str] = field(default_factory=frozenset)
+    accessibility_controls: frozenset[str] = field(default_factory=frozenset)
+    accessibility_features: frozenset[str] = field(default_factory=frozenset)
+    accessibility_summary: str | None = None
+    audience_roles: frozenset[str] = field(default_factory=frozenset)
     license_url: str | None = None
+    is_accessible_for_free: bool | None = None
+    is_family_friendly: bool | None = None
+    creative_work_status: str | None = None
+    version: str | None = None
     date_published: datetime | None = None
     date_published_raw: str | None = None
     date_modified: datetime | None = None

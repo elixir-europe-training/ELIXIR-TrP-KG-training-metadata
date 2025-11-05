@@ -311,6 +311,11 @@ def _resource_quality(resource: TrainingResource) -> int:
         "language",
         "interactivity_type",
         "license_url",
+        "accessibility_summary",
+        "is_accessible_for_free",
+        "is_family_friendly",
+        "creative_work_status",
+        "version",
         "date_published",
         "date_modified",
     ]
@@ -324,6 +329,11 @@ def _resource_quality(resource: TrainingResource) -> int:
         "teaches",
         "learning_resource_types",
         "educational_levels",
+        "access_modes",
+        "access_mode_sufficient",
+        "accessibility_controls",
+        "accessibility_features",
+        "audience_roles",
         "course_instances",
     ]
 
@@ -360,7 +370,17 @@ def _build_training_resource(graph: Graph, subject: Node, source_key: str, resou
     educational_levels = _collect_literal_strings(graph, subject, *_schema_predicates("educationalLevel"))
     language = _extract_language_label(graph, subject)
     interactivity_type = literal_to_str(_first_literal(graph, subject, *_schema_predicates("interactivityType")))
+    access_modes = _collect_literal_strings(graph, subject, *_schema_predicates("accessMode"))
+    access_mode_sufficient = _collect_literal_strings(graph, subject, *_schema_predicates("accessModeSufficient"))
+    accessibility_controls = _collect_literal_strings(graph, subject, *_schema_predicates("accessibilityControl"))
+    accessibility_features = _collect_literal_strings(graph, subject, *_schema_predicates("accessibilityFeature"))
+    accessibility_summary = literal_to_str(_first_literal(graph, subject, *_schema_predicates("accessibilitySummary")))
+    audience_roles = _collect_audience_roles(graph, subject)
     license_url = _first_value_as_str(graph, subject, *_schema_predicates("license"))
+    is_accessible_for_free = _literal_to_bool(_first_literal(graph, subject, *_schema_predicates("isAccessibleForFree")))
+    is_family_friendly = _literal_to_bool(_first_literal(graph, subject, *_schema_predicates("isFamilyFriendly")))
+    creative_work_status = literal_to_str(_first_literal(graph, subject, *_schema_predicates("creativeWorkStatus")))
+    version = literal_to_str(_first_literal(graph, subject, *_schema_predicates("version")))
 
     published_dt, published_raw = literal_to_datetime(
         _first_literal(graph, subject, *_schema_predicates("datePublished"))
@@ -392,7 +412,17 @@ def _build_training_resource(graph: Graph, subject: Node, source_key: str, resou
         educational_levels=educational_levels,
         language=language,
         interactivity_type=interactivity_type,
+        access_modes=access_modes,
+        access_mode_sufficient=access_mode_sufficient,
+        accessibility_controls=accessibility_controls,
+        accessibility_features=accessibility_features,
+        accessibility_summary=accessibility_summary,
+        audience_roles=audience_roles,
         license_url=license_url,
+        is_accessible_for_free=is_accessible_for_free,
+        is_family_friendly=is_family_friendly,
+        creative_work_status=creative_work_status,
+        version=version,
         date_published=published_dt,
         date_published_raw=published_raw,
         date_modified=modified_dt,
@@ -708,3 +738,39 @@ def _topic_strings_from_node(graph: Graph, node: Node) -> Iterable[str]:
                 values.append(string_value)
         return values or [str(node)]
     return []
+
+
+def _collect_audience_roles(graph: Graph, subject: Node) -> frozenset[str]:
+    roles: set[str] = set()
+    for audience_node in _schema_objects(graph, subject, "audience"):
+        if isinstance(audience_node, Literal):
+            value = literal_to_str(audience_node)
+            if value:
+                roles.add(value)
+            continue
+        if isinstance(audience_node, URIRef):
+            roles.add(str(audience_node))
+            continue
+        if isinstance(audience_node, BNode):
+            for role_literal in _schema_objects(graph, audience_node, "educationalRole"):
+                value = _node_to_str(role_literal)
+                if value:
+                    roles.add(value)
+            name = literal_to_str(_first_literal(graph, audience_node, *_schema_predicates("name")))
+            if name:
+                roles.add(name)
+    return frozenset(roles)
+
+
+def _literal_to_bool(value: Literal | None) -> bool | None:
+    if value is None:
+        return None
+    text = literal_to_str(value)
+    if text is None:
+        return None
+    lowered = text.strip().lower()
+    if lowered in {"true", "1", "yes"}:
+        return True
+    if lowered in {"false", "0", "no"}:
+        return False
+    return None

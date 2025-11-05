@@ -67,11 +67,21 @@ def test_loader_parses_sample_resources(sample_sources: dict[str, Path]) -> None
     assert "https://training.galaxyproject.org/training-material/hall-of-fame/example-author/" in gtn_resource.authors
     assert "Example Author" in gtn_resource.authors
     assert "https://orcid.org/0000-0002-0000-0000" in gtn_resource.contributors
+    assert gtn_resource.access_modes == frozenset({"textual", "visual"})
+    assert gtn_resource.access_mode_sufficient == frozenset({"textual"})
+    assert "fullKeyboardControl" in gtn_resource.accessibility_controls
+    assert "alternativeText" in gtn_resource.accessibility_features
+    assert "Data Steward" in gtn_resource.audience_roles
+    assert gtn_resource.accessibility_summary is not None
     assert gtn_resource.license_url == "https://spdx.org/licenses/CC-BY-4.0.html"
     assert gtn_resource.date_published is not None
     assert gtn_resource.date_published_raw == "2023-04-17 15:35:37 +0000"
     assert gtn_resource.interactivity_type == "mixed"
     assert gtn_resource.language == "en"
+    assert gtn_resource.is_accessible_for_free is True
+    assert gtn_resource.is_family_friendly is True
+    assert gtn_resource.creative_work_status == "Active"
+    assert gtn_resource.version == "18"
     assert "FAIR data management" in gtn_resource.topics
     assert "https://example.org/topics/fair-data-management" in gtn_resource.topics
 

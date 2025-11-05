@@ -2,6 +2,11 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 
 <https://training.galaxyproject.org/training-material/topics/fair/tutorials/metadata-basics> a schema:LearningResource ;
+    schema:accessMode "textual", "visual" ;
+    schema:accessModeSufficient "textual" ;
+    schema:accessibilityControl "fullKeyboardControl", "fullMouseControl" ;
+    schema:accessibilityFeature "alternativeText", "tableOfContents" ;
+    schema:accessibilitySummary "The tutorial includes descriptive text for images and structured navigation." ;
     schema:name "FAIR Metadata Basics" ;
     schema:description "Introduction to FAIR metadata principles with Galaxy workflows." ;
     schema:abstract "Detailed walkthrough of FAIR metadata practices integrated with Galaxy." ;
@@ -43,6 +48,10 @@
         schema:name "English"
     ] ;
     schema:interactivityType "mixed" ;
+    schema:isAccessibleForFree true ;
+    schema:isFamilyFriendly true ;
+    schema:creativeWorkStatus "Active" ;
+    schema:version "18" ;
     schema:url <https://training.galaxyproject.org/training-material/topics/fair/tutorials/metadata-basics.html> .
 
 [] a schema:LearningResource ;
