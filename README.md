@@ -34,6 +34,23 @@ Use with Deploy as Streamable HTTP server:
 uv run elixir-training-mcp --http
 ```
 
+### 🧰 Available MCP tools
+
+Once the server is running you can call the following tools from your MCP-compatible client:
+
+| Tool | Description |
+| ---- | ----------- |
+| `search_training_materials` | Proxies the live TeSS API and returns raw JSON results. |
+| `local_keyword_search` | Searches the harvested TTL datasets (TeSS + GTN) by free-text keyword and returns enriched metadata. |
+| `local_provider_search` | Filters harvested resources by provider name (case-insensitive). |
+| `local_location_search` | Returns TeSS course instances in a given country (optionally city). |
+| `local_date_search` | Finds TeSS course instances starting within a provided ISO date range. |
+| `local_topic_search` | Matches harvested resources by EDAM identifier or topic label. |
+| `local_dataset_stats` | Summarises dataset diagnostics (resource counts, type distribution, access modes). |
+
+> [!NOTE]
+> The local tools read from `data/tess_harvest.ttl` and `data/gtn_harvest.ttl`. Regenerate these files with the harvest scripts if you need fresher data.
+
 ### 🔌 Connect client to MCP server
 
 Follow the instructions of your favorite chat client.
@@ -44,7 +61,7 @@ To add a new MCP server to [**VSCode GitHub Copilot**](https://code.visualstudio
 - Open the Command Palette (`ctrl+shift+p` or `cmd+shift+p`)
 - Search for `MCP: Add Server...`
   - Choose `STDIO`, and provide the command: `uvx elixir-training-mcp`
-  - Or cChoose `HTTP`, and provide the MCP server URL, e.g. http://localhost:8000/mcp
+  - Or choose `HTTP`, and provide the MCP server URL, e.g. http://localhost:8000/mcp
 
 To use it with STDIO transport, your VSCode `mcp.json` should look like:
 
