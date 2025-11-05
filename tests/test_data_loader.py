@@ -33,9 +33,8 @@ def test_loader_parses_sample_resources(sample_sources: dict[str, Path]) -> None
     assert store.per_source_counts["tess"] == 3
     assert store.per_source_counts["gtn"] == 1
 
-    tess_resource = store.resources_by_uri[
-        "https://tess.example.org/courses/python-fair-data"
-    ]
+    tess_material_uri = "https://tess.example.org/materials/python-fair-data"
+    tess_resource = store.resources_by_uri[tess_material_uri]
     assert tess_resource.source == "tess"
     assert tess_resource.provider is not None
     assert tess_resource.provider.name == "Bioinformatics.ca"
@@ -56,9 +55,10 @@ def test_loader_parses_sample_resources(sample_sources: dict[str, Path]) -> None
     later_instance = later_resource.course_instances[0]
     assert later_instance.start_date is not None
 
-    gtn_resource = store.resources_by_uri[
-        "https://training.galaxyproject.org/training-material/topics/fair/tutorials/metadata-basics"
-    ]
+    gtn_canonical_uri = (
+        "https://training.galaxyproject.org/training-material/topics/fair/tutorials/metadata-basics.html"
+    )
+    gtn_resource = store.resources_by_uri[gtn_canonical_uri]
     assert gtn_resource.source == "gtn"
     assert "tutorial" in gtn_resource.learning_resource_types
     assert "FAIR" in gtn_resource.keywords
@@ -83,13 +83,12 @@ def test_keyword_index_returns_expected_resources(sample_sources: dict[str, Path
     module = _skip_if_loader_missing()
     store = module.load_training_data(sample_sources)
     result_ids = store.keyword_index.lookup("FAIR metadata")
-    assert (
-        "https://tess.example.org/courses/python-fair-data" in result_ids
-    ), "Expected FAIR course from TeSS in keyword index."
-    assert (
-        "https://training.galaxyproject.org/training-material/topics/fair/tutorials/metadata-basics"
-        in result_ids
-    ), "Expected FAIR tutorial from GTN in keyword index."
+    tess_material_uri = "https://tess.example.org/materials/python-fair-data"
+    gtn_canonical_uri = (
+        "https://training.galaxyproject.org/training-material/topics/fair/tutorials/metadata-basics.html"
+    )
+    assert tess_material_uri in result_ids, "Expected FAIR course from TeSS in keyword index."
+    assert gtn_canonical_uri in result_ids, "Expected FAIR tutorial from GTN in keyword index."
     limited = store.keyword_index.lookup("FAIR metadata", limit=1)
     assert len(limited) == 1
 
@@ -98,29 +97,30 @@ def test_provider_location_topic_and_date_indexes(sample_sources: dict[str, Path
     module = _skip_if_loader_missing()
     store = module.load_training_data(sample_sources)
 
-    provider_expected = ["https://tess.example.org/courses/python-fair-data"]
+    tess_material_uri = "https://tess.example.org/materials/python-fair-data"
+    provider_expected = [tess_material_uri]
     assert store.provider_index.lookup("Bioinformatics.ca") == provider_expected
     assert store.provider_index.lookup("bioinformatics.ca") == provider_expected
     assert store.provider_index.lookup("BIOINFORMATICS.CA") == provider_expected
 
     location_results = store.location_index.lookup("Canada", "Toronto")
-    assert "https://tess.example.org/courses/python-fair-data" in location_results
+    assert tess_material_uri in location_results
     montreal_results = store.location_index.lookup("canada", "montreal")
     assert "https://tess.example.org/courses/winter-metagenomics" in montreal_results
     country_results = store.location_index.lookup("Canada")
     assert set(country_results) == {
-        "https://tess.example.org/courses/python-fair-data",
+        tess_material_uri,
         "https://tess.example.org/courses/winter-metagenomics",
         "https://tess.example.org/courses/spring-genomics",
     }
 
     topic_results = store.topic_index.lookup("topic_3391")
-    assert topic_results == ["https://tess.example.org/courses/python-fair-data"]
+    assert topic_results == [tess_material_uri]
 
     date_results = store.date_index.lookup(date(2025, 1, 1), date(2025, 1, 31))
     assert date_results == [
         "https://tess.example.org/courses/winter-metagenomics",
-        "https://tess.example.org/courses/python-fair-data",
+        tess_material_uri,
     ]
     overlap_results = store.date_index.lookup(date(2025, 1, 15), date(2025, 1, 16))
     assert overlap_results == ["https://tess.example.org/courses/winter-metagenomics"]

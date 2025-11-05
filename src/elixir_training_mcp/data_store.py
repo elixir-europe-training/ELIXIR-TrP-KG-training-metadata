@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import date, datetime, timezone
 from pathlib import Path
 from types import MappingProxyType
-from typing import Mapping
+from typing import Iterable, Mapping
 
 from rdflib import Dataset, Graph, Namespace
 from rdflib.namespace import RDF
@@ -24,13 +24,15 @@ from .data_models import (
     literals_to_strings,
 )
 
-SCHEMA = Namespace("http://schema.org/")
+SCHEMA_HTTP = Namespace("http://schema.org/")
+SCHEMA_HTTPS = Namespace("https://schema.org/")
+SCHEMA_NAMESPACES: tuple[Namespace, ...] = (SCHEMA_HTTP, SCHEMA_HTTPS)
 DCT = Namespace("http://purl.org/dc/terms/")
 
-RESOURCE_TYPES = (
-    SCHEMA.Course,
-    SCHEMA.LearningResource,
-    SCHEMA.Event,
+RESOURCE_TYPES = tuple(
+    namespace[name]
+    for namespace in SCHEMA_NAMESPACES
+    for name in ("Course", "LearningResource", "Event")
 )
 
 TOKEN_PATTERN = re.compile(r"[A-Za-z0-9]+")
@@ -263,48 +265,114 @@ def load_training_data(source_paths: Mapping[str, Path]) -> TrainingDataStore:
 
 def _extract_resources_from_graph(graph: Graph, source_key: str) -> dict[str, TrainingResource]:
     resources: dict[str, TrainingResource] = {}
-    candidate_subjects: set[URIRef] = set()
+    seen_subjects: set[Node] = set()
 
     for rdf_type in RESOURCE_TYPES:
         for subject in graph.subjects(RDF.type, rdf_type):
-            if isinstance(subject, URIRef):
-                candidate_subjects.add(subject)
+            if subject in seen_subjects:
+                continue
+            seen_subjects.add(subject)
 
-    for subject in candidate_subjects:
-        resource = _build_training_resource(graph, subject, source_key)
-        resources[resource.uri] = resource
+            resource_id = _resolve_resource_identifier(graph, subject)
+            if resource_id is None:
+                continue
+
+            resource = _build_training_resource(graph, subject, source_key, resource_id)
+            existing = resources.get(resource.uri)
+            if existing is None or _is_richer_resource(resource, existing):
+                resources[resource.uri] = resource
 
     return resources
 
 
-def _build_training_resource(graph: Graph, subject: URIRef, source_key: str) -> TrainingResource:
+def _resolve_resource_identifier(graph: Graph, subject: Node) -> str | None:
+    url = _first_value_as_str(graph, subject, *_schema_predicates("url"))
+    if url:
+        return url
+    if isinstance(subject, URIRef):
+        return str(subject)
+    if isinstance(subject, BNode):
+        return str(subject)
+    return None
+
+
+def _is_richer_resource(candidate: TrainingResource, current: TrainingResource) -> bool:
+    return _resource_quality(candidate) > _resource_quality(current)
+
+
+def _resource_quality(resource: TrainingResource) -> int:
+    scalar_fields = [
+        "name",
+        "description",
+        "abstract",
+        "headline",
+        "url",
+        "provider",
+        "language",
+        "interactivity_type",
+        "license_url",
+        "date_published",
+        "date_modified",
+    ]
+    collection_fields = [
+        "keywords",
+        "topics",
+        "identifiers",
+        "authors",
+        "contributors",
+        "prerequisites",
+        "teaches",
+        "learning_resource_types",
+        "educational_levels",
+        "course_instances",
+    ]
+
+    score = 0
+    for field in scalar_fields:
+        value = getattr(resource, field)
+        if value:
+            score += 1
+
+    for field in collection_fields:
+        value = getattr(resource, field)
+        if value and len(value) > 0:
+            score += 1
+
+    return score
+
+
+def _build_training_resource(graph: Graph, subject: Node, source_key: str, resource_uri: str) -> TrainingResource:
     types = frozenset(str(obj) for obj in graph.objects(subject, RDF.type))
-    name = literal_to_str(_first_literal(graph, subject, SCHEMA.name))
-    description = literal_to_str(_first_literal(graph, subject, SCHEMA.description))
-    abstract = literal_to_str(_first_literal(graph, subject, SCHEMA.abstract))
-    headline = literal_to_str(_first_literal(graph, subject, SCHEMA.headline))
-    url = _first_value_as_str(graph, subject, SCHEMA.url)
-    provider = _extract_primary_organization(graph, subject, SCHEMA.provider)
+    name = literal_to_str(_first_literal(graph, subject, *_schema_predicates("name")))
+    description = literal_to_str(_first_literal(graph, subject, *_schema_predicates("description")))
+    abstract = literal_to_str(_first_literal(graph, subject, *_schema_predicates("abstract")))
+    headline = literal_to_str(_first_literal(graph, subject, *_schema_predicates("headline")))
+    url = _first_value_as_str(graph, subject, *_schema_predicates("url"))
+    provider = _extract_primary_organization(graph, subject, *_schema_predicates("provider"))
     keywords = _collect_keywords(graph, subject)
     topics = _collect_topics(graph, subject)
     identifiers = _collect_identifiers(graph, subject)
-    authors = _collect_node_strs(graph, subject, SCHEMA.author)
-    contributors = _collect_node_strs(graph, subject, SCHEMA.contributor)
-    prerequisites = literals_to_strings(graph.objects(subject, SCHEMA.coursePrerequisites))
-    teaches = literals_to_strings(graph.objects(subject, SCHEMA.teaches))
-    learning_resource_types = _collect_literal_strings(graph, subject, SCHEMA.learningResourceType)
-    educational_levels = _collect_literal_strings(graph, subject, SCHEMA.educationalLevel)
-    language = literal_to_str(_first_literal(graph, subject, SCHEMA.inLanguage))
-    interactivity_type = literal_to_str(_first_literal(graph, subject, SCHEMA.interactivityType))
-    license_url = _first_value_as_str(graph, subject, SCHEMA.license)
+    authors = _collect_node_strs(graph, subject, *_schema_predicates("author"))
+    contributors = _collect_node_strs(graph, subject, *_schema_predicates("contributor"))
+    prerequisites = literals_to_strings(_schema_objects(graph, subject, "coursePrerequisites"))
+    teaches = literals_to_strings(_schema_objects(graph, subject, "teaches"))
+    learning_resource_types = _collect_literal_strings(graph, subject, *_schema_predicates("learningResourceType"))
+    educational_levels = _collect_literal_strings(graph, subject, *_schema_predicates("educationalLevel"))
+    language = literal_to_str(_first_literal(graph, subject, *_schema_predicates("inLanguage")))
+    interactivity_type = literal_to_str(_first_literal(graph, subject, *_schema_predicates("interactivityType")))
+    license_url = _first_value_as_str(graph, subject, *_schema_predicates("license"))
 
-    published_dt, published_raw = literal_to_datetime(_first_literal(graph, subject, SCHEMA.datePublished))
-    modified_dt, modified_raw = literal_to_datetime(_first_literal(graph, subject, SCHEMA.dateModified))
+    published_dt, published_raw = literal_to_datetime(
+        _first_literal(graph, subject, *_schema_predicates("datePublished"))
+    )
+    modified_dt, modified_raw = literal_to_datetime(
+        _first_literal(graph, subject, *_schema_predicates("dateModified"))
+    )
 
     course_instances = _collect_course_instances(graph, subject)
 
     return TrainingResource(
-        uri=str(subject),
+        uri=resource_uri,
         source=source_key,
         types=types,
         name=name,
@@ -335,7 +403,7 @@ def _build_training_resource(graph: Graph, subject: URIRef, source_key: str) -> 
 
 def _collect_course_instances(graph: Graph, subject: URIRef) -> tuple[CourseInstance, ...]:
     instances: list[CourseInstance] = []
-    for instance_node in graph.objects(subject, SCHEMA.hasCourseInstance):
+    for instance_node in _schema_objects(graph, subject, "hasCourseInstance"):
         instance = _parse_course_instance(graph, instance_node)
         if instance:
             instances.append(instance)
@@ -343,27 +411,27 @@ def _collect_course_instances(graph: Graph, subject: URIRef) -> tuple[CourseInst
 
 
 def _parse_course_instance(graph: Graph, node: Node) -> CourseInstance | None:
-    start_dt, start_raw = literal_to_datetime(_first_literal(graph, node, SCHEMA.startDate))
-    end_dt, end_raw = literal_to_datetime(_first_literal(graph, node, SCHEMA.endDate))
-    mode = literal_to_str(_first_literal(graph, node, SCHEMA.courseMode))
-    capacity = literal_to_int(_first_literal(graph, node, SCHEMA.maximumAttendeeCapacity))
+    start_dt, start_raw = literal_to_datetime(_first_literal(graph, node, *_schema_predicates("startDate")))
+    end_dt, end_raw = literal_to_datetime(_first_literal(graph, node, *_schema_predicates("endDate")))
+    mode = literal_to_str(_first_literal(graph, node, *_schema_predicates("courseMode")))
+    capacity = literal_to_int(_first_literal(graph, node, *_schema_predicates("maximumAttendeeCapacity")))
 
     country = locality = postal_code = street_address = None
     latitude = longitude = None
 
-    location_node = _first_node(graph, node, SCHEMA.location)
+    location_node = _first_node(graph, node, *_schema_predicates("location"))
     if location_node is not None:
-        latitude = literal_to_float(_first_literal(graph, location_node, SCHEMA.latitude))
-        longitude = literal_to_float(_first_literal(graph, location_node, SCHEMA.longitude))
-        address_node = _first_node(graph, location_node, SCHEMA.address)
+        latitude = literal_to_float(_first_literal(graph, location_node, *_schema_predicates("latitude")))
+        longitude = literal_to_float(_first_literal(graph, location_node, *_schema_predicates("longitude")))
+        address_node = _first_node(graph, location_node, *_schema_predicates("address"))
         if address_node is not None:
-            country = literal_to_str(_first_literal(graph, address_node, SCHEMA.addressCountry))
-            locality = literal_to_str(_first_literal(graph, address_node, SCHEMA.addressLocality))
-            postal_code = literal_to_str(_first_literal(graph, address_node, SCHEMA.postalCode))
-            street_address = literal_to_str(_first_literal(graph, address_node, SCHEMA.streetAddress))
+            country = literal_to_str(_first_literal(graph, address_node, *_schema_predicates("addressCountry")))
+            locality = literal_to_str(_first_literal(graph, address_node, *_schema_predicates("addressLocality")))
+            postal_code = literal_to_str(_first_literal(graph, address_node, *_schema_predicates("postalCode")))
+            street_address = literal_to_str(_first_literal(graph, address_node, *_schema_predicates("streetAddress")))
 
-    funders = _collect_organizations(graph, node, SCHEMA.funder)
-    organizers = _collect_organizations(graph, node, SCHEMA.organizer)
+    funders = _collect_organizations(graph, node, *_schema_predicates("funder"))
+    organizers = _collect_organizations(graph, node, *_schema_predicates("organizer"))
 
     if not any([start_dt, start_raw, end_dt, end_raw, mode, capacity, country, locality]):
         return None
@@ -388,7 +456,7 @@ def _parse_course_instance(graph: Graph, node: Node) -> CourseInstance | None:
 
 def _collect_keywords(graph: Graph, subject: URIRef) -> frozenset[str]:
     keywords: set[str] = set()
-    for value in graph.objects(subject, SCHEMA.keywords):
+    for value in _schema_objects(graph, subject, "keywords"):
         text = _node_to_str(value)
         if not text:
             continue
@@ -399,7 +467,7 @@ def _collect_keywords(graph: Graph, subject: URIRef) -> frozenset[str]:
 
 def _collect_topics(graph: Graph, subject: URIRef) -> frozenset[str]:
     topics: set[str] = set()
-    for value in graph.objects(subject, SCHEMA.about):
+    for value in _schema_objects(graph, subject, "about"):
         string_value = _node_to_str(value)
         if string_value:
             topics.add(string_value)
@@ -412,52 +480,61 @@ def _collect_topics(graph: Graph, subject: URIRef) -> frozenset[str]:
 
 def _collect_identifiers(graph: Graph, subject: URIRef) -> frozenset[str]:
     identifiers: set[str] = set()
-    for value in graph.objects(subject, SCHEMA.identifier):
+    for value in _schema_objects(graph, subject, "identifier"):
         string_value = _node_to_str(value)
         if string_value:
             identifiers.add(string_value)
     return frozenset(identifiers)
 
 
-def _collect_literal_strings(graph: Graph, subject: URIRef, predicate: URIRef) -> frozenset[str]:
+def _collect_literal_strings(graph: Graph, subject: URIRef, *predicates: URIRef) -> frozenset[str]:
     values: set[str] = set()
-    for literal in graph.objects(subject, predicate):
-        string_value = literal_to_str(literal) if isinstance(literal, Literal) else _node_to_str(literal)
-        if string_value:
-            values.add(string_value)
+    for predicate in predicates:
+        for literal in graph.objects(subject, predicate):
+            string_value = literal_to_str(literal) if isinstance(literal, Literal) else _node_to_str(literal)
+            if string_value:
+                values.add(string_value)
     return frozenset(values)
 
 
-def _collect_node_strs(graph: Graph, subject: URIRef, predicate: URIRef) -> tuple[str, ...]:
+def _collect_node_strs(graph: Graph, subject: URIRef, *predicates: URIRef) -> tuple[str, ...]:
     values: list[str] = []
-    for node in graph.objects(subject, predicate):
-        string_value = _node_to_str(node)
-        if string_value:
-            values.append(string_value)
+    for predicate in predicates:
+        for node in graph.objects(subject, predicate):
+            string_value = _node_to_str(node)
+            if string_value:
+                values.append(string_value)
     return tuple(values)
 
 
-def _collect_organizations(graph: Graph, subject: Node, predicate: URIRef) -> tuple[Organization, ...]:
+def _collect_organizations(graph: Graph, subject: Node, *predicates: URIRef) -> tuple[Organization, ...]:
     organizations: list[Organization] = []
-    for node in graph.objects(subject, predicate):
-        organization = _parse_organization(graph, node)
-        if organization is not None:
-            organizations.append(organization)
+    for predicate in predicates:
+        for node in graph.objects(subject, predicate):
+            organization = _parse_organization(graph, node)
+            if organization is not None:
+                organizations.append(organization)
     return tuple(organizations)
 
 
-def _extract_primary_organization(graph: Graph, subject: URIRef, predicate: URIRef) -> Organization | None:
-    for node in graph.objects(subject, predicate):
-        organization = _parse_organization(graph, node)
-        if organization is not None:
-            return organization
+def _extract_primary_organization(graph: Graph, subject: URIRef, *predicates: URIRef) -> Organization | None:
+    for predicate in predicates:
+        for node in graph.objects(subject, predicate):
+            organization = _parse_organization(graph, node)
+            if organization is not None:
+                return organization
     return None
 
 
 def _parse_organization(graph: Graph, node: Node) -> Organization | None:
-    name_literal = _first_literal(graph, node, SCHEMA.name) or _first_literal(graph, node, SCHEMA.legalName)
+    name_literal = _first_literal(
+        graph,
+        node,
+        *_schema_predicates("name"),
+        *_schema_predicates("legalName"),
+    )
     name = literal_to_str(name_literal)
-    url = _first_value_as_str(graph, node, SCHEMA.url)
+    url = _first_value_as_str(graph, node, *_schema_predicates("url"))
 
     if not name and isinstance(node, URIRef):
         name = str(node)
@@ -470,22 +547,25 @@ def _parse_organization(graph: Graph, node: Node) -> Organization | None:
     return Organization(name=name, url=url)
 
 
-def _first_literal(graph: Graph, subject: Node, predicate: URIRef) -> Literal | None:
-    for obj in graph.objects(subject, predicate):
-        if isinstance(obj, Literal):
+def _first_literal(graph: Graph, subject: Node, *predicates: URIRef) -> Literal | None:
+    for predicate in predicates:
+        for obj in graph.objects(subject, predicate):
+            if isinstance(obj, Literal):
+                return obj
+    return None
+
+
+def _first_node(graph: Graph, subject: Node, *predicates: URIRef) -> Node | None:
+    for predicate in predicates:
+        for obj in graph.objects(subject, predicate):
             return obj
     return None
 
 
-def _first_node(graph: Graph, subject: Node, predicate: URIRef) -> Node | None:
-    for obj in graph.objects(subject, predicate):
-        return obj
-    return None
-
-
-def _first_value_as_str(graph: Graph, subject: Node, predicate: URIRef) -> str | None:
-    for obj in graph.objects(subject, predicate):
-        return _node_to_str(obj)
+def _first_value_as_str(graph: Graph, subject: Node, *predicates: URIRef) -> str | None:
+    for predicate in predicates:
+        for obj in graph.objects(subject, predicate):
+            return _node_to_str(obj)
     return None
 
 
@@ -495,6 +575,19 @@ def _node_to_str(node: Node) -> str | None:
     if isinstance(node, (URIRef, BNode)):
         return str(node)
     return None
+
+
+def _schema_predicates(*local_names: str) -> tuple[URIRef, ...]:
+    predicates: list[URIRef] = []
+    for name in local_names:
+        for namespace in SCHEMA_NAMESPACES:
+            predicates.append(namespace[name])
+    return tuple(predicates)
+
+
+def _schema_objects(graph: Graph, subject: Node, local_name: str) -> Iterable[Node]:
+    for predicate in _schema_predicates(local_name):
+        yield from graph.objects(subject, predicate)
 
 
 def _build_indexes(

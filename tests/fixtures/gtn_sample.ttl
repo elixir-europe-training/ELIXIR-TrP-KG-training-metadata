@@ -21,3 +21,7 @@
     schema:inLanguage "English" ;
     schema:interactivityType "mixed" ;
     schema:url <https://training.galaxyproject.org/training-material/topics/fair/tutorials/metadata-basics.html> .
+
+[] a schema:LearningResource ;
+    schema:url <https://training.galaxyproject.org/training-material/topics/fair/tutorials/metadata-basics.html> ;
+    schema:learningResourceType "tutorial" .
