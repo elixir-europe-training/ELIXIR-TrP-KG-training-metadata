@@ -352,13 +352,13 @@ def _build_training_resource(graph: Graph, subject: Node, source_key: str, resou
     keywords = _collect_keywords(graph, subject)
     topics = _collect_topics(graph, subject)
     identifiers = _collect_identifiers(graph, subject)
-    authors = _collect_node_strs(graph, subject, *_schema_predicates("author"))
-    contributors = _collect_node_strs(graph, subject, *_schema_predicates("contributor"))
+    authors = _collect_person_identifiers(graph, subject, *_schema_predicates("author"))
+    contributors = _collect_person_identifiers(graph, subject, *_schema_predicates("contributor"))
     prerequisites = literals_to_strings(_schema_objects(graph, subject, "coursePrerequisites"))
     teaches = literals_to_strings(_schema_objects(graph, subject, "teaches"))
     learning_resource_types = _collect_literal_strings(graph, subject, *_schema_predicates("learningResourceType"))
     educational_levels = _collect_literal_strings(graph, subject, *_schema_predicates("educationalLevel"))
-    language = literal_to_str(_first_literal(graph, subject, *_schema_predicates("inLanguage")))
+    language = _extract_language_label(graph, subject)
     interactivity_type = literal_to_str(_first_literal(graph, subject, *_schema_predicates("interactivityType")))
     license_url = _first_value_as_str(graph, subject, *_schema_predicates("license"))
 
@@ -468,9 +468,9 @@ def _collect_keywords(graph: Graph, subject: URIRef) -> frozenset[str]:
 def _collect_topics(graph: Graph, subject: URIRef) -> frozenset[str]:
     topics: set[str] = set()
     for value in _schema_objects(graph, subject, "about"):
-        string_value = _node_to_str(value)
-        if string_value:
-            topics.add(string_value)
+        for string_value in _topic_strings_from_node(graph, value):
+            if string_value:
+                topics.add(string_value)
     for value in graph.objects(subject, DCT.subject):
         string_value = _node_to_str(value)
         if string_value:
@@ -495,16 +495,6 @@ def _collect_literal_strings(graph: Graph, subject: URIRef, *predicates: URIRef)
             if string_value:
                 values.add(string_value)
     return frozenset(values)
-
-
-def _collect_node_strs(graph: Graph, subject: URIRef, *predicates: URIRef) -> tuple[str, ...]:
-    values: list[str] = []
-    for predicate in predicates:
-        for node in graph.objects(subject, predicate):
-            string_value = _node_to_str(node)
-            if string_value:
-                values.append(string_value)
-    return tuple(values)
 
 
 def _collect_organizations(graph: Graph, subject: Node, *predicates: URIRef) -> tuple[Organization, ...]:
@@ -648,3 +638,73 @@ def _normalize_datetime_input(value: datetime | date | None) -> datetime | None:
         return value.astimezone(timezone.utc)
     combined = datetime.combine(value, datetime.min.time()).replace(tzinfo=timezone.utc)
     return combined
+
+
+def _collect_person_identifiers(graph: Graph, subject: Node, *predicates: URIRef) -> tuple[str, ...]:
+    results: list[str] = []
+    seen: set[str] = set()
+    for predicate in predicates:
+        for node in graph.objects(subject, predicate):
+            for identifier in _extract_person_identifiers(graph, node):
+                if identifier and identifier not in seen:
+                    seen.add(identifier)
+                    results.append(identifier)
+    return tuple(results)
+
+
+def _extract_person_identifiers(graph: Graph, node: Node) -> Iterable[str]:
+    if isinstance(node, Literal):
+        value = literal_to_str(node)
+        return [value] if value else []
+    if isinstance(node, URIRef):
+        return [str(node)]
+    if isinstance(node, BNode):
+        values: list[str] = []
+        for predicate in ("identifier", "mainEntityOfPage", "url"):
+            for value in _schema_objects(graph, node, predicate):
+                string_value = _node_to_str(value)
+                if string_value:
+                    values.append(string_value)
+        name = literal_to_str(_first_literal(graph, node, *_schema_predicates("name")))
+        if name:
+            values.append(name)
+        return values or [str(node)]
+    return []
+
+
+def _extract_language_label(graph: Graph, subject: Node) -> str | None:
+    language_node = _first_node(graph, subject, *_schema_predicates("inLanguage"))
+    if language_node is None:
+        return None
+    if isinstance(language_node, Literal):
+        return literal_to_str(language_node)
+    if isinstance(language_node, URIRef):
+        return str(language_node)
+    if isinstance(language_node, BNode):
+        alt = literal_to_str(_first_literal(graph, language_node, *_schema_predicates("alternateName")))
+        if alt:
+            return alt
+        name = literal_to_str(_first_literal(graph, language_node, *_schema_predicates("name")))
+        if name:
+            return name
+        return str(language_node)
+    return None
+
+
+def _topic_strings_from_node(graph: Graph, node: Node) -> Iterable[str]:
+    if isinstance(node, Literal):
+        value = literal_to_str(node)
+        return [value] if value else []
+    if isinstance(node, URIRef):
+        return [str(node)]
+    if isinstance(node, BNode):
+        values: list[str] = []
+        name = literal_to_str(_first_literal(graph, node, *_schema_predicates("name")))
+        if name:
+            values.append(name)
+        for value in _schema_objects(graph, node, "url"):
+            string_value = _node_to_str(value)
+            if string_value:
+                values.append(string_value)
+        return values or [str(node)]
+    return []

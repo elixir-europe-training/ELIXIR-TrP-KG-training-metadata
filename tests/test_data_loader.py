@@ -63,13 +63,17 @@ def test_loader_parses_sample_resources(sample_sources: dict[str, Path]) -> None
     assert "tutorial" in gtn_resource.learning_resource_types
     assert "FAIR" in gtn_resource.keywords
     assert gtn_resource.abstract is not None
-    assert gtn_resource.authors == ("https://orcid.org/0000-0001-2345-6789",)
-    assert gtn_resource.contributors == ("https://training.galaxyproject.org/hall-of-fame/hexylena/",)
+    assert gtn_resource.authors[0] == "https://orcid.org/0000-0001-2345-6789"
+    assert "https://training.galaxyproject.org/training-material/hall-of-fame/example-author/" in gtn_resource.authors
+    assert "Example Author" in gtn_resource.authors
+    assert "https://orcid.org/0000-0002-0000-0000" in gtn_resource.contributors
     assert gtn_resource.license_url == "https://spdx.org/licenses/CC-BY-4.0.html"
     assert gtn_resource.date_published is not None
     assert gtn_resource.date_published_raw == "2023-04-17 15:35:37 +0000"
     assert gtn_resource.interactivity_type == "mixed"
-    assert gtn_resource.language == "English"
+    assert gtn_resource.language == "en"
+    assert "FAIR data management" in gtn_resource.topics
+    assert "https://example.org/topics/fair-data-management" in gtn_resource.topics
 
 
 def test_loader_raises_on_missing_file(tmp_path: Path) -> None:
@@ -115,7 +119,8 @@ def test_provider_location_topic_and_date_indexes(sample_sources: dict[str, Path
     }
 
     topic_results = store.topic_index.lookup("topic_3391")
-    assert topic_results == [tess_material_uri]
+    assert tess_material_uri in topic_results
+    assert len(topic_results) == 1, "GTN fixture should not match EDAM topic"
 
     date_results = store.date_index.lookup(date(2025, 1, 1), date(2025, 1, 31))
     assert date_results == [
