@@ -129,6 +129,7 @@ Or:
 2. Evaluate the output by:
    1. Noting down whether the MCP server gave a response and how many queries it needed
    2. Check whether the response is correct by evaluating URLs, possibly through an additional question, e.g. 'give me the URLs to these courses'
+   3. Do a manual validation searching for the same information through TeSS
 3. Create a score from 0 to 5 for satisfying the user story
 4. Define where improvements can be made to increase satisfaction  
 
