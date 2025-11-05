@@ -18,6 +18,32 @@ import httpx
 from rdflib import Graph
 
 
+def enrich_sib_organization(g: Graph) -> None:
+    """Enrich the graph by replacing SIB organizations with canonical ROR URI.
+
+    Consolidates all SIB organization instances into a single canonical ROR URI
+    using a SPARQL INSERT/DELETE query.
+
+    Args:
+        g: RDFlib Graph to enrich in place
+    """
+    query = """PREFIX schema: <http://schema.org/>
+    DELETE { ?org ?p ?o . ?s1 ?p1 ?org }
+    INSERT {
+        <https://ror.org/002n09z45> ?p ?o ;
+            schema:name "SIB Swiss Institute of Bioinformatics" .
+        ?s1 ?p1 <https://ror.org/002n09z45>
+    } WHERE {
+        ?org a schema:Organization ;
+            schema:name ?name .
+        FILTER (contains(?name, 'SIB')) .
+        ?org ?p ?o .
+        FILTER(?o != schema:name) .
+        ?s1 ?p1 ?org
+    }"""
+    g.update(query)
+
+
 async def harvest_tess_data(
     repo_url: str,
     resource_types: list[str],
@@ -98,6 +124,10 @@ async def harvest_tess_data(
                     break
 
                 page_number += 1
+
+    # g.parse("data/tess_harvest.ttl", format="ttl")
+    # Enrich graph with canonical ROR URI for SIB
+    enrich_sib_organization(g)
 
     # Create data folder if it doesn't exist
     Path("data").mkdir(exist_ok=True)
