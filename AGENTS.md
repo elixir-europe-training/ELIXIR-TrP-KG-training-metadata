@@ -19,7 +19,7 @@ Use pytest with asyncio support already configured. Name new tests `test_*` and 
 ## MCP Server Tools
 The server exposes both live and offline tools:
 - `search_training_materials` queries TeSS directly (HTTP).
-- Offline tools `local_keyword_search`, `local_provider_search`, `local_location_search`, `local_date_search`, `local_topic_search`, and `local_dataset_stats` read from `data/tess_harvest.ttl` and `data/gtn_output.ttl`. Regenerate these files with the harvest scripts before running the server if you need fresh data.
+- Offline tools `local_keyword_search`, `local_provider_search`, `local_location_search`, `local_date_search`, `local_topic_search`, and `local_dataset_stats` read from `data/tess_harvest.ttl` and `data/gtn_harvest.ttl`. Regenerate these files with the harvest scripts before running the server if you need fresh data.
 
 ## Commit & Pull Request Guidelines
 The history follows Conventional Commits (`feat:`, `fix:`, `doc:`); include scope names like `feat(models): ...` when touching isolated modules. Describe behavioral changes and reference GitHub issues using `Closes #ID`. Before opening a PR, run linting and tests locally and note the results in the description. Include screenshots or sample MCP payloads whenever you change request/response schemas, and call out breaking interface changes with the `!` syntax (`feat!: ...`).

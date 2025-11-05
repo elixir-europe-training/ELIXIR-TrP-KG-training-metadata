@@ -49,7 +49,7 @@ Once the server is running you can call the following tools from your MCP-compat
 | `local_dataset_stats` | Summarises dataset diagnostics (resource counts, type distribution, access modes). |
 
 > [!NOTE]
-> The local tools read from `data/tess_harvest.ttl` and `data/gtn_output.ttl`. Regenerate these files with the harvest scripts if you need fresher data.
+> The local tools read from `data/tess_harvest.ttl` and `data/gtn_harvest.ttl`. Regenerate these files with the harvest scripts if you need fresher data.
 
 ### 🔌 Connect client to MCP server
 

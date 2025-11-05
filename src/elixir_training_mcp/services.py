@@ -16,7 +16,7 @@ def get_training_data_service() -> TrainingDataService:
     if _service_instance is None:
         store = data_store.load_training_data({
             "tess": Path("data/tess_harvest.ttl"),
-            "gtn": Path("data/gtn_output.ttl"),
+            "gtn": Path("data/gtn_harvest.ttl"),
         })
         _service_instance = TrainingDataService(store)
     return _service_instance
