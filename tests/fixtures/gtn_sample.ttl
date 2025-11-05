@@ -1,0 +1,59 @@
+@prefix schema: <https://schema.org/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<https://training.galaxyproject.org/training-material/topics/fair/tutorials/metadata-basics> a schema:LearningResource ;
+    schema:accessMode "textual", "visual" ;
+    schema:accessModeSufficient "textual" ;
+    schema:accessibilityControl "fullKeyboardControl", "fullMouseControl" ;
+    schema:accessibilityFeature "alternativeText", "tableOfContents" ;
+    schema:accessibilitySummary "The tutorial includes descriptive text for images and structured navigation." ;
+    schema:name "FAIR Metadata Basics" ;
+    schema:description "Introduction to FAIR metadata principles with Galaxy workflows." ;
+    schema:abstract "Detailed walkthrough of FAIR metadata practices integrated with Galaxy." ;
+    schema:headline "Getting started with FAIR metadata in Galaxy" ;
+    schema:about [
+        a schema:CreativeWork ;
+        schema:name "FAIR data management" ;
+        schema:url "https://example.org/topics/fair-data-management"
+    ] ;
+    schema:keywords "FAIR" ;
+    schema:keywords "metadata" ;
+    schema:learningResourceType "tutorial" ;
+    schema:educationalLevel "Beginner" ;
+    schema:author [
+        a schema:Person ;
+        schema:identifier "https://orcid.org/0000-0001-2345-6789" ;
+        schema:mainEntityOfPage "https://training.galaxyproject.org/training-material/hall-of-fame/example-author/" ;
+        schema:name "Example Author"
+    ] ;
+    schema:contributor [
+        a schema:Person ;
+        schema:identifier "https://orcid.org/0000-0002-0000-0000" ;
+        schema:name "Contributor One"
+    ] ;
+    schema:audience [
+        a schema:EducationalAudience ;
+        schema:educationalRole "Data Steward"
+    ] ;
+    schema:license <https://spdx.org/licenses/CC-BY-4.0.html> ;
+    schema:datePublished "2023-04-17 15:35:37 +0000" ;
+    schema:dateModified "2024-01-01 12:00:00 +0000" ;
+    schema:provider [
+        a schema:Organization ;
+        schema:name "Galaxy Training Network"
+    ] ;
+    schema:inLanguage [
+        a schema:Language ;
+        schema:alternateName "en" ;
+        schema:name "English"
+    ] ;
+    schema:interactivityType "mixed" ;
+    schema:isAccessibleForFree true ;
+    schema:isFamilyFriendly true ;
+    schema:creativeWorkStatus "Active" ;
+    schema:version "18" ;
+    schema:url <https://training.galaxyproject.org/training-material/topics/fair/tutorials/metadata-basics.html> .
+
+[] a schema:LearningResource ;
+    schema:url <https://training.galaxyproject.org/training-material/topics/fair/tutorials/metadata-basics.html> ;
+    schema:learningResourceType "tutorial" .

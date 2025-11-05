@@ -1,0 +1,68 @@
+@prefix schema: <http://schema.org/> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+<https://tess.example.org/courses/python-fair-data> a schema:Course ;
+    dct:conformsTo <https://bioschemas.org/profiles/Course/1.0-RELEASE> ;
+    schema:name "Python for FAIR Data Stewardship" ;
+    schema:description "Hands-on workshop covering FAIR metadata curation with Python-based tooling." ;
+    schema:coursePrerequisites "Basic Python programming" ;
+    schema:keywords "FAIR" ;
+    schema:keywords "metadata" ;
+    schema:about <http://edamontology.org/topic_3391> ;
+    schema:url <https://tess.example.org/materials/python-fair-data> ;
+    schema:provider [
+        a schema:Organization ;
+        schema:name "Bioinformatics.ca" ;
+        schema:url <https://bioinformatics.ca/>
+    ] ;
+    schema:hasCourseInstance [
+        a schema:CourseInstance ;
+        schema:courseMode "online" ;
+        schema:startDate "2025-01-10"^^schema:Date ;
+        schema:endDate "2025-01-11"^^schema:Date ;
+        schema:maximumAttendeeCapacity 40 ;
+        schema:location [
+            a schema:Place ;
+            schema:address [
+                a schema:PostalAddress ;
+                schema:addressCountry "Canada" ;
+                schema:addressLocality "Toronto"
+            ]
+        ] ;
+        schema:funder [
+            a schema:Organization ;
+            schema:name "ELIXIR"
+        ]
+    ] .
+
+<https://tess.example.org/courses/winter-metagenomics> a schema:Course ;
+    schema:name "Winter Metagenomics Workshop" ;
+    schema:hasCourseInstance [
+        a schema:CourseInstance ;
+        schema:startDate "2024-12-20"^^schema:Date ;
+        schema:endDate "2025-01-20"^^schema:Date ;
+        schema:location [
+            a schema:Place ;
+            schema:address [
+                a schema:PostalAddress ;
+                schema:addressCountry "Canada" ;
+                schema:addressLocality "Montreal"
+            ]
+        ]
+    ] .
+
+<https://tess.example.org/courses/spring-genomics> a schema:Course ;
+    schema:name "Spring Genomics Bootcamp" ;
+    schema:hasCourseInstance [
+        a schema:CourseInstance ;
+        schema:startDate "2025-03-10"^^schema:Date ;
+        schema:endDate "2025-03-15"^^schema:Date ;
+        schema:location [
+            a schema:Place ;
+            schema:address [
+                a schema:PostalAddress ;
+                schema:addressCountry "Canada" ;
+                schema:addressLocality "Vancouver"
+            ]
+        ]
+    ] .
