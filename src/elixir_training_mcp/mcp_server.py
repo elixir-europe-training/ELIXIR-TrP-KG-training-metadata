@@ -1,10 +1,13 @@
 import argparse
+from datetime import date
+from typing import Any, Optional
 from urllib.parse import quote
 
 import httpx
 from mcp.server.fastmcp import FastMCP
 
 from elixir_training_mcp.models import TessTrainingMaterial
+from elixir_training_mcp.services import get_training_data_service
 
 # Create MCP server https://github.com/modelcontextprotocol/python-sdk
 mcp = FastMCP(
@@ -51,6 +54,64 @@ async def search_training_materials(
         return response.json()
 
 
+@mcp.tool()
+async def local_keyword_search(query: str, limit: Optional[int] = None) -> list[dict[str, Any]]:
+    """Search locally harvested training resources by free-text keywords."""
+
+    service = get_training_data_service()
+    return service.search_by_keyword(query, limit=limit)
+
+
+@mcp.tool()
+async def local_provider_search(provider: str, limit: Optional[int] = None) -> list[dict[str, Any]]:
+    """Return resources published by a specific provider name (case-insensitive)."""
+
+    service = get_training_data_service()
+    return service.search_by_provider(provider, limit=limit)
+
+
+@mcp.tool()
+async def local_location_search(
+    country: str,
+    city: Optional[str] = None,
+    limit: Optional[int] = None,
+) -> list[dict[str, Any]]:
+    """Find scheduled courses by country (and optional city) using harvested data."""
+
+    service = get_training_data_service()
+    return service.search_by_location(country=country, city=city, limit=limit)
+
+
+@mcp.tool()
+async def local_date_search(
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    limit: Optional[int] = None,
+) -> list[dict[str, Any]]:
+    """Find courses whose start dates fall within an ISO date range."""
+
+    service = get_training_data_service()
+    start = _parse_iso_date(start_date)
+    end = _parse_iso_date(end_date)
+    return service.search_by_date_range(start=start, end=end, limit=limit)
+
+
+@mcp.tool()
+async def local_topic_search(topic: str, limit: Optional[int] = None) -> list[dict[str, Any]]:
+    """Search harvested resources by topic identifier or label."""
+
+    service = get_training_data_service()
+    return service.search_by_topic(topic, limit=limit)
+
+
+@mcp.tool()
+async def local_dataset_stats() -> dict[str, Any]:
+    """Return high-level diagnostics about the loaded training datasets."""
+
+    service = get_training_data_service()
+    return dict(service.stats)
+
+
 # @mcp.tool()
 # async def harvest_tess_repository(
 #     repo_url: str,
@@ -90,9 +151,17 @@ def cli() -> None:
     args = parser.parse_args()
     # settings = Settings.from_file(args.settings_filepath)
     if args.http:
-        mcp.run()
         mcp.settings.port = args.port
         mcp.settings.log_level = "INFO"
         mcp.run(transport="streamable-http")
     else:
         mcp.run()
+
+
+def _parse_iso_date(raw: Optional[str]) -> Optional[date]:
+    if not raw:
+        return None
+    try:
+        return date.fromisoformat(raw)
+    except ValueError:
+        return None
