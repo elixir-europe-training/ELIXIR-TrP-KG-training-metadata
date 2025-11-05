@@ -86,7 +86,7 @@ In order to create a knowledge graph we extracted training metadata from two res
 
 Although the Galaxy training network metadata is already available in TeSS, we extracted it separately, as it contains identitifiers for trainers that are not available from TeSS at the moment. In this way, we could evaluate the impact of having trainer identifiers. 
 
-While going through this process, we acknowledged that there is large potential to improve the available metadata available from TeSS - but also other resources - by adding unique identifiers. For example, Organizations could be identified by their [ROR](https://ror.org/) and teachers by [ORCID](https://orcid.org) when available. During the hackathon we worked on merging such nodes, and bringing this data cleaning effort back to the different teams. Our suggestions for metadata providers can be found in [table 1](table-1).
+While going through this process, we acknowledged that there is large potential to improve the available metadata unique identifiers. Which is also stated in the FAIR principles, stating that digital resources, i.e., data and metadata, are assigned a globally unique and persistent identifier. For example, Organizations could be identified by their [ROR](https://ror.org/) and teachers by [ORCID](https://orcid.org) when available. During the hackathon we worked on merging such nodes, and bringing this data cleaning effort back to the different teams. Our suggestions for metadata providers can be found in [table 1](table-1).
 
 [Table 1]: table-1	"Proposed usage of @id in bioschemas entries for training"
 
