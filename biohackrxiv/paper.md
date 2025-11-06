@@ -97,7 +97,7 @@ While going through this process, we acknowledged that there is large potential 
 | location                                           | OSM Relation, Way or Node              | "location": {<br/>                "@type": "Place",<br/>                **"@id": "https://www.openstreetmap.org/relation/1684625"**,<br/>                "address": {<br/>                    "@type": "PostalAddress",<br/>                    "addressLocality": "Bellinzona",<br/>                    "addressCountry": "Switzerland"<br/>                }<br/>            } |
 |                                                    |                                        |                                                              |
 
-
+We also encourage the BioSchema course information providers to think about generating permanent identifiers for courses, that should be preserved between systems. This would allow easier merging of Bioschema data that have overlapping course instances (e.g a the time of writing the course "UNIX shell scripting in the life sciences" is identified differently at [TeSS](https://tess.elixir-europe.org/events/unix-shell-scripting-in-life-sciences-a2feb6ab-9eec-4a47-a8ae-96d79a7eaf55) and at [SIB training website](https://www.sib.swiss/training/course/20251105_ADVUN)).
 
 # MCP server
 
