@@ -33,10 +33,20 @@ The heart of the system:
    - Provider index (provider name → resource IDs).
    - Location index (country/city → resource IDs based on course instances).
    - Date index (chronological list for range queries).
-   - Topic index (handles both EDAM IDs and text labels).
+ - Topic index (handles both EDAM IDs and text labels).
 
 3. **Stats**
    - Simple diagnostics: total resources, per-source counts, type distribution, access-mode stats, audience-role stats, sample topics.
+
+### What do the indexes accomplish?
+
+Without indexes we would need to scan every resource for each query. These precomputed maps make every tool call instant:
+
+- **Keyword index**: Inverted index from tokens → resource URIs (case-insensitive). Keyword searches pull URIs directly from the token buckets.
+- **Provider index**: Normalizes provider names to lowercase and maps name → resource IDs; used by `local_provider_search`.
+- **Location index**: Captures country and optional city for each course instance so `local_location_search` can return matching resources without reprocessing the dataset.
+- **Date index**: Stores course instances in start-date order; date range queries scan that sorted list and return each resource once.
+- **Topic index**: Works with both EDAM URIs and CreativeWork labels, allowing `local_topic_search` to match either type of identifier.
 
 The loader returns a `TrainingDataStore` object containing the resources, indexes, stats, and the raw RDF dataset (all wrapped in read-only mappings).
 
