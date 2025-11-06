@@ -29,11 +29,12 @@ The orchestration layer delegates to a dedicated loader package so concerns stay
    - `loader.dedupe.select_richest()` keeps the canonical representation per URI (`schema:url` when available).
 
 2. **Indexes**
+   - Located under `src/elixir_training_mcp/indexes/` (keyword, provider, location, date, topic modules).
    - Keyword index (tokens → resource IDs).
    - Provider index (provider name → resource IDs).
    - Location index (country/city → resource IDs based on course instances).
    - Date index (chronological list for range queries).
- - Topic index (handles both EDAM IDs and text labels).
+   - Topic index (handles both EDAM IDs and text labels).
 
 3. **Stats**
    - Simple diagnostics: total resources, per-source counts, type distribution, access-mode stats, audience-role stats, sample topics.
@@ -75,8 +76,9 @@ The loader returns a `TrainingDataStore` object containing the resources, indexe
 - `tests/fixtures/*.ttl` mirror TeSS and GTN structures in miniature (nested persons, language nodes, accessibility info).
 - `tests/test_data_loader.py` validates the end-to-end loader, canonical URLs, and stats.
 - `tests/test_loader_modules.py` covers the split-out loader utilities (graph parsing, dedupe, resource extraction).
+- `tests/test_indexes.py` ensures the new package-level indexes behave the same way as before.
 - `tests/test_tools.py` exercises the service wrapper.
-- Run `uv run --group dev pytest` to execute all tests (currently 13).
+- Run `uv run --group dev pytest` to execute all tests (currently 18).
 
 ## 8. Documentation Updates
 - README lists the new MCP tools, shows sample prompts, and explains the data dependency.
