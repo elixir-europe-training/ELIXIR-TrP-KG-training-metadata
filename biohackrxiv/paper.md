@@ -11,7 +11,7 @@ authors:
     affiliation: 1
   - name: Harshita Gupta
     affiliation: 3
-    orcid: 
+    orcid: 0009-0000-1141-3116
   - name: Dimitris Panouris
     affiliation: 3
     orcid: 
