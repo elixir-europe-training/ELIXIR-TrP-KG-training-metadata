@@ -1,17 +1,15 @@
 from __future__ import annotations
 
+import re
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
 from pathlib import Path
 from types import MappingProxyType
-from typing import Iterable, Mapping
 
 from rdflib import Dataset, Graph, Namespace
 from rdflib.namespace import RDF
 from rdflib.term import BNode, Literal, Node, URIRef
-import re
-
-from collections import defaultdict
 
 from .data_models import (
     CourseInstance,

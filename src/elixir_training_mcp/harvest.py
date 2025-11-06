@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 
 import httpx
-from rdflib import Graph
+from rdflib import Graph, Namespace, URIRef
 
 
 def enrich_sib_organization(g: Graph) -> None:
@@ -43,6 +43,8 @@ def enrich_sib_organization(g: Graph) -> None:
     }"""
     g.update(query)
 
+
+HARVEST_FOLDER = "src/elixir_training_mcp/data"
 
 async def harvest_tess_data(
     repo_url: str,
@@ -110,28 +112,25 @@ async def harvest_tess_data(
                 # Fetch JSON-LD data in parallel (5 at a time)
                 print(f"Fetching {len(jsonld_urls)} JSON-LD resources in parallel...")
                 jsonld_data = await _fetch_jsonld_parallel(client, jsonld_urls, max_concurrent=max_concurrent)
-
-                # Load each JSON-LD file into the graph
+                # Load each JSON-LD file into the graph (slowest part)
                 for jsonld_item in jsonld_data:
                     if jsonld_item:
                         g.parse(data=json.dumps(jsonld_item), format="json-ld")
-
                 all_data.extend(jsonld_data)
-
                 # Check if there are more pages
                 links = page_data.get("links", {})
                 if "next" not in links:
                     break
-
                 page_number += 1
 
-    # g.parse("data/tess_harvest.ttl", format="ttl")
+    g.parse(f"{HARVEST_FOLDER}/tess_harvest.ttl", format="ttl")
     # Enrich graph with canonical ROR URI for SIB
-    enrich_sib_organization(g)
+    # enrich_sib_organization(g)
+    enrich_locations_osm(g)
 
     # Create data folder if it doesn't exist
-    Path("data").mkdir(exist_ok=True)
-    g.serialize("data/tess_harvest.ttl", format="ttl")
+    # Path("data").mkdir(exist_ok=True)
+    g.serialize(f"{HARVEST_FOLDER}/tess_harvest.ttl", format="ttl")
     print(f"Harvested {len(all_data)} total resources")
     return all_data
 
@@ -168,14 +167,104 @@ async def _fetch_jsonld_parallel(
 
     # Create tasks for all URLs
     tasks = [fetch_one(url) for url in urls]
-
     # Run all tasks concurrently
     results = await asyncio.gather(*tasks)
-
     return results
 
 
+def coords_to_wikidata(lat: float, lon: float) -> str | None:
+    params: dict[str, str | int | float] = {
+        "lat": lat,
+        "lon": lon,
+        "format": "jsonv2",
+        "extratags": 1,
+        "zoom": 18, # get building level info
+    }
+    resp = httpx.get("https://nominatim.openstreetmap.org/reverse", params=params, headers={"User-Agent": "geo-wikidata-resolver"})
+    resp.raise_for_status()
+    data = resp.json()
+    # # Prefer Wikidata if available
+    # wikidata_id = data.get("extratags", {}).get("wikidata")
+    # if wikidata_id:
+    #     return f"https://www.wikidata.org/entity/{wikidata_id}"
+
+    # Otherwise fallback to OpenStreetMap entity
+    osm_type = data.get("osm_type")
+    osm_id = data.get("osm_id")
+    if osm_type and osm_id:
+        osm_type_letter = {"node": "node", "way": "way", "relation": "relation"}.get(osm_type)
+        return f"https://www.openstreetmap.org/{osm_type_letter}/{osm_id}"
+    return None
+
+def enrich_locations_osm(g: Graph) -> None:
+    """Enrich the graph by replacing blank node locations with OSM IRIs.
+
+    For each schema:Place blank node with coordinates, queries the OpenStreetMap
+    Nominatim API to get the corresponding OSM IRI. If an IRI is found, replaces
+    the blank node subject with the OSM IRI, otherwise leaves it as a blank node.
+
+    Args:
+        g: RDFlib Graph to enrich in place
+    """
+    # Query all blank node locations with coordinates
+    query_string = """PREFIX schema: <http://schema.org/>
+    SELECT ?location ?lat ?lon
+    WHERE {
+        ?location a schema:Place ;
+            schema:latitude ?lat ;
+            schema:longitude ?lon .
+        FILTER(isBlank(?location))
+    }"""
+
+    results = g.query(query_string)
+
+    updates = []  # Store (old_blank_node, new_iri, properties) tuples
+    for row in results:
+        if isinstance(row, bool):
+            continue
+        blank_node = row[0]  # location
+        try:
+            lat = float(str(row[1]))  # lat
+            lon = float(str(row[2]))  # lon
+
+            # Get OSM IRI from coordinates
+            osm_iri = coords_to_wikidata(lat, lon)
+
+            if osm_iri:
+                # Collect all properties of this blank node
+                properties = list(g.predicate_objects(blank_node))
+                updates.append((blank_node, URIRef(osm_iri), properties))
+                print(f"Found OSM IRI for ({lat}, {lon}): {osm_iri}")
+            else:
+                print(f"No OSM IRI found for ({lat}, {lon}), keeping blank node")
+
+        except (ValueError, TypeError) as e:
+            print(f"Error processing location {blank_node}: {e}")
+
+    # Apply updates: remove blank node and add URIRef with same properties
+    for blank_node, new_iri, properties in updates:
+        # Remove all triples with the blank node as subject
+        for pred, obj in properties:
+            g.remove((blank_node, pred, obj))
+
+        # Add the same properties with the new IRI as subject
+        for pred, obj in properties:
+            g.add((new_iri, pred, obj))
+
+        # Update all triples where the blank node was used as object
+        for s, p, o in list(g.triples((None, None, blank_node))):
+            g.remove((s, p, o))
+            g.add((s, p, new_iri))
+
+        print(f"Updated location from blank node to {new_iri}")
+
+
 if __name__ == "__main__":
+    # lat = 48.699184
+    # lon = 2.187457
+    # iri = coords_to_wikidata(lat, lon)
+    # print("Resolved IRI:", iri)
+
     asyncio.run(harvest_tess_data("https://tess.elixir-europe.org", ["events", "materials"]))
     # 237 events / 3335 materials
 

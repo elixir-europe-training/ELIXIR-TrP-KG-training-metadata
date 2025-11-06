@@ -33,6 +33,8 @@ dependencies = [
     "pydantic >=2.12.0",
     "pydantic-settings >=2.11.0",
     "rdflib >=7.4.0",
+    "qdrant_client",
+    "fastembed",
 ]
 
 
@@ -63,6 +65,7 @@ path = "src/elixir_training_mcp/__init__.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/elixir_training_mcp"]
+# include = ["/src/elixir_training_mcp/data"]
 
 # [tool.hatch.metadata]
 # allow-direct-references = true
