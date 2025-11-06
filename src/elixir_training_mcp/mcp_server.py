@@ -1,10 +1,12 @@
 import argparse
 from datetime import date
 from typing import Any, Optional
+from importlib.resources import files
 from urllib.parse import quote
 
 import httpx
 from mcp.server.fastmcp import FastMCP
+from rdflib import Dataset
 
 from elixir_training_mcp.models import TessTrainingMaterial
 from elixir_training_mcp.services import get_training_data_service
@@ -111,6 +113,45 @@ async def dataset_stats() -> dict[str, Any]:
     service = get_training_data_service()
     return dict(service.stats)
 
+
+
+@mcp.tool()
+async def get_sparql_docs() -> str:
+    """Retrieve docs to help write SPARQL queries to retrieve training data."""
+    with files("elixir_training_mcp").joinpath("QUERIES.md").open("rb") as f:
+        content = f.read().decode("utf-8")
+    return content
+
+
+g = Dataset(default_union=True)
+with files("elixir_training_mcp").joinpath("data/tess_harvest.ttl").open("rb") as f:
+    g.parse(f, format="ttl")
+with files("elixir_training_mcp").joinpath("data/gtn_harvest.ttl").open("rb") as f:
+    g.parse(f, format="ttl")
+
+
+@mcp.tool()
+async def execute_sparql_query(sparql_query: str) -> str:
+    """Formulate and execute a SPARQL query to answer complex questions.
+
+    Usually called after calling `get_sparql_docs` to get query examples.
+
+    Args:
+        sparql_query: The SPARQL query string to execute.
+
+    Returns:
+        The SPARQL query results in string format."""
+    results = g.query(sparql_query)
+
+    # Format results as a string
+    output_lines = []
+    for row in results:
+        if isinstance(row, bool):
+            continue
+        row_str = ", ".join(str(item) for item in row)
+        output_lines.append(row_str)
+
+    return "\n".join(output_lines)
 
 
 def cli() -> None:

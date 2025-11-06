@@ -41,12 +41,12 @@ Once the server is running you can call the following tools from your MCP-compat
 | Tool | Description |
 | ---- | ----------- |
 | `search_training_materials` | Proxies the live TeSS API and returns raw JSON results. |
-| `local_keyword_search` | Searches the harvested TTL datasets (TeSS + GTN) by free-text keyword and returns enriched metadata. |
-| `local_provider_search` | Filters harvested resources by provider name (case-insensitive). |
-| `local_location_search` | Returns TeSS course instances in a given country (optionally city). |
-| `local_date_search` | Finds TeSS course instances starting within a provided ISO date range. |
-| `local_topic_search` | Matches harvested resources by EDAM identifier or topic label. |
-| `local_dataset_stats` | Summarises dataset diagnostics (resource counts, type distribution, access modes). |
+| `keyword_search` | Searches the harvested TTL datasets (TeSS + GTN) by free-text keyword and returns enriched metadata. |
+| `provider_search` | Filters harvested resources by provider name (case-insensitive). |
+| `location_search` | Returns TeSS course instances in a given country (optionally city). |
+| `date_search` | Finds TeSS course instances starting within a provided ISO date range. |
+| `topic_search` | Matches harvested resources by EDAM identifier or topic label. |
+| `dataset_stats` | Summarises dataset diagnostics (resource counts, type distribution, access modes). |
 
 > [!NOTE]
 > The local tools read from `data/tess_harvest.ttl` and `data/gtn_harvest.ttl`. Regenerate these files with the harvest scripts if you need fresher data.
@@ -106,3 +106,29 @@ You can also connect to a running server using Streamable HTTP:
     }
 }
 ```
+
+## Harvesting
+
+The `data/tess_harvest.ttl` files is included in the repository (7MB), you can run the script to harvest JSON-LD data and build this ttl file, but it takes ~30min due to parsing JSON-LD being expensive:
+
+```sh
+uv run src/elixir_training_mcp/harvest/harvest_tess.py
+```
+
+Harvest GTN:
+
+```sh
+uv run src/elixir_training_mcp/harvest/harvest_gtn.py
+```
+
+
+> [!NOTE]
+>
+> TeSS contains training materials and courses from various providers, such as GTN (Galaxy Training Network) training materials. Metadata about material in TeSS and GTN can be matched on `schema:url`
+
+Deploy a SPARQL endpoint on http://localhost:8000:
+
+```sh
+uv run rdflib-endpoint serve src/elixir_training_mcp/data/*_harvest.ttl
+```
+
