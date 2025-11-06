@@ -132,7 +132,7 @@ with files("elixir_training_mcp").joinpath("data/gtn_harvest.ttl").open("rb") as
 
 @mcp.tool()
 async def execute_sparql_query(sparql_query: str) -> str:
-    """Formulate and execute a SPARQL query to answer complex questions.
+    """Formulate and execute a SPARQL query to answer complex questions that can't be handled by other search tools.
 
     Usually called after calling `get_sparql_docs` to get query examples.
 
