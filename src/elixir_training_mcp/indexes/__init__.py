@@ -1,11 +1,23 @@
 """
-Index modules for the offline training data store.
+Indexes for the offline training data store.
 
-The package is introduced ahead of a refactor that will move each lookup index
-out of ``data_store.py``. Initially these modules are placeholders; behaviour
-will remain defined in ``data_store`` until the subsequent steps populate the
-new modules.
+Each module constructs a read-only lookup structure over `TrainingResource`
+objects. They are re-exported here so callers can do either
+`from elixir_training_mcp import data_store` or
+`from elixir_training_mcp.indexes import KeywordIndex`, as preferred.
 """
 
-# The concrete indexes are still defined in data_store.py and will be imported
-# here once the refactor migrates their implementations.
+from .keyword import KeywordIndex
+from .provider import ProviderIndex
+from .location import LocationIndex
+from .date import CourseSchedule, DateIndex
+from .topic import TopicIndex
+
+__all__ = [
+    "CourseSchedule",
+    "DateIndex",
+    "KeywordIndex",
+    "LocationIndex",
+    "ProviderIndex",
+    "TopicIndex",
+]
