@@ -48,11 +48,11 @@ class TrainingDataStore:
     per_source_counts: Mapping[str, int]
     load_timestamp: datetime
     source_graphs: Mapping[str, str]
-    keyword_index: "KeywordIndex"
-    provider_index: "ProviderIndex"
-    location_index: "LocationIndex"
-    date_index: "DateIndex"
-    topic_index: "TopicIndex"
+    keyword_index: KeywordIndex
+    provider_index: ProviderIndex
+    location_index: LocationIndex
+    date_index: DateIndex
+    topic_index: TopicIndex
     stats: Mapping[str, Any]
 
     @property

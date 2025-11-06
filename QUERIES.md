@@ -17,6 +17,10 @@ uv run rdflib-endpoint serve data/*_harvest.ttl
 > ```
 >
 
+> [!NOTE]
+>
+> TeSS contains training materials and courses from various providers, such as GTN (Galaxy Training Network) training materials. Metadata about material in TeSS and GTN can be matched on `schema:url`
+
 ## Find all Python courses
 
 ```sparql

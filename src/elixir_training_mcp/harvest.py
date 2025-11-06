@@ -13,6 +13,7 @@ import asyncio
 import json
 from pathlib import Path
 from typing import Any
+from importlib.resources import files
 
 import httpx
 from rdflib import Graph
@@ -131,7 +132,7 @@ async def harvest_tess_data(
 
     # Create data folder if it doesn't exist
     Path("data").mkdir(exist_ok=True)
-    g.serialize("data/tess_harvest.ttl", format="ttl")
+    g.serialize(str(files("elixir_training_mcp").joinpath("data/tess_harvest.ttl")), format="ttl")
     print(f"Harvested {len(all_data)} total resources")
     return all_data
 
