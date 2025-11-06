@@ -2,21 +2,6 @@
 
 This document contains SPARQL queries to search through the ELIXIR training materials RDF data.
 
-Deploy a SPARQL endpoint on http://localhost:8000:
-
-```sh
-uv run rdflib-endpoint serve data/*_harvest.ttl
-```
-
-> [!NOTE]
->
-> The `data/tess_harvest.ttl` files is included in the repository (7MB), you can run the script to harvest JSON-LD data and build this ttl file, but it takes ~30min due to parsing JSON-LD being expensive:
->
-> ```sh
-> uv run src/elixir_training_mcp/harvest.py
-> ```
->
-
 ## Find all Python courses
 
 ```sparql

@@ -18,17 +18,18 @@ Defines the Python “shape” for each resource:
 - Helper functions convert RDF literals to strings, numbers, booleans, and datetimes with timezone-aware handling.
 
 ## 3. Data Loader & Indexes (`src/elixir_training_mcp/data_store.py`)
-The heart of the system:
+The orchestration layer delegates to a dedicated loader package so concerns stay separate:
 
 1. **Loading**
    ```python
    load_training_data({"tess": Path(...), "gtn": Path(...)})
    ```
-   - Parses each TTL with RDFLib.
-   - Normalizes subjects into `TrainingResource` entries (handles blank nodes and nested schema.org objects like Person, Language, CreativeWork).
-   - Keeps a canonical ID (`schema:url` when available).
+   - `loader.graph.load_dataset()` parses each TTL with RDFLib and registers common namespaces.
+   - `loader.parser.extract_resources_from_graph()` normalizes subjects into `TrainingResource` entries (handles blank nodes and nested schema.org objects like Person, Language, CreativeWork).
+   - `loader.dedupe.select_richest()` keeps the canonical representation per URI (`schema:url` when available).
 
 2. **Indexes**
+   - Located under `src/elixir_training_mcp/indexes/` (keyword, provider, location, date, topic modules).
    - Keyword index (tokens → resource IDs).
    - Provider index (provider name → resource IDs).
    - Location index (country/city → resource IDs based on course instances).
@@ -37,6 +38,16 @@ The heart of the system:
 
 3. **Stats**
    - Simple diagnostics: total resources, per-source counts, type distribution, access-mode stats, audience-role stats, sample topics.
+
+### What do the indexes accomplish?
+
+Without indexes we would need to scan every resource for each query. These precomputed maps make every tool call instant:
+
+- **Keyword index**: Inverted index from tokens → resource URIs (case-insensitive). Keyword searches pull URIs directly from the token buckets.
+- **Provider index**: Normalizes provider names to lowercase and maps name → resource IDs; used by `local_provider_search`.
+- **Location index**: Captures country and optional city for each course instance so `local_location_search` can return matching resources without reprocessing the dataset.
+- **Date index**: Stores course instances in start-date order; date range queries scan that sorted list and return each resource once.
+- **Topic index**: Works with both EDAM URIs and CreativeWork labels, allowing `local_topic_search` to match either type of identifier.
 
 The loader returns a `TrainingDataStore` object containing the resources, indexes, stats, and the raw RDF dataset (all wrapped in read-only mappings).
 
@@ -63,9 +74,11 @@ The loader returns a `TrainingDataStore` object containing the resources, indexe
 
 ## 7. Tests & Fixtures
 - `tests/fixtures/*.ttl` mirror TeSS and GTN structures in miniature (nested persons, language nodes, accessibility info).
-- `tests/test_data_loader.py` validates the loader, canonical URLs, and stats.
+- `tests/test_data_loader.py` validates the end-to-end loader, canonical URLs, and stats.
+- `tests/test_loader_modules.py` covers the split-out loader utilities (graph parsing, dedupe, resource extraction).
+- `tests/test_indexes.py` ensures the new package-level indexes behave the same way as before.
 - `tests/test_tools.py` exercises the service wrapper.
-- Run `uv run --group dev pytest` to execute all tests (currently 10).
+- Run `uv run --group dev pytest` to execute all tests (currently 18).
 
 ## 8. Documentation Updates
 - README lists the new MCP tools, shows sample prompts, and explains the data dependency.
