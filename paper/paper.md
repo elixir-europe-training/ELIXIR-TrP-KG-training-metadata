@@ -14,7 +14,7 @@ authors:
     orcid: 0009-0000-1141-3116
   - name: Dimitris Panouris
     affiliation: 3
-    orcid: 
+    orcid: 0009-0005-2282-2982
   - name: Jacobo Miranda 
     affiliation: 4
     orcid: 0009-0005-0673-021X
