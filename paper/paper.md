@@ -14,8 +14,8 @@ authors:
     orcid: 0009-0000-1141-3116
   - name: Dimitris Panouris
     affiliation: 3
-    orcid: 
-  - name: Jacobo Miranda 
+    orcid:
+  - name: Jacobo Miranda
     affiliation: 4
     orcid: 0009-0005-0673-021X
   - name: Phil Reed
@@ -87,7 +87,7 @@ In order to create a knowledge graph we extracted training metadata from two res
 - TeSS (https://tess.elixir-europe.org/): The ELIXIR Training e-Support System (TeSS) is a platform that aggregates training materials, courses, and events from various providers across Europe. TeSS uses the Bioschemas Training profile to annotate its resources with standardized metadata.
 - Galaxy training network (https://training.galaxyproject.org/): The Galaxy Training Network (GTN) provides a collection of training materials and tutorials for the Galaxy platform. The GTN also uses the Bioschemas Training profile to annotate its resources.
 
-Although the Galaxy training network metadata is already available in TeSS, we extracted it separately, as it contains identitifiers for trainers that are not available from TeSS at the moment. In this way, we could evaluate the impact of having trainer identifiers. 
+Although the Galaxy training network metadata is already available in TeSS, we extracted it separately, as it contains identitifiers for trainers that are not available from TeSS at the moment. In this way, we could evaluate the impact of having trainer identifiers.
 
 While going through this process, we acknowledged that there is large potential to improve the available metadata unique identifiers. Which is also stated in the FAIR principles, stating that digital resources, i.e., data and metadata, are assigned a globally unique and persistent identifier. For example, Organizations could be identified by their [ROR](https://ror.org/) and teachers by [ORCID](https://orcid.org) when available. During the hackathon we worked on merging such nodes, and bringing this data cleaning effort back to the different teams. Our suggestions for metadata providers can be found in [table 1](table-1).
 
@@ -103,6 +103,8 @@ While going through this process, we acknowledged that there is large potential 
 We also encourage the BioSchema course information providers to think about generating permanent identifiers for courses, that should be preserved between systems. This would allow easier merging of Bioschema data that have overlapping course instances (e.g a the time of writing the course "UNIX shell scripting in the life sciences" is identified differently at [TeSS](https://tess.elixir-europe.org/events/unix-shell-scripting-in-life-sciences-a2feb6ab-9eec-4a47-a8ae-96d79a7eaf55) and at [SIB training website](https://www.sib.swiss/training/course/20251105_ADVUN)).
 
 # MCP server
+
+To facilitate access to the knowledge graph by AI systems and humans, we developed a Model Context Protocol (MCP) server that exposes a suite of tools for searching and querying training materials. The MCP server provides both live and offline search capabilities. The live tool `search_training_materials` directly queries the TeSS platform via its API. For offline access to the harvested and deduplicated knowledge graph, we implemented six search tools: `keyword_search` enables free-text searches across training resources, `provider_search` filters materials by provider organization, `location_search` finds courses by geographic location, `date_search` identifies courses within a specified date range, and `topic_search` filters by subject matter using ontology terms. Additionally, the `dataset_stats` tool provides high-level diagnostics about the loaded datasets. For advanced use cases, the server exposes `execute_sparql_query`, which allows users to formulate and execute custom SPARQL queries directly against the knowledge graph. These tools together enable flexible querying of training metadata through natural language interfaces, supporting both simple discovery tasks and complex analytical queries.
 
 # Defining user stories and testing
 
@@ -120,7 +122,7 @@ Examples of the defined user stories are:
 
 - …so that I can collaborate on developing new training events for our national audiences
 
-Or: 
+Or:
 
 - As a bioinformatics scientist
 - want to define a learning path of training materials and/or events
@@ -134,7 +136,7 @@ Or:
    2. Check whether the response is correct by evaluating URLs, possibly through an additional question, e.g. 'give me the URLs to these courses'
    3. Do a manual validation searching for the same information through TeSS
 3. Create a score from 0 to 5 for satisfying the user story
-4. Define where improvements can be made to increase satisfaction  
+4. Define where improvements can be made to increase satisfaction
 
 # Discussion
 
