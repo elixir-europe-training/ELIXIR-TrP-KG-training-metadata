@@ -7,7 +7,7 @@ tags:
   - training
 authors:
   - name: Vincent Emonet
-    orcid: 
+    orcid: 0000-0002-1501-1082
     affiliation: 1
   - name: Harshita Gupta
     affiliation: 3
@@ -17,30 +17,33 @@ authors:
     orcid: 
   - name: Jacobo Miranda 
     affiliation: 4
-    orcid: 
+    orcid: 0009-0005-0673-021X
   - name: Phil Reed
     affiliation: 2
-    orcid: 
+    orcid: 0000-0002-4479-715X
   - name: Jerven Bolleman
     orcid: 0000-0002-7449-1266
     affiliation: 1
   - name: Finn Bacall
     affiliation: 2
-    orcid: 
+    orcid: 0000-0002-0048-3300
   - name: Geert van Geest
     affiliation: 1
-    orcid: 
+    orcid: 0000-0002-1561-078X
 
 affiliations:
   - name: SIB Swiss Institute of Bioinformatics, Switzerland
     index: 1
+    ror: 002n09z45
   - name: University of Manchester, UK
     index: 2
+    ror: 027m9bs27
   - name: SciLifeLab, Sweden
     index: 3
+    ror: 04ev03g22
   - name: EMBL Heidelberg, Germany
     index: 4
-    ror: 
+    ror: 03mstc592
 
 date: 4 November 2025
 cito-bibliography: paper.bib
