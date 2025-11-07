@@ -31,9 +31,17 @@ jobs:
       - name: Run GTN harvesting script
         run: uv run src/elixir_training_mcp/harvest/harvest_gtn.py
 
+      - name: Upload harvested data as artifacts
+        uses: actions/upload-artifact@v5
+        with:
+          name: harvested-training-data
+          path: src/elixir_training_mcp/data/
+          retention-days: 30
+
       - name: Check for changes
         id: check-changes
         run: |
+          git pull
           if git diff --quiet; then
             echo "has_changes=false" >> $GITHUB_OUTPUT
           else
