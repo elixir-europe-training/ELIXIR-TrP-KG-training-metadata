@@ -81,7 +81,7 @@ ELIXIR and its Nodes are making a major effort to make the wealth of open traini
 
 In this project, we represented training metadata stored in TeSS as queryable knowledge graphs. After that we a developed a model context protocol (MCP) server to access and search through the knowledge graph using a natural language interface. Finally, we defined user stories to evaluate the potential of the tool, including construction of custom learning paths, creation of detailed trainer profiles, and connection of training metadata to other databases. These use-cases also shed light on the limits on the currently available metadata, and will help to make future choices on better defined and richer metadata.
 
-# From bioschemas to knowledge graphs
+# From Bioschemas to knowledge graphs
 
 In order to create a knowledge graph we extracted training metadata from two resources:
 - TeSS (https://tess.elixir-europe.org/): The ELIXIR Training e-Support System (TeSS) is a platform that aggregates training materials, courses, and events from various providers across Europe. TeSS uses the Bioschemas Training profile to annotate its resources with standardized metadata.
@@ -91,7 +91,7 @@ Although the Galaxy training network metadata is already available in TeSS, we e
 
 While going through this process, we acknowledged that there is large potential to improve the available metadata unique identifiers. Which is also stated in the FAIR principles, stating that digital resources, i.e., data and metadata, are assigned a globally unique and persistent identifier. For example, Organizations could be identified by their [ROR](https://ror.org/) and teachers by [ORCID](https://orcid.org) when available. During the hackathon we worked on merging such nodes, and bringing this data cleaning effort back to the different teams. Our suggestions for metadata providers can be found in [table 1](table-1).
 
-[Table 1]: table-1	"Proposed usage of @id in bioschemas entries for training"
+[Table 1]: table-1	"Proposed usage of @id in Bioschemas entries for training"
 
 | Property                                           | Type of identifier                     | Example                                                      |
 | -------------------------------------------------- | -------------------------------------- | ------------------------------------------------------------ |
@@ -100,7 +100,7 @@ While going through this process, we acknowledged that there is large potential 
 | location                                           | OSM Relation, Way or Node              | "location": {<br/>                "@type": "Place",<br/>                **"@id": "https://www.openstreetmap.org/relation/1684625"**,<br/>                "address": {<br/>                    "@type": "PostalAddress",<br/>                    "addressLocality": "Bellinzona",<br/>                    "addressCountry": "Switzerland"<br/>                }<br/>            } |
 |                                                    |                                        |                                                              |
 
-We also encourage the BioSchema course information providers to think about generating permanent identifiers for courses, that should be preserved between systems. This would allow easier merging of Bioschema data that have overlapping course instances (e.g a the time of writing the course "UNIX shell scripting in the life sciences" is identified differently at [TeSS](https://tess.elixir-europe.org/events/unix-shell-scripting-in-life-sciences-a2feb6ab-9eec-4a47-a8ae-96d79a7eaf55) and at [SIB training website](https://www.sib.swiss/training/course/20251105_ADVUN)).
+We also encourage the Bioschemas course information providers to think about generating permanent identifiers for courses, that should be preserved between systems. This would allow easier merging of Bioschemas data that have overlapping course instances (e.g a the time of writing the course "UNIX shell scripting in the life sciences" is identified differently at [TeSS](https://tess.elixir-europe.org/events/unix-shell-scripting-in-life-sciences-a2feb6ab-9eec-4a47-a8ae-96d79a7eaf55) and at [SIB training website](https://www.sib.swiss/training/course/20251105_ADVUN)).
 
 # MCP server
 
