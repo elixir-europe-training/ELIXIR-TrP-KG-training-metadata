@@ -79,7 +79,7 @@ Knowledge graphs (KGs) can greatly increase the potential of data by revealing h
 
 ELIXIR and its Nodes are making a major effort to make the wealth of open training materials on the computational life sciences reusable, amongst others by guidelines and support for annotating training materials with standardized metadata. One major step in standardizing metadata is the use of the Bioschemas training profile, which became a standard for representing training metadata. Despite being standardized and interoperable, there is still a lot of potential to turn these resources into valuable information, linking training data across various databases.
 
-In this project, we represented training metadata stored in TeSS as queryable knowledge graphs. After that we a developed a model context protocol (MCP) server to access and search through the knowledge graph using a natural language interface. Finally, we defined user stories to evaluate the potential of the tool, including construction of custom learning paths, creation of detailed trainer profiles, and connection of training metadata to other databases. These use-cases also shed light on the limits on the currently available metadata, and will help to make future choices on better defined and richer metadata.
+In this project, we represented training metadata stored in TeSS as a queryable knowledge graph. By doing so, we were able to find relevant gaps in the metadata that put a contstraint on knowledge graph definitions. To access and query the knowledge graph using large language models (LLM) we developed a model context protocol (MCP) server. Finally, we defined user stories to evaluate the potential of the tool, including construction of custom learning paths, creation of detailed trainer profiles, and connection of training metadata to other databases. These use-cases also shed light on the limits on the currently available metadata, and will help to make future choices on better defined and richer metadata.
 
 # From bioschemas to knowledge graphs
 
@@ -89,18 +89,73 @@ In order to create a knowledge graph we extracted training metadata from two res
 
 Although the Galaxy training network metadata is already available in TeSS, we extracted it separately, as it contains identitifiers for trainers that are not available from TeSS at the moment. In this way, we could evaluate the impact of having trainer identifiers.
 
-While going through this process, we acknowledged that there is large potential to improve the available metadata unique identifiers. Which is also stated in the FAIR principles, stating that digital resources, i.e., data and metadata, are assigned a globally unique and persistent identifier. For example, Organizations could be identified by their [ROR](https://ror.org/) and teachers by [ORCID](https://orcid.org) when available. During the hackathon we worked on merging such nodes, and bringing this data cleaning effort back to the different teams. Our suggestions for metadata providers can be found in [table 1](table-1).
+While going through the process of building a knowledge graph, we acknowledged that there is large potential to improve the available metadata unique identifiers. Which is also stated in the FAIR principles, stating that digital resources, i.e., data and metadata, are assigned a globally unique and persistent identifier. Ideally, the metadata providers associate permanent identifiers for courses, events and course materials that can be preserved between systems. This would for instance allow merging of Bioschemas data that have overlapping course instances. In addition, Organizations could be identified by their [ROR](https://ror.org/) and teachers by [ORCID](https://orcid.org) when available. During the hackathon we worked on merging such nodes, and bringing this data cleaning effort back to the different teams. Our specific suggestions for metadata providers can be found in the individual subchapters below. 
 
-[Table 1]: table-1	"Proposed usage of @id in bioschemas entries for training"
+### About and keywords
 
-| Property                                           | Type of identifier                     | Example                                                      |
-| -------------------------------------------------- | -------------------------------------- | ------------------------------------------------------------ |
-| about, keywords                                    | Ontologies, like EDAM                  | "about": [<br/>            {<br/>                **"@id": "http://edamontology.org/topic_3474"**,<br/>                "@type": "DefinedTerm",<br/>                "inDefinedTermSet": "http://edamontology.org",<br/>                "termCode": "topic_3474",<br/>                "url": "http://edamontology.org/topic_3474",<br/>                "name": "Machine learning"<br/>            }<br/>        ] |
-| author, instructor, contributor, funder, organizer | ORCiD for person, ROR for organisation | "author": [<br />                    {<br/>                        "@type": "Person",<br/>                        **"@id": "https://orcid.org/0000-0002-1561-078X"**,<br/>                        "name": "Geert van Geest"<br/>                    },<br/>                    {<br/>                        "@type": "Organization",<br/>                        **"@id": "https://ror.org/002n09z45"**,<br/>                        "name": "SIB Swiss Institute of Bioinformatics"<br/>                    }<br/>                ] |
-| location                                           | OSM Relation, Way or Node              | "location": {<br/>                "@type": "Place",<br/>                **"@id": "https://www.openstreetmap.org/relation/1684625"**,<br/>                "address": {<br/>                    "@type": "PostalAddress",<br/>                    "addressLocality": "Bellinzona",<br/>                    "addressCountry": "Switzerland"<br/>                }<br/>            } |
-|                                                    |                                        |                                                              |
+In the about and keywords properties it is recommended to use ontologies, which would be EDAM in the case of Bioschemas. This is already implemented in TeSS and by many other metadata providers, but for completeness, we mention it here. Example:
 
-We also encourage the BioSchema course information providers to think about generating permanent identifiers for courses, that should be preserved between systems. This would allow easier merging of Bioschema data that have overlapping course instances (e.g a the time of writing the course "UNIX shell scripting in the life sciences" is identified differently at [TeSS](https://tess.elixir-europe.org/events/unix-shell-scripting-in-life-sciences-a2feb6ab-9eec-4a47-a8ae-96d79a7eaf55) and at [SIB training website](https://www.sib.swiss/training/course/20251105_ADVUN)).
+```json
+"about": [
+    {
+        "@id": "http://edamontology.org/topic_3474",
+        "@type": "DefinedTerm",
+        "inDefinedTermSet": "http://edamontology.org",
+        "termCode": "topic_3474",
+        "url": "http://edamontology.org/topic_3474",
+        "name": "Machine learning"
+    }
+]
+```
+
+### Persons and organisations
+
+In properties like:
+
+- author
+- instructor
+- contributor
+- funder
+- organiser
+
+We typically specify persons and organisations. Frequently used identifiers for these are ORCiD and ROR respectively. Example:
+
+```json
+"author": [
+    {
+        "@type": "Person",
+        "@id": "https://orcid.org/0000-0002-1501-1082",
+        "name": "Vincent Emonet"
+    },
+    {
+        "@type": "Organization",
+        "@id": "https://ror.org/002n09z45",
+        "name": "SIB Swiss Institute of Bioinformatics"
+    }
+]
+```
+
+### Location
+
+For identifying the location, we recommend using OpenStreetMap (OSM) URLs, which can be either:
+
+- **Node** – a single geographic point defined by latitude and longitude.
+- **Way** – an ordered sequence of nodes that creates a polyline (e.g., a road) or a closed polygon (e.g., a building outline).
+- **Relation** – a container that groups nodes, ways, or  other relations together with specific roles to represent complex  structures such as routes, boundaries, or turn restrictions.
+
+Typically, a way would be used to define a building, and a relation for more complex structures, including cities or countries. Example:
+
+```json
+"location": {
+    "@type": "Place",
+    "@id": "https://www.openstreetmap.org/relation/1684625",
+    "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Bellinzona",
+        "addressCountry": "Switzerland"
+    }
+}
+```
 
 # MCP server
 
@@ -128,15 +183,7 @@ Or:
 - want to define a learning path of training materials and/or events
 - …so that I can become a specialist in artificial intelligence within a specified amount of time and resources (e.g. I have 6 months, workload of 14 days, I can travel within Europe once)
 
- These user stories range from rather 'simple' to advanced queries. We used these user stories to manually test the tool. For testing, we developed a dedicated protocol with the following steps:
-
-1. Send the query by providing the user story in the chat interface
-2. Evaluate the output by:
-   1. Noting down whether the MCP server gave a response and how many queries it needed
-   2. Check whether the response is correct by evaluating URLs, possibly through an additional question, e.g. 'give me the URLs to these courses'
-   3. Do a manual validation searching for the same information through TeSS
-3. Create a score from 0 to 5 for satisfying the user story
-4. Define where improvements can be made to increase satisfaction
+ These user stories were directly used as prompts to test the tool. For some user stories we added additional prompts, such as 'Provide the urls of the training material data' or 'Report only materials that are on GitHub'. Responses of the chatbot can be found in the repository.
 
 # Discussion
 
