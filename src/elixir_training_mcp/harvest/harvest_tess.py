@@ -212,14 +212,14 @@ async def harvest_tess_data(
                     if jsonld_item:
                         g.parse(data=json.dumps(jsonld_item), format="json-ld")
 
-                        # Generate filename from resource ID or use index as fallback
-                        resource_id = jsonld_item.get("@id", "").split("/")[-1] or f"resource_{idx}"
-                        filename = f"{resource_type}_{resource_id}.jsonld"
-                        filepath = tess_data_dir / filename
+                        # # Generate filename from resource ID or use index as fallback
+                        # resource_id = jsonld_item.get("@id", "").split("/")[-1] or f"resource_{idx}"
+                        # filename = f"{resource_type}_{resource_id}.jsonld"
+                        # filepath = tess_data_dir / filename
 
-                        # Dump individual JSON-LD file
-                        with open(filepath, "w") as f:
-                            json.dump(jsonld_item, f, indent=2)
+                        # # Dump individual JSON-LD file
+                        # with open(filepath, "w") as f:
+                        #     json.dump(jsonld_item, f, indent=2)
 
                 all_data.extend(jsonld_data)
 
@@ -235,7 +235,7 @@ async def harvest_tess_data(
     enrich_sib_organization(g)
 
     # Create data folder if it doesn't exist
-    Path("data").mkdir(exist_ok=True)
+    # Path("data").mkdir(exist_ok=True)
     g.serialize(str(files("elixir_training_mcp").joinpath("data/tess_harvest.ttl")), format="ttl")
     print(f"Harvested {len(all_data)} total resources")
     return all_data
