@@ -1,10 +1,12 @@
 import argparse
 from datetime import date
 from typing import Any, Optional
+from importlib.resources import files
 from urllib.parse import quote
 
 import httpx
 from mcp.server.fastmcp import FastMCP
+from rdflib import Dataset
 
 from elixir_training_mcp.models import TessTrainingMaterial
 from elixir_training_mcp.services import get_training_data_service
@@ -55,7 +57,7 @@ async def search_training_materials(
 
 
 @mcp.tool()
-async def local_keyword_search(query: str, limit: Optional[int] = None) -> list[dict[str, Any]]:
+async def keyword_search(query: str, limit: Optional[int] = None) -> list[dict[str, Any]]:
     """Search locally harvested training resources by free-text keywords."""
 
     service = get_training_data_service()
@@ -63,7 +65,7 @@ async def local_keyword_search(query: str, limit: Optional[int] = None) -> list[
 
 
 @mcp.tool()
-async def local_provider_search(provider: str, limit: Optional[int] = None) -> list[dict[str, Any]]:
+async def provider_search(provider: str, limit: Optional[int] = None) -> list[dict[str, Any]]:
     """Return resources published by a specific provider name (case-insensitive)."""
 
     service = get_training_data_service()
@@ -71,7 +73,7 @@ async def local_provider_search(provider: str, limit: Optional[int] = None) -> l
 
 
 @mcp.tool()
-async def local_location_search(
+async def location_search(
     country: str,
     city: Optional[str] = None,
     limit: Optional[int] = None,
@@ -83,7 +85,7 @@ async def local_location_search(
 
 
 @mcp.tool()
-async def local_date_search(
+async def date_search(
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
     limit: Optional[int] = None,
@@ -97,7 +99,7 @@ async def local_date_search(
 
 
 @mcp.tool()
-async def local_topic_search(topic: str, limit: Optional[int] = None) -> list[dict[str, Any]]:
+async def topic_search(topic: str, limit: Optional[int] = None) -> list[dict[str, Any]]:
     """Search harvested resources by topic identifier or label."""
 
     service = get_training_data_service()
@@ -105,39 +107,51 @@ async def local_topic_search(topic: str, limit: Optional[int] = None) -> list[di
 
 
 @mcp.tool()
-async def local_dataset_stats() -> dict[str, Any]:
+async def dataset_stats() -> dict[str, Any]:
     """Return high-level diagnostics about the loaded training datasets."""
 
     service = get_training_data_service()
     return dict(service.stats)
 
 
-# @mcp.tool()
-# async def harvest_tess_repository(
-#     repo_url: str,
-#     resource_type: str = "events",
-# ) -> list[dict[str, object]]:
-#     """Harvest all data from a TeSS repository.
 
-#     Fetches all training materials or events from a TeSS repository and retrieves
-#     the full JSON-LD representation for each resource. Processes items page by page,
-#     with parallel fetching of JSON-LD data (5 at a time).
+@mcp.tool()
+async def get_sparql_docs() -> str:
+    """Retrieve docs to help write SPARQL queries to retrieve training data."""
+    with files("elixir_training_mcp").joinpath("QUERIES.md").open("rb") as f:
+        content = f.read().decode("utf-8")
+    return content
 
-#     Args:
-#         repo_url: Base URL of the TeSS repository
-#             (e.g., "https://tess.elixir-europe.org")
-#         resource_type: Type of resource to harvest - "events" or "materials"
-#             (default: "events")
 
-#     Returns:
-#         List of all harvested resources with their full JSON-LD data
-#     """
-#     return await harvest_tess_data(
-#         repo_url=repo_url,
-#         resource_type=resource_type,
-#         per_page=100,
-#         max_concurrent=5,
-#     )
+g = Dataset(default_union=True)
+with files("elixir_training_mcp").joinpath("data/tess_harvest.ttl").open("rb") as f:
+    g.parse(f, format="ttl")
+with files("elixir_training_mcp").joinpath("data/gtn_harvest.ttl").open("rb") as f:
+    g.parse(f, format="ttl")
+
+
+@mcp.tool()
+async def execute_sparql_query(sparql_query: str) -> str:
+    """Formulate and execute a SPARQL query to answer complex questions that can't be handled by other search tools.
+
+    Usually called after calling `get_sparql_docs` to get query examples.
+
+    Args:
+        sparql_query: The SPARQL query string to execute.
+
+    Returns:
+        The SPARQL query results in string format."""
+    results = g.query(sparql_query)
+
+    # Format results as a string
+    output_lines = []
+    for row in results:
+        if isinstance(row, bool):
+            continue
+        row_str = ", ".join(str(item) for item in row)
+        output_lines.append(row_str)
+
+    return "\n".join(output_lines)
 
 
 def cli() -> None:

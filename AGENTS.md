@@ -3,10 +3,20 @@
 ## Project Structure & Module Organization
 The MCP server lives under `src/elixir_training_mcp/`. `mcp_server.py` exposes the Typer CLI entry point `cli()` and wraps request routing. `models.py` defines Pydantic payload models for TeSS and Glittr queries, while `__init__.py` stores package metadata. Runtime configuration stays in `pyproject.toml`; generated lockfiles sit in `uv.lock`. When adding tests, place them in a new `tests/` directory mirroring the source layout (for example, `tests/test_mcp_server.py`).
 
+The offline data loader is organised as follows:
+
+- `data_store.py` is the public façade that returns a `TrainingDataStore` and re-exports the search indexes for compatibility. It keeps the legacy imports working for downstream callers.
+- `loader/` contains the split-out implementation:
+  - `loader/graph.py` loads TTL files into an RDF dataset and binds common namespaces.
+  - `loader/parser.py` converts RDF subjects into `TrainingResource` instances.
+  - `loader/dedupe.py` holds identifier resolution and “richer resource” scoring.
+  - `loader/utils.py` hosts shared RDF helpers (schema predicates, literal conversions, etc.).
+- `indexes/` now houses the keyword, provider, location, date, and topic indexes plus shared helpers. `data_store.py` imports and re-exports them so existing callers continue to work.
+
 ## Build, Test, and Development Commands
 - `uv run elixir-training-mcp` runs the STDIO MCP server for local client integration.
 - `uv run elixir-training-mcp --http` starts the HTTP transport on the default port for remote clients (use `--port <PORT>` to override the default).
-- `uv run --group dev pytest` executes the test suite with coverage settings from `pyproject.toml`; this includes `tests/test_tools.py`, which exercises the offline search endpoints.
+- `uv run --group dev pytest` executes the test suite with coverage settings from `pyproject.toml`; this includes `tests/test_tools.py`, `tests/test_loader_modules.py`, and `tests/test_indexes.py` to cover the offline endpoints, loader internals, and per-index behaviour.
 - `uv run --group dev ruff check src` enforces the lint ruleset; add `--fix` only after reviewing changes.
 - `uv run --group dev mypy src` validates typing expectations across the service layer.
 

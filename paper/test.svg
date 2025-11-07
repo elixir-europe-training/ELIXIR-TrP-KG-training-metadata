@@ -1,0 +1,476 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="360px" height="360px" viewBox="0 0 360 360" version="1.1" id="4lbHLw2expGH">
+  <metadata xmlns:gridsvg="http://www.stat.auckland.ac.nz/~paul/R/gridSVG/">
+    <gridsvg:generator name="gridSVG" version="1.6-0" time="2019-11-28 18:03:18"/>
+    <gridsvg:argument name="name" value="Rplots.svg"/>
+    <gridsvg:argument name="exportCoords" value="none"/>
+    <gridsvg:argument name="exportMappings" value="none"/>
+    <gridsvg:argument name="exportJS" value="none"/>
+    <gridsvg:argument name="res" value="51.4285714285714"/>
+    <gridsvg:argument name="prefix" value="4lbHLw2expGH"/>
+    <gridsvg:argument name="addClasses" value="FALSE"/>
+    <gridsvg:argument name="indent" value="TRUE"/>
+    <gridsvg:argument name="htmlWrapper" value="FALSE"/>
+    <gridsvg:argument name="usePaths" value="vpPaths"/>
+    <gridsvg:argument name="uniqueNames" value="TRUE"/>
+    <gridsvg:separator name="id.sep" value="."/>
+    <gridsvg:separator name="gPath.sep" value="::"/>
+    <gridsvg:separator name="vpPath.sep" value="::"/>
+  </metadata>
+  <g transform="translate(0, 360) scale(1, -1)">
+    <g id="4lbHLw2expGHgridSVG" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.54" font-size="8.57" font-family="Helvetica, Arial, FreeSans, Liberation Sans, Nimbus Sans L, sans-serif" opacity="1" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-opacity="1" fill-opacity="0" font-weight="normal" font-style="normal">
+      <defs>
+        <symbol id="4lbHLw2expGHgridSVG.pch19" viewBox="-5 -5 10 10" overflow="visible">
+          <circle cx="0" cy="0" r="3.75"/>
+        </symbol>
+      </defs>
+      <g id="4lbHLw2expGHlayout.1">
+        <g id="4lbHLw2expGHlayout.2">
+          <defs>
+            <clipPath id="4lbHLw2expGHlayout::background.1-9-12-1.1.clipPath">
+              <rect x="0" y="0" width="360" height="360" fill="none" stroke="none"/>
+            </clipPath>
+          </defs>
+          <g id="4lbHLw2expGHlayout::background.1-9-12-1.1" clip-path="url(#4lbHLw2expGHlayout::background.1-9-12-1.1.clipPath)">
+            <g id="4lbHLw2expGHbackground.1-9-12-1.1">
+              <rect id="4lbHLw2expGHbackground.1-9-12-1.1.1" x="0" y="0" width="360" height="360" transform="" stroke-width="0.76" stroke="rgb(255,255,255)" fill="rgb(255,255,255)" stroke-dasharray="none" stroke-opacity="1" fill-opacity="1"/>
+            </g>
+          </g>
+          <defs>
+            <clipPath id="4lbHLw2expGHlayout::panel.7-5-7-5.1.clipPath">
+              <rect x="34.06" y="26.14" width="322.02" height="329.94" fill="none" stroke="none"/>
+            </clipPath>
+          </defs>
+          <g id="4lbHLw2expGHlayout::panel.7-5-7-5.1" clip-path="url(#4lbHLw2expGHlayout::panel.7-5-7-5.1.clipPath)">
+            <g id="4lbHLw2expGHpanel.7-5-7-5.1">
+              <g id="4lbHLw2expGHgrill.gTree.62.1">
+                <g id="4lbHLw2expGHpanel.background..rect.53.1">
+                  <rect id="4lbHLw2expGHpanel.background..rect.53.1.1" x="34.06" y="26.14" width="322.02" height="329.94" transform="" stroke-width="0.76" stroke="none" fill="rgb(255,255,255)" stroke-dasharray="none" stroke-opacity="0" fill-opacity="1"/>
+                </g>
+                <g id="4lbHLw2expGHpanel.grid.minor.y..polyline.55.1">
+                  <polyline id="4lbHLw2expGHpanel.grid.minor.y..polyline.55.1.1" points="34.06,76.57 356.09,76.57" stroke="rgb(222,222,222)" fill="none" stroke-width="0.19" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                  <polyline id="4lbHLw2expGHpanel.grid.minor.y..polyline.55.1.2" points="34.06,147.43 356.09,147.43" stroke="rgb(222,222,222)" fill="none" stroke-width="0.19" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                  <polyline id="4lbHLw2expGHpanel.grid.minor.y..polyline.55.1.3" points="34.06,218.29 356.09,218.29" stroke="rgb(222,222,222)" fill="none" stroke-width="0.19" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                  <polyline id="4lbHLw2expGHpanel.grid.minor.y..polyline.55.1.4" points="34.06,289.15 356.09,289.15" stroke="rgb(222,222,222)" fill="none" stroke-width="0.19" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                </g>
+                <g id="4lbHLw2expGHpanel.grid.minor.x..polyline.57.1">
+                  <polyline id="4lbHLw2expGHpanel.grid.minor.x..polyline.57.1.1" points="68.12,26.14 68.12,356.09" stroke="rgb(222,222,222)" fill="none" stroke-width="0.19" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                  <polyline id="4lbHLw2expGHpanel.grid.minor.x..polyline.57.1.2" points="165.7,26.14 165.7,356.09" stroke="rgb(222,222,222)" fill="none" stroke-width="0.19" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                  <polyline id="4lbHLw2expGHpanel.grid.minor.x..polyline.57.1.3" points="263.28,26.14 263.28,356.09" stroke="rgb(222,222,222)" fill="none" stroke-width="0.19" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                </g>
+                <g id="4lbHLw2expGHpanel.grid.major.y..polyline.59.1">
+                  <polyline id="4lbHLw2expGHpanel.grid.major.y..polyline.59.1.1" points="34.06,41.14 356.09,41.14" stroke="rgb(222,222,222)" fill="none" stroke-width="0.38" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                  <polyline id="4lbHLw2expGHpanel.grid.major.y..polyline.59.1.2" points="34.06,112 356.09,112" stroke="rgb(222,222,222)" fill="none" stroke-width="0.38" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                  <polyline id="4lbHLw2expGHpanel.grid.major.y..polyline.59.1.3" points="34.06,182.86 356.09,182.86" stroke="rgb(222,222,222)" fill="none" stroke-width="0.38" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                  <polyline id="4lbHLw2expGHpanel.grid.major.y..polyline.59.1.4" points="34.06,253.72 356.09,253.72" stroke="rgb(222,222,222)" fill="none" stroke-width="0.38" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                  <polyline id="4lbHLw2expGHpanel.grid.major.y..polyline.59.1.5" points="34.06,324.58 356.09,324.58" stroke="rgb(222,222,222)" fill="none" stroke-width="0.38" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                </g>
+                <g id="4lbHLw2expGHpanel.grid.major.x..polyline.61.1">
+                  <polyline id="4lbHLw2expGHpanel.grid.major.x..polyline.61.1.1" points="116.91,26.14 116.91,356.09" stroke="rgb(222,222,222)" fill="none" stroke-width="0.38" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                  <polyline id="4lbHLw2expGHpanel.grid.major.x..polyline.61.1.2" points="214.49,26.14 214.49,356.09" stroke="rgb(222,222,222)" fill="none" stroke-width="0.38" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                  <polyline id="4lbHLw2expGHpanel.grid.major.x..polyline.61.1.3" points="312.07,26.14 312.07,356.09" stroke="rgb(222,222,222)" fill="none" stroke-width="0.38" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                </g>
+              </g>
+              <g id="4lbHLw2expGHgeom_smooth.gTree.13.1">
+                <g id="4lbHLw2expGHGRID.polyline.11.1">
+                  <polyline id="4lbHLw2expGHGRID.polyline.11.1.1" points="78.08,311.55 81.41,307.65 84.74,303.73 88.08,299.79 91.41,295.82 94.75,291.83 98.08,287.81 101.41,283.78 104.75,279.72 108.08,275.64 111.41,271.54 114.75,267.41 118.08,263.26 121.42,259.09 124.75,254.9 128.08,250.68 131.42,246.44 134.75,242.18 138.09,237.89 141.42,233.45 144.75,228.87 148.09,224.16 151.42,219.35 154.75,214.46 158.09,209.52 161.42,204.54 164.76,199.56 168.09,194.58 171.42,189.65 174.76,184.77 178.09,179.98 181.42,175.29 184.76,170.72 188.09,166.32 191.43,162.08 194.76,158.04 198.09,154.23 201.43,150.65 204.76,147.34 208.1,144.3 211.43,141.5 214.76,138.9 218.1,136.51 221.43,134.3 224.76,132.26 228.1,130.36 231.43,128.6 234.77,126.95 238.1,125.41 241.43,123.94 244.77,122.55 248.1,121.2 251.44,119.89 254.77,118.59 258.1,117.29 261.44,115.98 264.77,114.63 268.1,113.23 271.44,111.76 274.77,110.23 278.11,108.69 281.44,107.18 284.77,105.69 288.11,104.22 291.44,102.78 294.78,101.35 298.11,99.94 301.44,98.56 304.78,97.2 308.11,95.85 311.44,94.53 314.78,93.23 318.11,91.95 321.45,90.69 324.78,89.45 328.11,88.24 331.45,87.04 334.78,85.87 338.11,84.71 341.45,83.58" stroke="rgb(0,0,0)" fill="none" stroke-width="1.52" stroke-dasharray="6.08,6.08" stroke-linecap="butt" stroke-linejoin="round" stroke-miterlimit="10" stroke-opacity="1" fill-opacity="1"/>
+                </g>
+              </g>
+              <g id="4lbHLw2expGHGRID.gTree.15.1">
+                <g id="4lbHLw2expGHGRID.segments.14.1">
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.1" points="19.33,26.14 19.33,32.22" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.2" points="48.7,26.14 48.7,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.3" points="65.88,26.14 65.88,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.4" points="78.08,26.14 78.08,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.5" points="87.53,26.14 87.53,30.19" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.6" points="95.26,26.14 95.26,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.7" points="101.79,26.14 101.79,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.8" points="107.45,26.14 107.45,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.9" points="112.44,26.14 112.44,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.10" points="116.91,26.14 116.91,32.22" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.11" points="146.28,26.14 146.28,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.12" points="163.47,26.14 163.47,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.13" points="175.66,26.14 175.66,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.14" points="185.12,26.14 185.12,30.19" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.15" points="192.84,26.14 192.84,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.16" points="199.38,26.14 199.38,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.17" points="205.03,26.14 205.03,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.18" points="210.03,26.14 210.03,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.19" points="214.49,26.14 214.49,32.22" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.20" points="243.87,26.14 243.87,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.21" points="261.05,26.14 261.05,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.22" points="273.24,26.14 273.24,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.23" points="282.7,26.14 282.7,30.19" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.24" points="290.42,26.14 290.42,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.25" points="296.96,26.14 296.96,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.26" points="302.62,26.14 302.62,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.27" points="307.61,26.14 307.61,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.28" points="312.07,26.14 312.07,32.22" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.29" points="341.45,26.14 341.45,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.30" points="358.63,26.14 358.63,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.31" points="370.82,26.14 370.82,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.32" points="380.28,26.14 380.28,30.19" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.33" points="388.01,26.14 388.01,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.34" points="394.54,26.14 394.54,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.35" points="400.2,26.14 400.2,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.36" points="405.19,26.14 405.19,28.17" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                  <polyline id="4lbHLw2expGHGRID.segments.14.1.37" points="409.66,26.14 409.66,32.22" stroke="rgb(0,0,0)" stroke-dasharray="none" stroke-width="0.76" stroke-opacity="1" fill="none"/>
+                </g>
+              </g>
+              <g id="4lbHLw2expGHgeom_point.points.17.1">
+                <use id="4lbHLw2expGHgeom_point.points.17.1.1" href="#4lbHLw2expGHgridSVG.pch19" x="312.07" y="72.39" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(0,0,255)" fill="rgb(0,0,255)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.17.1.2" href="#4lbHLw2expGHgridSVG.pch19" x="243.87" y="137.94" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(0,0,255)" fill="rgb(0,0,255)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.17.1.3" href="#4lbHLw2expGHgridSVG.pch19" x="175.66" y="172.15" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(0,0,255)" fill="rgb(0,0,255)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.17.1.4" href="#4lbHLw2expGHgridSVG.pch19" x="107.45" y="294.6" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(0,0,255)" fill="rgb(0,0,255)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.17.1.5" href="#4lbHLw2expGHgridSVG.pch19" x="48.7" y="302.48" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(0,0,255)" fill="rgb(0,0,255)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.17.1.6" href="#4lbHLw2expGHgridSVG.pch19" x="312.07" y="120.28" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(0,0,255)" fill="rgb(0,0,255)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.17.1.7" href="#4lbHLw2expGHgridSVG.pch19" x="243.87" y="116.15" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(0,0,255)" fill="rgb(0,0,255)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.17.1.8" href="#4lbHLw2expGHgridSVG.pch19" x="175.66" y="179.42" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(0,0,255)" fill="rgb(0,0,255)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.17.1.9" href="#4lbHLw2expGHgridSVG.pch19" x="107.45" y="277.4" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(0,0,255)" fill="rgb(0,0,255)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.17.1.10" href="#4lbHLw2expGHgridSVG.pch19" x="48.7" y="299.22" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(0,0,255)" fill="rgb(0,0,255)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+              </g>
+              <g id="4lbHLw2expGHgeom_point.points.19.1">
+                <use id="4lbHLw2expGHgeom_point.points.19.1.1" href="#4lbHLw2expGHgridSVG.pch19" x="312.07" y="290.67" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(255,0,0)" fill="rgb(255,0,0)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.19.1.2" href="#4lbHLw2expGHgridSVG.pch19" x="243.87" y="315.84" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(255,0,0)" fill="rgb(255,0,0)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.19.1.3" href="#4lbHLw2expGHgridSVG.pch19" x="175.66" y="319.63" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(255,0,0)" fill="rgb(255,0,0)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.19.1.4" href="#4lbHLw2expGHgridSVG.pch19" x="107.45" y="322.32" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(255,0,0)" fill="rgb(255,0,0)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.19.1.5" href="#4lbHLw2expGHgridSVG.pch19" x="48.7" y="338.19" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(255,0,0)" fill="rgb(255,0,0)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.19.1.6" href="#4lbHLw2expGHgridSVG.pch19" x="312.07" y="140.74" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(255,0,0)" fill="rgb(255,0,0)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.19.1.7" href="#4lbHLw2expGHgridSVG.pch19" x="243.87" y="321.85" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(255,0,0)" fill="rgb(255,0,0)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.19.1.8" href="#4lbHLw2expGHgridSVG.pch19" x="175.66" y="327.27" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(255,0,0)" fill="rgb(255,0,0)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.19.1.9" href="#4lbHLw2expGHgridSVG.pch19" x="107.45" y="304.69" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(255,0,0)" fill="rgb(255,0,0)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.19.1.10" href="#4lbHLw2expGHgridSVG.pch19" x="48.7" y="341.09" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(255,0,0)" fill="rgb(255,0,0)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+              </g>
+              <g id="4lbHLw2expGHgeom_point.points.21.1">
+                <use id="4lbHLw2expGHgeom_point.points.21.1.1" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="75.13" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.21.1.2" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="125.3" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.21.1.3" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="175.25" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.21.1.4" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="276.43" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.21.1.5" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="314.65" width="6.77" height="6.77" transform=" translate(-3.39,-3.39)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="6.77" stroke-width="0.75" stroke-opacity="0.8" fill-opacity="0.8"/>
+              </g>
+              <g id="4lbHLw2expGHgeom_smooth.gTree.24.1">
+                <g id="4lbHLw2expGHGRID.polyline.22.1">
+                  <polyline id="4lbHLw2expGHGRID.polyline.22.1.1" points="78.08,314.65 81.41,313.38 84.74,311.8 88.08,309.92 91.41,307.8 94.75,305.48 98.08,303 101.41,300.41 104.75,297.73 108.08,295.03 111.41,292.33 114.75,289.68 118.08,287.12 121.42,284.7 124.75,282.45 128.08,280.42 131.42,278.65 134.75,277.18 138.09,275.94 141.42,273.92 144.75,270.93 148.09,267.08 151.42,262.48 154.75,257.24 158.09,251.46 161.42,245.25 164.76,238.73 168.09,232 171.42,225.18 174.76,218.36 178.09,211.65 181.42,205.18 184.76,199.04 188.09,193.35 191.43,188.21 194.76,183.73 198.09,180.02 201.43,177.19 204.76,175.35 208.1,173.98 211.43,172.29 214.76,170.31 218.1,168.07 221.43,165.61 224.76,162.96 228.1,160.17 231.43,157.26 234.77,154.26 238.1,151.22 241.43,148.18 244.77,145.15 248.1,142.18 251.44,139.31 254.77,136.57 258.1,133.99 261.44,131.61 264.77,129.47 268.1,127.59 271.44,126.02 274.77,124.71 278.11,123.16 281.44,121.3 284.77,119.17 288.11,116.8 291.44,114.22 294.78,111.48 298.11,108.6 301.44,105.63 304.78,102.59 308.11,99.53 311.44,96.47 314.78,93.46 318.11,90.52 321.45,87.7 324.78,85.03 328.11,82.54 331.45,80.27 334.78,78.26 338.11,76.53 341.45,75.13" stroke="rgb(160,32,240)" fill="none" stroke-width="1.52" stroke-dasharray="6.08,6.08" stroke-linecap="butt" stroke-linejoin="round" stroke-miterlimit="10" stroke-opacity="1" fill-opacity="1"/>
+                </g>
+              </g>
+              <g id="4lbHLw2expGHgeom_point.points.26.1">
+                <use id="4lbHLw2expGHgeom_point.points.26.1.1" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="228.2" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.26.1.2" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="228.2" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.26.1.3" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="228.2" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.26.1.4" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="228.2" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.26.1.5" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="228.2" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.26.1.6" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="228.2" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.26.1.7" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="228.2" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.26.1.8" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="228.2" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.26.1.9" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="228.2" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.8" fill-opacity="0.8"/>
+                <use id="4lbHLw2expGHgeom_point.points.26.1.10" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="228.2" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.8" fill-opacity="0.8"/>
+              </g>
+              <g id="4lbHLw2expGHgeom_point.points.28.1">
+                <use id="4lbHLw2expGHgeom_point.points.28.1.1" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="68.65" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.28.1.2" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="52.12" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.28.1.3" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="110.81" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.28.1.4" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="68.95" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.28.1.5" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="134.95" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.28.1.6" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="137" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.28.1.7" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="113.84" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.28.1.8" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="115.43" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.28.1.9" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="169.86" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.28.1.10" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="173.39" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.28.1.11" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="177.01" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.28.1.12" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="180.74" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.28.1.13" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="292.58" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.28.1.14" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="276.81" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.28.1.15" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="275.51" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.28.1.16" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="260.82" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.28.1.17" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="315.03" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.28.1.18" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="317.7" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.28.1.19" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="311.61" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.28.1.20" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="314.25" width="10.84" height="10.84" transform=" translate(-5.42,-5.42)" stroke="rgb(160,32,240)" fill="rgb(160,32,240)" font-size="10.84" stroke-width="0.47" stroke-opacity="0.4" fill-opacity="0.4"/>
+              </g>
+              <g id="4lbHLw2expGHgeom_point.points.30.1">
+                <use id="4lbHLw2expGHgeom_point.points.30.1.1" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="93.56" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.30.1.2" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="93.56" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.30.1.3" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="93.56" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.30.1.4" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="93.56" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.30.1.5" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="93.56" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.30.1.6" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="93.56" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.30.1.7" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="93.56" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.30.1.8" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="93.56" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.30.1.9" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="93.56" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.30.1.10" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="93.56" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+              </g>
+              <g id="4lbHLw2expGHgeom_point.points.32.1">
+                <use id="4lbHLw2expGHgeom_point.points.32.1.1" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="134.85" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.32.1.2" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="134.85" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.32.1.3" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="134.85" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.32.1.4" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="134.85" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.32.1.5" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="134.85" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.32.1.6" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="134.85" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.32.1.7" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="134.85" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.32.1.8" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="134.85" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.32.1.9" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="134.85" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.32.1.10" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="134.85" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+              </g>
+              <g id="4lbHLw2expGHgeom_point.points.34.1">
+                <use id="4lbHLw2expGHgeom_point.points.34.1.1" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="157.63" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.34.1.2" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="157.63" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.34.1.3" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="157.63" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.34.1.4" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="157.63" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.34.1.5" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="157.63" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.34.1.6" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="157.63" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.34.1.7" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="157.63" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.34.1.8" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="157.63" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.34.1.9" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="157.63" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.34.1.10" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="157.63" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+              </g>
+              <g id="4lbHLw2expGHgeom_point.points.36.1">
+                <use id="4lbHLw2expGHgeom_point.points.36.1.1" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="250.83" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.36.1.2" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="250.83" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.36.1.3" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="250.83" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.36.1.4" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="250.83" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.36.1.5" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="250.83" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.36.1.6" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="250.83" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.36.1.7" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="250.83" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.36.1.8" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="250.83" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.36.1.9" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="250.83" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.36.1.10" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="250.83" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+              </g>
+              <g id="4lbHLw2expGHgeom_point.points.38.1">
+                <use id="4lbHLw2expGHgeom_point.points.38.1.1" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="323.16" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.38.1.2" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="323.16" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.38.1.3" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="323.16" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.38.1.4" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="323.16" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.38.1.5" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="323.16" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.38.1.6" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="323.16" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.38.1.7" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="323.16" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.38.1.8" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="323.16" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.38.1.9" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="323.16" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.38.1.10" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="323.16" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+              </g>
+              <g id="4lbHLw2expGHgeom_point.points.40.1">
+                <use id="4lbHLw2expGHgeom_point.points.40.1.1" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="73.6" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.40.1.2" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="73.6" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.40.1.3" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="73.6" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.40.1.4" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="73.6" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.40.1.5" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="73.6" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.40.1.6" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="73.6" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.40.1.7" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="73.6" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.40.1.8" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="73.6" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.40.1.9" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="73.6" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.40.1.10" href="#4lbHLw2expGHgridSVG.pch19" x="341.45" y="73.6" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+              </g>
+              <g id="4lbHLw2expGHgeom_point.points.42.1">
+                <use id="4lbHLw2expGHgeom_point.points.42.1.1" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="87.02" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.42.1.2" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="87.02" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.42.1.3" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="87.02" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.42.1.4" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="87.02" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.42.1.5" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="87.02" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.42.1.6" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="87.02" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.42.1.7" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="87.02" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.42.1.8" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="87.02" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.42.1.9" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="87.02" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.42.1.10" href="#4lbHLw2expGHgridSVG.pch19" x="273.24" y="87.02" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+              </g>
+              <g id="4lbHLw2expGHgeom_point.points.44.1">
+                <use id="4lbHLw2expGHgeom_point.points.44.1.1" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="136.54" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.44.1.2" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="136.54" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.44.1.3" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="136.54" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.44.1.4" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="136.54" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.44.1.5" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="136.54" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.44.1.6" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="136.54" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.44.1.7" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="136.54" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.44.1.8" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="136.54" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.44.1.9" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="136.54" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.44.1.10" href="#4lbHLw2expGHgridSVG.pch19" x="205.03" y="136.54" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+              </g>
+              <g id="4lbHLw2expGHgeom_point.points.46.1">
+                <use id="4lbHLw2expGHgeom_point.points.46.1.1" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="228.2" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.46.1.2" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="228.2" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.46.1.3" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="228.2" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.46.1.4" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="228.2" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.46.1.5" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="228.2" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.46.1.6" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="228.2" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.46.1.7" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="228.2" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.46.1.8" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="228.2" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.46.1.9" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="228.2" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.46.1.10" href="#4lbHLw2expGHgridSVG.pch19" x="136.83" y="228.2" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+              </g>
+              <g id="4lbHLw2expGHgeom_point.points.48.1">
+                <use id="4lbHLw2expGHgeom_point.points.48.1.1" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="299.95" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.48.1.2" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="299.95" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.48.1.3" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="299.95" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.48.1.4" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="299.95" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.48.1.5" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="299.95" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.48.1.6" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="299.95" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.48.1.7" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="299.95" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.48.1.8" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="299.95" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.48.1.9" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="299.95" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+                <use id="4lbHLw2expGHgeom_point.points.48.1.10" href="#4lbHLw2expGHgridSVG.pch19" x="78.08" y="299.95" width="4.74" height="4.74" transform=" translate(-2.37,-2.37)" stroke="rgb(0,0,0)" fill="rgb(0,0,0)" font-size="4.74" stroke-width="1.08" stroke-opacity="0.4" fill-opacity="0.4"/>
+              </g>
+              <g id="4lbHLw2expGHpanel.border..rect.50.1">
+                <rect id="4lbHLw2expGHpanel.border..rect.50.1.1" x="34.06" y="26.14" width="322.02" height="329.94" transform="" stroke-width="0.76" stroke="rgb(179,179,179)" fill="none" stroke-dasharray="none" stroke-opacity="1" fill-opacity="0"/>
+              </g>
+            </g>
+          </g>
+          <g id="4lbHLw2expGHlayout::spacer.8-6-8-6.1"/>
+          <g id="4lbHLw2expGHlayout::spacer.8-4-8-4.1"/>
+          <g id="4lbHLw2expGHlayout::spacer.6-6-6-6.1"/>
+          <g id="4lbHLw2expGHlayout::spacer.6-4-6-4.1"/>
+          <g id="4lbHLw2expGHlayout::axis-t.6-5-6-5.1"/>
+          <g id="4lbHLw2expGHlayout::axis-l.7-4-7-4.1">
+            <g id="4lbHLw2expGHlayout::axis-l.7-4-7-4::GRID.VP.6.1">
+              <g id="4lbHLw2expGHaxis-l.7-4-7-4.1">
+                <g id="4lbHLw2expGHlayout::axis-l.7-4-7-4::GRID.VP.6::axis.1">
+                  <g id="4lbHLw2expGHaxis.1">
+                    <g id="4lbHLw2expGHlayout::axis-l.7-4-7-4::GRID.VP.6::axis::axis.1-1-1-1.1">
+                      <g id="4lbHLw2expGHlayout::axis-l.7-4-7-4::GRID.VP.6::axis::axis.1-1-1-1::GRID.VP.4.1" font-size="8" stroke="rgb(77,77,77)" font-family="Helvetica, Arial, FreeSans, Liberation Sans, Nimbus Sans L, sans-serif" stroke-opacity="1" font-weight="normal" font-style="normal">
+                        <g id="4lbHLw2expGHlayout::axis-l.7-4-7-4::GRID.VP.6::axis::axis.1-1-1-1::GRID.VP.4::GRID.VP.5.1">
+                          <g id="4lbHLw2expGHaxis.1-1-1-1.1">
+                            <g id="4lbHLw2expGHGRID.text.74.1">
+                              <g id="4lbHLw2expGHGRID.text.74.1.1" transform="translate(30.54, 41.14)" stroke-width="0.1">
+                                <g id="4lbHLw2expGHGRID.text.74.1.1.scale" transform="scale(1, -1)">
+                                  <text x="0" y="0" id="4lbHLw2expGHGRID.text.74.1.1.text" text-anchor="end" font-size="8" stroke="rgb(77,77,77)" font-family="Helvetica, Arial, FreeSans, Liberation Sans, Nimbus Sans L, sans-serif" fill="rgb(77,77,77)" stroke-opacity="1" fill-opacity="1" font-weight="normal" font-style="normal">
+                                    <tspan id="4lbHLw2expGHGRID.text.74.1.1.tspan.1" dy="2.82" x="0">0.00</tspan>
+                                  </text>
+                                </g>
+                              </g>
+                              <g id="4lbHLw2expGHGRID.text.74.1.2" transform="translate(30.54, 112)" stroke-width="0.1">
+                                <g id="4lbHLw2expGHGRID.text.74.1.2.scale" transform="scale(1, -1)">
+                                  <text x="0" y="0" id="4lbHLw2expGHGRID.text.74.1.2.text" text-anchor="end" font-size="8" stroke="rgb(77,77,77)" font-family="Helvetica, Arial, FreeSans, Liberation Sans, Nimbus Sans L, sans-serif" fill="rgb(77,77,77)" stroke-opacity="1" fill-opacity="1" font-weight="normal" font-style="normal">
+                                    <tspan id="4lbHLw2expGHGRID.text.74.1.2.tspan.1" dy="2.82" x="0">0.25</tspan>
+                                  </text>
+                                </g>
+                              </g>
+                              <g id="4lbHLw2expGHGRID.text.74.1.3" transform="translate(30.54, 182.86)" stroke-width="0.1">
+                                <g id="4lbHLw2expGHGRID.text.74.1.3.scale" transform="scale(1, -1)">
+                                  <text x="0" y="0" id="4lbHLw2expGHGRID.text.74.1.3.text" text-anchor="end" font-size="8" stroke="rgb(77,77,77)" font-family="Helvetica, Arial, FreeSans, Liberation Sans, Nimbus Sans L, sans-serif" fill="rgb(77,77,77)" stroke-opacity="1" fill-opacity="1" font-weight="normal" font-style="normal">
+                                    <tspan id="4lbHLw2expGHGRID.text.74.1.3.tspan.1" dy="2.82" x="0">0.50</tspan>
+                                  </text>
+                                </g>
+                              </g>
+                              <g id="4lbHLw2expGHGRID.text.74.1.4" transform="translate(30.54, 253.72)" stroke-width="0.1">
+                                <g id="4lbHLw2expGHGRID.text.74.1.4.scale" transform="scale(1, -1)">
+                                  <text x="0" y="0" id="4lbHLw2expGHGRID.text.74.1.4.text" text-anchor="end" font-size="8" stroke="rgb(77,77,77)" font-family="Helvetica, Arial, FreeSans, Liberation Sans, Nimbus Sans L, sans-serif" fill="rgb(77,77,77)" stroke-opacity="1" fill-opacity="1" font-weight="normal" font-style="normal">
+                                    <tspan id="4lbHLw2expGHGRID.text.74.1.4.tspan.1" dy="2.82" x="0">0.75</tspan>
+                                  </text>
+                                </g>
+                              </g>
+                              <g id="4lbHLw2expGHGRID.text.74.1.5" transform="translate(30.54, 324.58)" stroke-width="0.1">
+                                <g id="4lbHLw2expGHGRID.text.74.1.5.scale" transform="scale(1, -1)">
+                                  <text x="0" y="0" id="4lbHLw2expGHGRID.text.74.1.5.text" text-anchor="end" font-size="8" stroke="rgb(77,77,77)" font-family="Helvetica, Arial, FreeSans, Liberation Sans, Nimbus Sans L, sans-serif" fill="rgb(77,77,77)" stroke-opacity="1" fill-opacity="1" font-weight="normal" font-style="normal">
+                                    <tspan id="4lbHLw2expGHGRID.text.74.1.5.tspan.1" dy="2.82" x="0">1.00</tspan>
+                                  </text>
+                                </g>
+                              </g>
+                            </g>
+                          </g>
+                        </g>
+                      </g>
+                    </g>
+                    <g id="4lbHLw2expGHlayout::axis-l.7-4-7-4::GRID.VP.6::axis::axis.1-2-1-2.1">
+                      <g id="4lbHLw2expGHaxis.1-2-1-2.1">
+                        <polyline id="4lbHLw2expGHaxis.1-2-1-2.1.1" points="32.11,41.14 34.06,41.14" stroke="rgb(179,179,179)" fill="none" stroke-width="0.38" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                        <polyline id="4lbHLw2expGHaxis.1-2-1-2.1.2" points="32.11,112 34.06,112" stroke="rgb(179,179,179)" fill="none" stroke-width="0.38" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                        <polyline id="4lbHLw2expGHaxis.1-2-1-2.1.3" points="32.11,182.86 34.06,182.86" stroke="rgb(179,179,179)" fill="none" stroke-width="0.38" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                        <polyline id="4lbHLw2expGHaxis.1-2-1-2.1.4" points="32.11,253.72 34.06,253.72" stroke="rgb(179,179,179)" fill="none" stroke-width="0.38" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                        <polyline id="4lbHLw2expGHaxis.1-2-1-2.1.5" points="32.11,324.58 34.06,324.58" stroke="rgb(179,179,179)" fill="none" stroke-width="0.38" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                      </g>
+                    </g>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+          <g id="4lbHLw2expGHlayout::axis-r.7-6-7-6.1"/>
+          <g id="4lbHLw2expGHlayout::axis-b.8-5-8-5.1">
+            <g id="4lbHLw2expGHlayout::axis-b.8-5-8-5::GRID.VP.3.1">
+              <g id="4lbHLw2expGHaxis-b.8-5-8-5.1">
+                <g id="4lbHLw2expGHlayout::axis-b.8-5-8-5::GRID.VP.3::axis.1">
+                  <g id="4lbHLw2expGHaxis.2">
+                    <g id="4lbHLw2expGHlayout::axis-b.8-5-8-5::GRID.VP.3::axis::axis.1-1-1-1.1">
+                      <g id="4lbHLw2expGHaxis.1-1-1-1.2">
+                        <polyline id="4lbHLw2expGHaxis.1-1-1-1.2.1" points="116.91,24.19 116.91,26.14" stroke="rgb(179,179,179)" fill="none" stroke-width="0.38" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                        <polyline id="4lbHLw2expGHaxis.1-1-1-1.2.2" points="214.49,24.19 214.49,26.14" stroke="rgb(179,179,179)" fill="none" stroke-width="0.38" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                        <polyline id="4lbHLw2expGHaxis.1-1-1-1.2.3" points="312.07,24.19 312.07,26.14" stroke="rgb(179,179,179)" fill="none" stroke-width="0.38" stroke-dasharray="none" stroke-linecap="butt" stroke-opacity="1" fill-opacity="1"/>
+                      </g>
+                    </g>
+                    <g id="4lbHLw2expGHlayout::axis-b.8-5-8-5::GRID.VP.3::axis::axis.2-1-2-1.1">
+                      <g id="4lbHLw2expGHlayout::axis-b.8-5-8-5::GRID.VP.3::axis::axis.2-1-2-1::GRID.VP.1.1" font-size="8" stroke="rgb(77,77,77)" font-family="Helvetica, Arial, FreeSans, Liberation Sans, Nimbus Sans L, sans-serif" stroke-opacity="1" font-weight="normal" font-style="normal">
+                        <g id="4lbHLw2expGHlayout::axis-b.8-5-8-5::GRID.VP.3::axis::axis.2-1-2-1::GRID.VP.1::GRID.VP.2.1">
+                          <g id="4lbHLw2expGHaxis.2-1-2-1.1">
+                            <g id="4lbHLw2expGHGRID.text.66.1">
+                              <g id="4lbHLw2expGHGRID.text.66.1.1" transform="translate(116.91, 22.62)" stroke-width="0.1">
+                                <g id="4lbHLw2expGHGRID.text.66.1.1.scale" transform="scale(1, -1)">
+                                  <text x="0" y="0" id="4lbHLw2expGHGRID.text.66.1.1.text" text-anchor="middle" font-size="8" stroke="rgb(77,77,77)" font-family="Helvetica, Arial, FreeSans, Liberation Sans, Nimbus Sans L, sans-serif" fill="rgb(77,77,77)" stroke-opacity="1" fill-opacity="1" font-weight="normal" font-style="normal">
+                                    <tspan id="4lbHLw2expGHGRID.text.66.1.1.tspan.1" dy="5.64" x="0">0.1</tspan>
+                                  </text>
+                                </g>
+                              </g>
+                              <g id="4lbHLw2expGHGRID.text.66.1.2" transform="translate(214.49, 22.62)" stroke-width="0.1">
+                                <g id="4lbHLw2expGHGRID.text.66.1.2.scale" transform="scale(1, -1)">
+                                  <text x="0" y="0" id="4lbHLw2expGHGRID.text.66.1.2.text" text-anchor="middle" font-size="8" stroke="rgb(77,77,77)" font-family="Helvetica, Arial, FreeSans, Liberation Sans, Nimbus Sans L, sans-serif" fill="rgb(77,77,77)" stroke-opacity="1" fill-opacity="1" font-weight="normal" font-style="normal">
+                                    <tspan id="4lbHLw2expGHGRID.text.66.1.2.tspan.1" dy="5.64" x="0">1.0</tspan>
+                                  </text>
+                                </g>
+                              </g>
+                              <g id="4lbHLw2expGHGRID.text.66.1.3" transform="translate(312.07, 22.62)" stroke-width="0.1">
+                                <g id="4lbHLw2expGHGRID.text.66.1.3.scale" transform="scale(1, -1)">
+                                  <text x="0" y="0" id="4lbHLw2expGHGRID.text.66.1.3.text" text-anchor="middle" font-size="8" stroke="rgb(77,77,77)" font-family="Helvetica, Arial, FreeSans, Liberation Sans, Nimbus Sans L, sans-serif" fill="rgb(77,77,77)" stroke-opacity="1" fill-opacity="1" font-weight="normal" font-style="normal">
+                                    <tspan id="4lbHLw2expGHGRID.text.66.1.3.tspan.1" dy="5.64" x="0">10.0</tspan>
+                                  </text>
+                                </g>
+                              </g>
+                            </g>
+                          </g>
+                        </g>
+                      </g>
+                    </g>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+          <g id="4lbHLw2expGHlayout::xlab-t.5-5-5-5.1"/>
+          <g id="4lbHLw2expGHlayout::xlab-b.9-5-9-5.1">
+            <g id="4lbHLw2expGHlayout::xlab-b.9-5-9-5::GRID.VP.7.1" font-size="10" stroke="rgb(0,0,0)" font-family="Helvetica, Arial, FreeSans, Liberation Sans, Nimbus Sans L, sans-serif" stroke-opacity="1" font-weight="normal" font-style="normal">
+              <g id="4lbHLw2expGHlayout::xlab-b.9-5-9-5::GRID.VP.7::GRID.VP.8.1">
+                <g id="4lbHLw2expGHxlab-b.9-5-9-5.1">
+                  <g id="4lbHLw2expGHGRID.text.80.1">
+                    <g id="4lbHLw2expGHGRID.text.80.1.1" transform="translate(195.07, 13.29)" stroke-width="0.1">
+                      <g id="4lbHLw2expGHGRID.text.80.1.1.scale" transform="scale(1, -1)">
+                        <text x="0" y="0" id="4lbHLw2expGHGRID.text.80.1.1.text" text-anchor="middle" font-size="10" stroke="rgb(0,0,0)" font-family="Helvetica, Arial, FreeSans, Liberation Sans, Nimbus Sans L, sans-serif" fill="rgb(0,0,0)" stroke-opacity="1" fill-opacity="1" font-weight="normal" font-style="normal">
+                          <tspan id="4lbHLw2expGHGRID.text.80.1.1.tspan.1" dy="7.18" x="0">Dose</tspan>
+                        </text>
+                      </g>
+                    </g>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+          <g id="4lbHLw2expGHlayout::ylab-l.7-3-7-3.1">
+            <g id="4lbHLw2expGHlayout::ylab-l.7-3-7-3::GRID.VP.9.1" font-size="10" stroke="rgb(0,0,0)" font-family="Helvetica, Arial, FreeSans, Liberation Sans, Nimbus Sans L, sans-serif" stroke-opacity="1" font-weight="normal" font-style="normal">
+              <g id="4lbHLw2expGHlayout::ylab-l.7-3-7-3::GRID.VP.9::GRID.VP.10.1">
+                <g id="4lbHLw2expGHylab-l.7-3-7-3.1">
+                  <g id="4lbHLw2expGHGRID.text.84.1">
+                    <g id="4lbHLw2expGHGRID.text.84.1.1" transform="translate(3.91, 191.11)" stroke-width="0.1">
+                      <g id="4lbHLw2expGHGRID.text.84.1.1.scale" transform="scale(1, -1)">
+                        <text x="0" y="0" id="4lbHLw2expGHGRID.text.84.1.1.text" transform="rotate(-90)" text-anchor="middle" font-size="10" stroke="rgb(0,0,0)" font-family="Helvetica, Arial, FreeSans, Liberation Sans, Nimbus Sans L, sans-serif" fill="rgb(0,0,0)" stroke-opacity="1" fill-opacity="1" font-weight="normal" font-style="normal">
+                          <tspan id="4lbHLw2expGHGRID.text.84.1.1.tspan.1" dy="7.18" x="0">Value</tspan>
+                        </text>
+                      </g>
+                    </g>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+          <g id="4lbHLw2expGHlayout::ylab-r.7-7-7-7.1"/>
+          <g id="4lbHLw2expGHlayout::subtitle.4-5-4-5.1"/>
+          <g id="4lbHLw2expGHlayout::title.3-5-3-5.1"/>
+          <g id="4lbHLw2expGHlayout::caption.10-5-10-5.1"/>
+          <g id="4lbHLw2expGHlayout::tag.2-2-2-2.1"/>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

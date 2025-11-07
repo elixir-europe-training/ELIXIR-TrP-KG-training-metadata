@@ -13,9 +13,10 @@ import asyncio
 import json
 from pathlib import Path
 from typing import Any
+from importlib.resources import files
 
 import httpx
-from rdflib import Graph
+from rdflib import Graph, URIRef
 
 
 def enrich_sib_organization(g: Graph) -> None:
@@ -42,6 +43,96 @@ def enrich_sib_organization(g: Graph) -> None:
         ?s1 ?p1 ?org
     }"""
     g.update(query)
+
+
+
+def coords_to_wikidata(lat: float, lon: float) -> str | None:
+    params: dict[str, str | int | float] = {
+        "lat": lat,
+        "lon": lon,
+        "format": "jsonv2",
+        "extratags": 1,
+        "zoom": 18, # get building level info
+    }
+    resp = httpx.get("https://nominatim.openstreetmap.org/reverse", params=params, headers={"User-Agent": "geo-wikidata-resolver"})
+    resp.raise_for_status()
+    data = resp.json()
+    # # Prefer Wikidata if available
+    # wikidata_id = data.get("extratags", {}).get("wikidata")
+    # if wikidata_id:
+    #     return f"https://www.wikidata.org/entity/{wikidata_id}"
+
+    # Otherwise fallback to OpenStreetMap entity
+    osm_type = data.get("osm_type")
+    osm_id = data.get("osm_id")
+    if osm_type and osm_id:
+        osm_type_letter = {"node": "node", "way": "way", "relation": "relation"}.get(osm_type)
+        return f"https://www.openstreetmap.org/{osm_type_letter}/{osm_id}"
+    return None
+
+
+def enrich_locations_osm(g: Graph) -> None:
+    """Enrich the graph by replacing blank node locations with OSM IRIs.
+
+    For each schema:Place blank node with coordinates, queries the OpenStreetMap
+    Nominatim API to get the corresponding OSM IRI. If an IRI is found, replaces
+    the blank node subject with the OSM IRI, otherwise leaves it as a blank node.
+
+    Args:
+        g: RDFlib Graph to enrich in place
+    """
+    # Query all blank node locations with coordinates
+    query_string = """PREFIX schema: <http://schema.org/>
+    SELECT ?location ?lat ?lon
+    WHERE {
+        ?location a schema:Place ;
+            schema:latitude ?lat ;
+            schema:longitude ?lon .
+        FILTER(isBlank(?location))
+    }"""
+
+    results = g.query(query_string)
+
+    updates = []  # Store (old_blank_node, new_iri, properties) tuples
+    for row in results:
+        if isinstance(row, bool):
+            continue
+        blank_node = row[0]  # location
+        try:
+            lat = float(str(row[1]))  # lat
+            lon = float(str(row[2]))  # lon
+
+            # Get OSM IRI from coordinates
+            osm_iri = coords_to_wikidata(lat, lon)
+
+            if osm_iri:
+                # Collect all properties of this blank node
+                properties = list(g.predicate_objects(blank_node))
+                updates.append((blank_node, URIRef(osm_iri), properties))
+                print(f"Found OSM IRI for ({lat}, {lon}): {osm_iri}")
+            else:
+                print(f"No OSM IRI found for ({lat}, {lon}), keeping blank node")
+
+        except (ValueError, TypeError) as e:
+            print(f"Error processing location {blank_node}: {e}")
+
+    # Apply updates: remove blank node and add URIRef with same properties
+    for blank_node, new_iri, properties in updates:
+        # Remove all triples with the blank node as subject
+        for pred, obj in properties:
+            g.remove((blank_node, pred, obj))
+
+        # Add the same properties with the new IRI as subject
+        for pred, obj in properties:
+            g.add((new_iri, pred, obj))
+
+        # Update all triples where the blank node was used as object
+        for s, p, o in list(g.triples((None, None, blank_node))):
+            g.remove((s, p, o))
+            g.add((s, p, new_iri))
+
+        print(f"Updated location from blank node to {new_iri}")
+
 
 
 async def harvest_tess_data(
@@ -87,7 +178,8 @@ async def harvest_tess_data(
             page_number = 1
             while True:
                 # Fetch a page of data
-                page_url = f"{base_url}/{resource_type}.json_api?per_page={per_page}&page_number={page_number}"
+                page_url = f"{base_url}/{resource_type}.json_api?per_page={per_page}&page_number={page_number}&include_expired=true"
+                # include_expired=true
 
                 print(f"Fetching page {page_number}: {page_url}")
                 response = await client.get(page_url, headers={"accept": "application/vnd.api+json"})
@@ -111,10 +203,23 @@ async def harvest_tess_data(
                 print(f"Fetching {len(jsonld_urls)} JSON-LD resources in parallel...")
                 jsonld_data = await _fetch_jsonld_parallel(client, jsonld_urls, max_concurrent=max_concurrent)
 
-                # Load each JSON-LD file into the graph
-                for jsonld_item in jsonld_data:
+                # Create tess data folder if it doesn't exist
+                tess_data_dir = Path("data/tess")
+                tess_data_dir.mkdir(parents=True, exist_ok=True)
+
+                # Load each JSON-LD file into the graph and dump to individual files
+                for idx, jsonld_item in enumerate(jsonld_data):
                     if jsonld_item:
                         g.parse(data=json.dumps(jsonld_item), format="json-ld")
+
+                        # # Generate filename from resource ID or use index as fallback
+                        # resource_id = jsonld_item.get("@id", "").split("/")[-1] or f"resource_{idx}"
+                        # filename = f"{resource_type}_{resource_id}.jsonld"
+                        # filepath = tess_data_dir / filename
+
+                        # # Dump individual JSON-LD file
+                        # with open(filepath, "w") as f:
+                        #     json.dump(jsonld_item, f, indent=2)
 
                 all_data.extend(jsonld_data)
 
@@ -130,8 +235,8 @@ async def harvest_tess_data(
     enrich_sib_organization(g)
 
     # Create data folder if it doesn't exist
-    Path("data").mkdir(exist_ok=True)
-    g.serialize("data/tess_harvest.ttl", format="ttl")
+    # Path("data").mkdir(exist_ok=True)
+    g.serialize(str(files("elixir_training_mcp").joinpath("data/tess_harvest.ttl")), format="ttl")
     print(f"Harvested {len(all_data)} total resources")
     return all_data
 
@@ -176,7 +281,7 @@ async def _fetch_jsonld_parallel(
 
 
 if __name__ == "__main__":
-    asyncio.run(harvest_tess_data("https://tess.elixir-europe.org", ["events", "materials"]))
+    asyncio.run(harvest_tess_data("https://tess.elixir-europe.org", ["materials", "events"]))
     # 237 events / 3335 materials
 
 

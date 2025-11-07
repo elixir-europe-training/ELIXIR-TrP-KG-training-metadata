@@ -33,6 +33,10 @@ dependencies = [
     "pydantic >=2.12.0",
     "pydantic-settings >=2.11.0",
     "rdflib >=7.4.0",
+    "lxml >=5.0.0",
+    "extruct >=0.16.0",
+    "w3lib >=2.2.0",
+    "pyld >=2.0.4"
 ]
 
 
@@ -56,6 +60,8 @@ Source = "https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metad
 
 [project.scripts]
 elixir-training-mcp = "elixir_training_mcp.mcp_server:cli"
+scrape-gtn = "elixir_training_mcp.gtn_sitemap_scraper:cli"
+serialize-gtn = "elixir_training_mcp.serialise_jsonld_ttl:cli"
 
 ## TOOLS
 [tool.hatch.version]
