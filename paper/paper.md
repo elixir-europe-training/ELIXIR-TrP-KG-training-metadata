@@ -1,6 +1,6 @@
 ---
 title: 'Mining the potential of knowledge graphs for metadata on training'
-title_short: 'Mining Knowledge Graphs for Training Metadata'
+title_short: 'Knowledge Graphs for Training Metadata'
 tags:
   - knowledge graphs
   - metadata
@@ -51,7 +51,7 @@ event: biohackathon2025
 biohackathon_name: "BioHackathon Europe 2025"
 biohackathon_url:   "https://biohackathon-europe.org/"
 biohackathon_location: "Bad-Saarow, Germany, 2025"
-group: Logic programming group
+group: Project 18
 # URL to project git repo --- should contain the actual paper.md:
 git_url: https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata
 # This is the short authors description that is used at the
@@ -59,37 +59,23 @@ git_url: https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metada
 authors_short: Vincent Emonet, Harshita Gupta et al.
 ---
 
-
-<!--
-
-The paper.md, bibtex and figure file can be found in this repo:
-
-  https://github.com/journal-of-research-objects/Example-BioHackrXiv-Paper
-
-To modify, please clone the repo. You can generate PDF of the paper by
-pasting above link (or yours) in
-
-  http://biohackrxiv.genenetwork.org/
-
--->
-
 # Introduction
 
-Knowledge graphs (KGs) can greatly increase the potential of data by revealing hidden relationships and turning it into useful information. A KG is a graph-based representation of data that stores relations between subjects, predicates and objects in triplestores. These entities are typically described in pre-defined ontologies, which increase interoperability and connect data that would otherwise remain isolated in siloed databases. This structured data representation can greatly facilitate complex querying and applications to deep learning approaches like generative AI.
+Knowledge graphs can greatly increase the potential of data by revealing hidden relationships and turning it into useful information [@callahan_open_2024]. A knowledge graph is a graph-based representation of data that stores relations between subjects, predicates and objects in triplestores. These entities are typically described in pre-defined ontologies, which increase interoperability and connect data that would otherwise remain isolated in siloed databases. This structured data representation can greatly facilitate complex querying and applications to deep learning approaches like generative AI.
 
-ELIXIR and its Nodes are making a major effort to make the wealth of open training materials on the computational life sciences reusable, amongst others by guidelines and support for annotating training materials with standardized metadata. One major step in standardizing metadata is the use of the Bioschemas training profile, which became a standard for representing training metadata. Despite being standardized and interoperable, there is still a lot of potential to turn these resources into valuable information, linking training data across various databases.
+ELIXIR and its Nodes are making a major effort to make the wealth of open training materials on the computational life sciences reusable, amongst others by guidelines and support for annotating training materials with standardized metadata. One major step in standardizing metadata is the use of the Bioschemas training profile [@castro_bioschemas_2023; @gray_bioschemas_2017], which became a standard for representing training metadata. Despite being standardized and interoperable, there is still a lot of potential to turn these resources into valuable information, linking training data across various databases.
 
 In this project, we represented training metadata stored in TeSS as a queryable knowledge graph. By doing so, we were able to find relevant gaps in the metadata that put a contstraint on knowledge graph definitions. To access and query the knowledge graph using large language models (LLM) we developed a model context protocol (MCP) server. Finally, we defined user stories to evaluate the potential of the tool, including construction of custom learning paths, creation of detailed trainer profiles, and connection of training metadata to other databases. These use-cases also shed light on the limits on the currently available metadata, and will help to make future choices on better defined and richer metadata.
 
 # From Bioschemas to knowledge graphs
 
 In order to create a knowledge graph we extracted training metadata from two resources:
-- TeSS (https://tess.elixir-europe.org/): The ELIXIR Training e-Support System (TeSS) is a platform that aggregates training materials, courses, and events from various providers across Europe. TeSS uses the Bioschemas Training profile to annotate its resources with standardized metadata.
-- Galaxy training network (https://training.galaxyproject.org/): The Galaxy Training Network (GTN) provides a collection of training materials and tutorials for the Galaxy platform. The GTN also uses the Bioschemas Training profile to annotate its resources.
+- [TeSS](https://tess.elixir-europe.org/) [@beard_tess_2020]: The ELIXIR Training e-Support System (TeSS) is a platform that aggregates training materials, courses, and events from various providers across Europe. TeSS uses the Bioschemas Training profile to annotate its resources with standardized metadata.
+- [Galaxy training network](https://training.galaxyproject.org/): The Galaxy Training Network (GTN) provides a collection of training materials and tutorials for the Galaxy platform. The GTN also uses the Bioschemas Training profile to annotate its resources.
 
 Although the Galaxy training network metadata is already available in TeSS, we extracted it separately, as it contains identitifiers for trainers that are not available from TeSS at the moment. In this way, we could evaluate the impact of having trainer identifiers.
 
-While going through the process of building a knowledge graph, we acknowledged that there is large potential to improve the available metadata unique identifiers. Which is also stated in the FAIR principles, stating that digital resources, i.e., data and metadata, are assigned a globally unique and persistent identifier. Ideally, the metadata providers associate permanent identifiers for courses, events and course materials that can be preserved between systems. This would for instance allow merging of Bioschemas data that have overlapping course instances. In addition, Organizations could be identified by their [ROR](https://ror.org/) and teachers by [ORCID](https://orcid.org) when available. During the hackathon we worked on merging such nodes, and bringing this data cleaning effort back to the different teams. Our specific suggestions for metadata providers can be found in the individual subchapters below. 
+While going through the process of building a knowledge graph, we acknowledged that there is large potential to improve the available metadata unique identifiers. Which is also stated in the FAIR principles, stating that digital resources, i.e., data and metadata, are assigned a globally unique and persistent identifier [@wilkinson_fair_2016]. Ideally, the metadata providers associate permanent identifiers for courses, events and course materials that can be preserved between systems. This would for instance allow merging of Bioschemas data that have overlapping course instances. In addition, Organizations could be identified by their [ROR](https://ror.org/) and teachers by [ORCID](https://orcid.org) when available. During the hackathon we worked on merging such nodes, and bringing this data cleaning effort back to the different teams. Our specific suggestions for metadata providers can be found in the individual subchapters below. 
 
 ### About and keywords
 
@@ -180,18 +166,28 @@ Examples of the defined user stories are:
 Or:
 
 - As a bioinformatics scientist
-- want to define a learning path of training materials and/or events
-- …so that I can become a specialist in artificial intelligence within a specified amount of time and resources (e.g. I have 6 months, workload of 14 days, I can travel within Europe once)
 
- These user stories were directly used as prompts to test the tool. For some user stories we added additional prompts, such as 'Provide the urls of the training material data' or 'Report only materials that are on GitHub'. Responses of the chatbot can be found in the repository.
+- want to define a learning path of training materials and/or events
+
+- …so that I can become a specialist in artificial intelligence within the following specified time and resources: I have 6 months, a workload of 14 days, I live in Sweden and I can travel within Europe once
+
+These user stories were directly used as prompts to test the tool. For some user stories we added additional prompts, such as 'Provide the urls of the training material data' or 'Report only materials that are on GitHub'. Responses of the chatbot can be found in the [repository](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata) at `user_story_results`. The user stories are available from a [Google Spreadsheet](https://docs.google.com/spreadsheets/d/1QomHwBi9SO8PupcYewexE6E7DRE3N7EJmh8WDwHpBgE/edit?usp=sharing). 
 
 # Discussion
 
+There is a wealth of metadata on training courses, events and materials available within the ELIXIR ecosystem and beyond. In this project we aimed to increase its value for the end user. For example, by enabling querying in natural language with questions related to trainers and their expertise, metadata quality and learning paths. The answers to these questions by LLMs using the MCP were usually of high quality and complete, showing that there is large potential to put the metadata to use to a wide range of end users, ranging from trainers, metadata curators to learners. 
+
+Although the metadata we worked with was represented in Bioschemas format, the metadata was not in a shape so that a knowledge graph query can make use of all the possible links. For example, persons, organisations and locations typically were not associated with an persistent identifier (`@id`), resulting in unlinked nodes. This first attempt to create a knowledge graph out of this metadata provided therefore valuable cues to metadata providers to interlink their data with other resources. 
+
+The use of MCP for scientific applications is promising, because, if combined with a LLM, it allows for natural language querying while providing information from a trusted resource. In addition, multiple MCP can be used at the same time by the end user, which allows the user to combine multiple trusted resources. In our case, we evaluated an interesting combination of using our MCP with the [GitHub MCP](https://github.com/github/github-mcp-server). Since many training materials were hosted on GitHub, we could use our MCP to query the metadata, and combine that with the actual content of the training material on GitHub. For example, to get information on specific part of tutorial organized by a specific institution. Showing the potential for linking and combining resources by makign use of MCP modularity. 
+
 # Future work
 
-- Host the knowledge graph on a public SPARQL endpoint to allow users to query the data directly.
-- Host a chatbot that connects to the MCP server for easier access to the training materials knowledge graph.
-- Extend the knowledge graph by integrating additional data sources, such as trainer profiles and related publications.
+Future work regarding this project includes:
+
+- Support the application of the recommendations for using identifiers in bioschemas markup to metadata providers and TeSS
+- Providing weekly knowledge graph updates through GitHub actions
+- Feed the results of this project forward into the German BioHackathon project '[On the path to machine-actionable training materials](https://www.denbi.de/de-nbi-events/1939-4th-biohackathon-germany-on-the-path-to-machine-actionable-training-materials)'
 
 
 ## Acknowledgements
@@ -200,7 +196,8 @@ We thank the organizers of the Biohackathon Europe 2025 for organizing the event
 
 ## Supplemental information
 
-We use pandoc flavoured markdown, similar to Rstudio see \url{https://garrettgman.github.io/rmarkdown/authoring_pandoc_markdown.html}.
+- [GitHub repository](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata)
+- [Google sheet](https://docs.google.com/spreadsheets/d/1QomHwBi9SO8PupcYewexE6E7DRE3N7EJmh8WDwHpBgE/edit?usp=sharing) with user stories
 
 
 ## References
