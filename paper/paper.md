@@ -70,7 +70,9 @@ In this project, we represented training metadata stored in TeSS as a queryable 
 # From Bioschemas to knowledge graphs
 
 In order to create a knowledge graph we extracted training metadata from two resources:
+
 - [TeSS](https://tess.elixir-europe.org/) [@beard_tess_2020]: The ELIXIR Training e-Support System (TeSS) is a platform that aggregates training materials, courses, and events from various providers across Europe. TeSS uses the Bioschemas Training profile to annotate its resources with standardized metadata.
+
 - [Galaxy training network](https://training.galaxyproject.org/): The Galaxy Training Network (GTN) provides a collection of training materials and tutorials for the Galaxy platform. The GTN also uses the Bioschemas Training profile to annotate its resources.
 
 Although the Galaxy training network metadata is already available in TeSS, we extracted it separately, as it contains identitifiers for trainers that are not available from TeSS at the moment. In this way, we could evaluate the impact of having trainer identifiers.
