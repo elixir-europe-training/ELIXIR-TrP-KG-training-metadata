@@ -1,0 +1,72 @@
+flowchart LR
+    subgraph Sources
+        TESS["TeSS platform"]
+        GTN["Galaxy Training Network"]
+    end
+
+    subgraph Harvesting Scripts
+        HT["harvest_tess.py"]
+        HG["harvest_gtn.py"]
+    end
+
+    subgraph DataArtifacts["Harvested TTL artifacts"]
+        TESS_TTL["data/tess_harvest.ttl"]
+        GTN_TTL["data/gtn_harvest.ttl"]
+    end
+
+    subgraph Loader["load_training_data (data_store.py)"]
+        GRAPH["loader.graph<br/>load_dataset"]
+        PARSER["loader.parser<br/>extract_resources_from_graph"]
+        DEDUPE["loader.dedupe<br/>select_richest"]
+    end
+
+    subgraph Store["TrainingDataStore"]
+        DATASET["RDF Dataset"]
+        RESOURCE_MAP["TrainingResource map"]
+        STATS["Dataset stats"]
+        subgraph Indexes
+            KEY["KeywordIndex"]
+            PROVIDER["ProviderIndex"]
+            LOC["LocationIndex"]
+            DATE["DateIndex"]
+            TOPIC["TopicIndex"]
+        end
+    end
+
+    subgraph ServiceLayer["TrainingDataService (tools.py)"]
+        SERVICE["search_by_* helpers"]
+    end
+
+    subgraph MCP["MCP Server (mcp_server.py)"]
+        OFFLINE["local_* tools<br/>keyword/location/etc"]
+        SPARQL["execute_sparql_query"]
+        LIVE["search_training_materials"]
+    end
+
+    CLIENTS["MCP-compatible clients<br/>(e.g. Copilot, Claude Desktop)"]
+    TESS_API["TeSS JSON API"]
+
+    TESS --> HT --> TESS_TTL
+    GTN --> HG --> GTN_TTL
+    TESS_TTL --> GRAPH
+    GTN_TTL --> GRAPH
+    GRAPH --> PARSER --> DEDUPE --> RESOURCE_MAP
+    GRAPH --> DATASET
+    RESOURCE_MAP --> KEY
+    RESOURCE_MAP --> PROVIDER
+    RESOURCE_MAP --> TOPIC
+    RESOURCE_MAP --> STATS
+    RESOURCE_MAP --> LOC
+    RESOURCE_MAP --> DATE
+    KEY --> SERVICE
+    PROVIDER --> SERVICE
+    LOC --> SERVICE
+    DATE --> SERVICE
+    TOPIC --> SERVICE
+    STATS --> SERVICE
+    SERVICE --> OFFLINE
+    DATASET --> SPARQL
+    OFFLINE --> CLIENTS
+    SPARQL --> CLIENTS
+    LIVE --> TESS_API
+    TESS_API --> CLIENTS
