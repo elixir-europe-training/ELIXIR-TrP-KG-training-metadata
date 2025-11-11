@@ -26,7 +26,7 @@ flowchart LR
         GTN_TTL["data/gtn_harvest.ttl"]
     end
 
-    subgraph Loader["load_training_data (data_store.py)"]
+    subgraph Loader["load_training_data"]
         GRAPH["loader.graph<br/>load_dataset"]
         PARSER["loader.parser<br/>extract_resources_from_graph"]
         DEDUPE["loader.dedupe<br/>select_richest"]
