@@ -15,4 +15,4 @@ sequenceDiagram
     Store-->>Service: TrainingResource dicts
     Service-->>MCP: list[dict]
     MCP-->>C: JSON response
-    Note over Service,Store: Dataset and indexes live inside TrainingDataStore and are reused across tool calls
+    Note over Service, Index: Dataset and indexes live inside TrainingDataStore and are reused across tool calls
