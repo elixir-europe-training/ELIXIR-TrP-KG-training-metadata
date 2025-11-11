@@ -45,11 +45,11 @@ flowchart LR
         end
     end
 
-    subgraph ServiceLayer["TrainingDataService (tools.py)"]
+    subgraph ServiceLayer["TrainingDataService"]
         SERVICE["search_by_* helpers"]
     end
 
-    subgraph MCP["MCP Server (mcp_server.py)"]
+    subgraph MCP["MCP Server"]
         OFFLINE["local_* tools<br/>keyword/location/etc"]
         SPARQL["execute_sparql_query"]
         LIVE["search_training_materials"]
