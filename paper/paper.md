@@ -147,7 +147,7 @@ Typically, a way would be used to define a building, and a relation for more com
 
 # System architecture and pipeline
 
-![System architecture of the ELIXIR Training MCP](docs/diagrams/system-overview.svg)
+![System architecture of the ELIXIR Training MCP](../docs/diagrams/system-overview.svg)
 
 Figure 1 summarises how the harvesting scripts, loader modules, indexes, and MCP transports relate to each other. TeSS and GTN harvesters refresh the RDF/Turtle artefacts, the loader deduplicates resources, and the `TrainingDataService` exposes both live and offline tools so MCP-compatible clients can choose their preferred transport.
 
@@ -155,7 +155,7 @@ Because the same `TrainingDataService` instance powers every tool invocation, we
 
 ## Offline processing pipeline
 
-![Offline processing pipeline for harvested training metadata](docs/diagrams/data-pipeline.svg)
+![Offline processing pipeline for harvested training metadata](../docs/diagrams/data-pipeline.svg)
 
 Figure 2 zooms in on the offline path from TTL files to immutable indexes. Each step maps to the loader package: `loader.graph` parses RDF, `loader.parser` normalises subjects into `TrainingResource` objects, `loader.dedupe` keeps the richest representation, and `_build_indexes` materialises keyword, provider, date, location, and topic indexes alongside dataset statistics.
 
@@ -163,7 +163,7 @@ Centralising these steps made it easier to share data-quality findings with the 
 
 ## Data model and indexes
 
-![TrainingResource data model and supporting indexes](docs/diagrams/data-model-indexes.svg)
+![TrainingResource data model and supporting indexes](../docs/diagrams/data-model-indexes.svg)
 
 Figure 3 depicts the relationship between `TrainingResource`, `CourseInstance`, and the five indexes. Course instances capture the geo-temporal attributes consumed by the date and location indexes, while provider, keyword, and topic indexes bind normalised strings to resource URIs. The diagram clarifies which metadata fields drive each tool.
 
@@ -173,7 +173,7 @@ To facilitate access to the knowledge graph by AI systems and humans, we develop
 
 ## Tool execution lifecycle
 
-![Lifecycle of a keyword search request](docs/diagrams/mcp-request-lifecycle.svg)
+![Lifecycle of a keyword search request](../docs/diagrams/mcp-request-lifecycle.svg)
 
 Figure 4 highlights the round trip between an MCP client, the tool entry point, the cached `TrainingDataStore`, and the supporting indexes. The singleton service ensures the large RDF graphs are parsed only once, while each strategy method (`search_by_keyword`, `search_by_provider`, etc.) delegates to the relevant index before hydrating JSON responses. This separation keeps latency low for LLM-powered clients and makes it explicit when the live TeSS API is used instead of the offline store.
 
@@ -205,7 +205,7 @@ Or:
 
 These user stories were directly used as prompts to test the tool. For some user stories we added additional prompts, such as 'Provide the urls of the training material data' or 'Report only materials that are on GitHub'. Responses of the chatbot can be found in the [repository](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata) at `user_story_results`. The user stories are available from a [Google Spreadsheet](https://docs.google.com/spreadsheets/d/1QomHwBi9SO8PupcYewexE6E7DRE3N7EJmh8WDwHpBgE/edit?usp=sharing). 
 
-![Project timeline and validation phases](docs/diagrams/project-timeline.svg)
+![Project timeline and validation phases](../docs/diagrams/project-timeline.svg)
 
 Figure 5 summarises the five phases of the project, from harvesting and loader refactors through to user-story validation and documentation. We recorded 11 prompts during the `release-0.0.1-beta` cycle and reran the highest-priority scenario for `release-0.0.2-beta` after tightening the indexes, which provided concrete evidence of how well the MCP server answers persona-driven questions.
 
