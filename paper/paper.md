@@ -177,7 +177,7 @@ To facilitate access to the knowledge graph by AI systems and humans, we develop
 
 Figure 4 highlights the round trip between an MCP client, the tool entry point, the cached `TrainingDataStore`, and the supporting indexes. The singleton service ensures the large RDF graphs are parsed only once, while each strategy method (`search_by_keyword`, `search_by_provider`, etc.) delegates to the relevant index before hydrating JSON responses. This separation keeps latency low for LLM-powered clients and makes it explicit when the live TeSS API is used instead of the offline store.
 
-The sequence also documents how we guard against stale caches: if the TTL harvest is refreshed, restarting the MCP server rebuilds the store and indexes in roughly 30 seconds on a laptop, whereas individual tool calls resolve in well under a second. This predictable lifecycle allowed us to integrate the MCP server into GitHub Copilot and Claude Desktop without introducing client-specific state handling.
+The sequence also documents how we guard against stale caches: if the TTL harvest is refreshed, restarting the MCP server rebuilds the store and indexes, while resolving individual tool calls. This predictable lifecycle allowed us to integrate the MCP server into GitHub Copilot and Claude Desktop without introducing client-specific state handling.
 
 Beyond the indexed tools we expose `execute_sparql_query`, which is primarily used when prompts require multi-hop reasoning. For example, one of the user stories asked for “upcoming Swiss workshops taught by GTN instructors.” A short SPARQL fragment drawn from `QUERIES.md` joins the GTN graph with TeSS course instances, filters on `schema:addressCountry "Switzerland"`, and groups by instructor URI. The MCP client first fetches `get_sparql_docs`, adapts an example query, and then submits it through the tool, producing structured rows that the LLM can narrate back to the user. This workflow proved especially valuable whenever identifiers were missing from the indexed fields but still present in the raw RDF.
 
@@ -212,8 +212,6 @@ These user stories were directly used as prompts to test the tool. For some user
 Figure 5 summarises the five phases of the project, from harvesting and loader refactors through to user-story validation and documentation. We recorded 11 prompts during the `release-0.0.1-beta` cycle and reran the highest-priority scenario for `release-0.0.2-beta` after tightening the indexes, which provided concrete evidence of how well the MCP server answers persona-driven questions.
 
 Most prompts succeeded without manual intervention, but the replay revealed two recurring blockers: missing persistent identifiers for instructors (which limited collaborator discovery stories) and under-specified course locations (which reduced the precision of location-based filtering). Feeding these findings back into the identifier recommendations created a tight feedback loop between the qualitative user-story evaluations and the quantitative loader statistics.
-
-The geographic prompts also demonstrated how quickly the location index surfaces summarised insights: Switzerland and Belgium together accounted for more than 100 scheduled course instances, while Germany, the United Kingdom, and Canada formed the next-most represented cluster. Highlighting these concentrations in the test reports helped stakeholders understand why we prioritised OSM-based location identifiers earlier in the paper.
 
 # Discussion
 
