@@ -1,7 +1,7 @@
 name: Generate PDF
 on:
   push:
-    branches: [ main ]
+    branches: [ main, feature/optimise-doc ]
 jobs:
   gen-pdf:
     runs-on: ubuntu-latest
@@ -20,6 +20,35 @@ jobs:
     - name: Git repository given?
       run: |
         sed -n '/^---$/,/^---$/{//b;p}' paper/paper.md | grep git_url
+    - name: Setup Node.js (for Mermaid CLI)
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - name: Install Mermaid CLI
+      run: npm i -g @mermaid-js/mermaid-cli
+    - name: Install pdfcrop (for trimming PDF margins)
+      run: sudo apt-get update && sudo apt-get install -y texlive-extra-utils
+    - name: Render and crop Mermaid diagrams
+      shell: bash
+      run: |
+          set -euo pipefail
+          echo '{ "args": ["--no-sandbox","--disable-setuid-sandbox"] }' > puppeteer-config.json
+          shopt -s globstar nullglob
+              
+          found=false
+          for f in paper/diagrams/**/*.mmd paper/diagrams/*.mmd; do
+            [ -e "$f" ] || continue
+            found=true
+            base="${f%.*}"
+            echo "Rendering $f -> ${base}.pdf"
+            mmdc -p puppeteer-config.json -i "$f" -o "${base}.pdf" --pdfFit --scale 1.2
+            echo "Cropping ${base}.pdf -> ${base}.cropped.pdf"
+            pdfcrop "${base}.pdf" "${base}.cropped.pdf" >/dev/null
+          done
+              
+          if [ "$found" = false ]; then
+            echo "No .mmd files found under paper/diagrams/, skipping render."
+          fi
     - uses: kohlerdominik/docker-run-action@v2.0.0
       with:
         image: ghcr.io/biohackrxiv/bhxiv-gen-pdf:master
