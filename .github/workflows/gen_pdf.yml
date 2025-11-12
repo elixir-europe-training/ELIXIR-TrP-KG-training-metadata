@@ -49,6 +49,14 @@ jobs:
           if [ "$found" = false ]; then
             echo "No .mmd files found under paper/diagrams/, skipping render."
           fi
+    - name: List generated diagrams
+      run: ls -la paper/diagrams || true
+
+    - name: Ensure cropped PDFs exist
+      run: |
+        compgen -G "paper/diagrams/*.cropped.pdf" >/dev/null || { echo "No cropped PDFs generated!"; exit 1; }
+        echo "Cropped PDFs found:"
+        ls -1 paper/diagrams/*.cropped.pdf
     - uses: kohlerdominik/docker-run-action@v2.0.0
       with:
         image: ghcr.io/biohackrxiv/bhxiv-gen-pdf:master
