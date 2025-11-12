@@ -1,7 +1,7 @@
 name: Generate PDF
 on:
   push:
-    branches: [ main, feature/optimise-doc ]
+    branches: [ main ]
 jobs:
   gen-pdf:
     runs-on: ubuntu-latest
