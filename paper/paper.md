@@ -59,6 +59,10 @@ git_url: https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metada
 authors_short: Vincent Emonet, Harshita Gupta et al.
 ---
 
+\setlength{\textfloatsep}{12pt}
+\setlength{\abovecaptionskip}{10pt}
+\setlength{\belowcaptionskip}{8pt}
+
 # Introduction
 
 Knowledge graphs can greatly increase the potential of data by revealing hidden relationships and turning it into useful information [@callahan_open_2024]. A knowledge graph is a graph-based representation of data that stores relations between subjects, predicates and objects in triplestores. These entities are typically described in pre-defined ontologies, which increase interoperability and connect data that would otherwise remain isolated in siloed databases. This structured data representation can greatly facilitate complex querying and applications to deep learning approaches like generative AI.
@@ -147,35 +151,37 @@ Typically, a way would be used to define a building, and a relation for more com
 
 # System architecture and pipeline
 
-![System architecture of the ELIXIR Training MCP](../docs/diagrams/system-overview.svg)
-
 Figure 1 summarises how the harvesting scripts, loader modules, indexes, and MCP transports relate to each other. TeSS and GTN harvesters refresh the RDF/Turtle artefacts, the loader deduplicates resources, and the `TrainingDataService` exposes both live and offline tools so MCP-compatible clients can choose their preferred transport. The diagram also emphasises the dual-path architecture: (1) a live HTTP call to TeSS when freshness is more important than latency, and (2) a fully local path where the cached RDF dataset, indexes, and SPARQL endpoint answer questions without any external dependency.
 
-Because the same `TrainingDataService` instance powers every tool invocation, we can run lightweight experiments from different MCP-compatible chat clients without reloading the datasets. This was particularly useful during the hackathon sessions where we compared the responses from Claude Desktop, Copilot, and custom CLI tooling against the same offline store while still allowing the live TeSS API tool to act as a fallback for breaking changes in the harvesters.
+![Figure 1: System architecture of the ELIXIR Training MCP](./diagrams/system-overview.pdf)
+
+Because the same `TrainingDataService` instance powers every tool invocation, we can run lightweight experiments from different MCP-compatible chat clients without reloading the datasets. This was particularly useful during the hackathon sessions where we compared the responses from Claude Desktop, Copilot, and custom CLI tooling against the same offline store while still allowing the live TeSS API tool to act as a fallback for breaking changes in the harvesters. Together these layers keep response latency predictable while guaranteeing that every tool call reads from the same vetted snapshot.
 
 ## Offline processing pipeline
 
-![Offline processing pipeline for harvested training metadata](../docs/diagrams/data-pipeline.svg)
-
 Figure 2 zooms in on the offline path from TTL files to immutable indexes. Each step maps to the loader package: `loader.graph` parses RDF, `loader.parser` normalises subjects into `TrainingResource` objects, `loader.dedupe` keeps the richest representation, and `_build_indexes` materialises keyword, provider, date, location, and topic indexes alongside dataset statistics.
 
-Centralising these steps made it easier to share data-quality findings with the TeSS and GTN maintainers. For example, we could demonstrate exactly which triples were dropped during deduplication and how many additional resources surfaced when a provider normalised their `schema:url` usage. The same pipeline also emits summary statistics that informed our prioritisation of identifier recommendations described earlier in this section.
+![Figure 2: Offline processing pipeline for harvested training metadata](./diagrams/data-pipeline.pdf)
+
+Centralising these steps made it easier to share data-quality findings with the TeSS and GTN maintainers. For example, we could demonstrate exactly which triples were dropped during deduplication and how many additional resources surfaced when a provider normalised their `schema:url` usage. The same pipeline also emits summary statistics that informed our prioritisation of identifier recommendations described earlier in this section, creating a repeatable loop between ingestion, analysis, and feedback.
 
 ## Data model and indexes
 
-![TrainingResource data model and supporting indexes](../docs/diagrams/data-model-indexes.svg)
-
 Figure 3 depicts the relationship between `TrainingResource`, `CourseInstance`, and the five indexes. Course instances capture the geo-temporal attributes consumed by the date and location indexes, while provider, keyword, and topic indexes bind normalised strings to resource URIs. The diagram clarifies which metadata fields drive each tool.
 
-# MCP server
+![Figure 3: TrainingResource data model and supporting indexes](./diagrams/data-model-indexes.pdf)
+
+Aligning the data model with the indexes ensures that every MCP tool can be explained in terms of concrete schema.org properties, which helped the metadata curators understand the impact of missing or inconsistent fields.
+
+## MCP server
 
 To facilitate access to the knowledge graph by AI systems and humans, we developed a Model Context Protocol (MCP) server that exposes a suite of tools for searching and querying training materials. The MCP server provides both live and offline search capabilities. The live tool `search_training_materials` directly queries the TeSS platform via its API. For offline access to the harvested and deduplicated knowledge graph, we implemented six search tools: `keyword_search` enables free-text searches across training resources, `provider_search` filters materials by provider organization, `location_search` finds courses by geographic location, `date_search` identifies courses within a specified date range, and `topic_search` filters by subject matter using ontology terms. Additionally, the `dataset_stats` tool provides high-level diagnostics about the loaded datasets. For advanced use cases, the server exposes `execute_sparql_query`, which allows users to formulate and execute custom SPARQL queries directly against the knowledge graph. These tools together enable flexible querying of training metadata through natural language interfaces, supporting both simple discovery tasks and complex analytical queries.
 
-## Tool execution lifecycle
-
-![Lifecycle of a keyword search request](../docs/diagrams/mcp-request-lifecycle.svg)
+### Tool execution lifecycle
 
 Figure 4 highlights the round trip between an MCP client, the tool entry point, the cached `TrainingDataStore`, and the supporting indexes. The singleton service ensures the large RDF graphs are parsed only once, while each strategy method (`search_by_keyword`, `search_by_provider`, etc.) delegates to the relevant index before hydrating JSON responses. This separation keeps latency low for LLM-powered clients and makes it explicit when the live TeSS API is used instead of the offline store.
+
+![Figure 4: Lifecycle of a keyword search request](./diagrams/mcp-request-lifecycle.pdf)
 
 The sequence also documents how we guard against stale caches: if the TTL harvest is refreshed, restarting the MCP server rebuilds the store and indexes, while resolving individual tool calls. This predictable lifecycle allowed us to integrate the MCP server into GitHub Copilot and Claude Desktop without introducing client-specific state handling.
 
@@ -207,9 +213,9 @@ Or:
 
 These user stories were directly used as prompts to test the tool. For some user stories we added additional prompts, such as 'Provide the urls of the training material data' or 'Report only materials that are on GitHub'. Responses of the chatbot can be found in the [repository](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata) at `user_story_results`. The user stories are available from a [Google Spreadsheet](https://docs.google.com/spreadsheets/d/1QomHwBi9SO8PupcYewexE6E7DRE3N7EJmh8WDwHpBgE/edit?usp=sharing). 
 
-![Project timeline and validation phases](../docs/diagrams/project-timeline.svg)
+The project timeline (Figure 5) summarises the five phases of the project, from harvesting and loader refactors through to user-story validation and documentation. We recorded 11 prompts during the `release-0.0.1-beta` cycle and reran the highest-priority scenario for `release-0.0.2-beta` after tightening the indexes, which provided concrete evidence of how well the MCP server answers persona-driven questions.
 
-Figure 5 summarises the five phases of the project, from harvesting and loader refactors through to user-story validation and documentation. We recorded 11 prompts during the `release-0.0.1-beta` cycle and reran the highest-priority scenario for `release-0.0.2-beta` after tightening the indexes, which provided concrete evidence of how well the MCP server answers persona-driven questions.
+![Figure 5: Project timeline and validation phases](./diagrams/project-timeline.pdf)
 
 Most prompts succeeded without manual intervention, but the replay revealed two recurring blockers: missing persistent identifiers for instructors (which limited collaborator discovery stories) and under-specified course locations (which reduced the precision of location-based filtering). Feeding these findings back into the identifier recommendations created a tight feedback loop between the qualitative user-story evaluations and the quantitative loader statistics.
 
