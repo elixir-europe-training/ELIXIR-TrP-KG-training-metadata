@@ -153,7 +153,7 @@ Typically, a way would be used to define a building, and a relation for more com
 
 Figure 1 summarises how the harvesting scripts, loader modules, indexes, and MCP transports relate to each other. TeSS and GTN harvesters refresh the RDF/Turtle artefacts, the loader deduplicates resources, and the `TrainingDataService` exposes both live and offline tools so MCP-compatible clients can choose their preferred transport. The diagram also emphasises the dual-path architecture: (1) a live HTTP call to TeSS when freshness is more important than latency, and (2) a fully local path where the cached RDF dataset, indexes, and SPARQL endpoint answer questions without any external dependency.
 
-![Figure 1: System architecture of the ELIXIR Training MCP](./diagrams/system-overview.pdf)
+![Figure 1: System architecture of the ELIXIR Training MCP](./diagrams/system-overview.cropped.pdf)
 
 Because the same `TrainingDataService` instance powers every tool invocation, we can run lightweight experiments from different MCP-compatible chat clients without reloading the datasets. This was particularly useful during the hackathon sessions where we compared the responses from Claude Desktop, Copilot, and custom CLI tooling against the same offline store while still allowing the live TeSS API tool to act as a fallback for breaking changes in the harvesters. Together these layers keep response latency predictable while guaranteeing that every tool call reads from the same vetted snapshot.
 
@@ -161,7 +161,7 @@ Because the same `TrainingDataService` instance powers every tool invocation, we
 
 Figure 2 zooms in on the offline path from TTL files to immutable indexes. Each step maps to the loader package: `loader.graph` parses RDF, `loader.parser` normalises subjects into `TrainingResource` objects, `loader.dedupe` keeps the richest representation, and `_build_indexes` materialises keyword, provider, date, location, and topic indexes alongside dataset statistics.
 
-![Figure 2: Offline processing pipeline for harvested training metadata](./diagrams/data-pipeline.pdf)
+![Figure 2: Offline processing pipeline for harvested training metadata](./diagrams/data-pipeline.cropped.pdf)
 
 Centralising these steps made it easier to share data-quality findings with the TeSS and GTN maintainers. For example, we could demonstrate exactly which triples were dropped during deduplication and how many additional resources surfaced when a provider normalised their `schema:url` usage. The same pipeline also emits summary statistics that informed our prioritisation of identifier recommendations described earlier in this section, creating a repeatable loop between ingestion, analysis, and feedback.
 
@@ -169,7 +169,7 @@ Centralising these steps made it easier to share data-quality findings with the 
 
 Figure 3 depicts the relationship between `TrainingResource`, `CourseInstance`, and the five indexes. Course instances capture the geo-temporal attributes consumed by the date and location indexes, while provider, keyword, and topic indexes bind normalised strings to resource URIs. The diagram clarifies which metadata fields drive each tool.
 
-![Figure 3: TrainingResource data model and supporting indexes](./diagrams/data-model-indexes.pdf)
+![Figure 3: TrainingResource data model and supporting indexes](./diagrams/data-model-indexes.cropped.pdf)
 
 Aligning the data model with the indexes ensures that every MCP tool can be explained in terms of concrete schema.org properties, which helped the metadata curators understand the impact of missing or inconsistent fields.
 
@@ -181,7 +181,7 @@ To facilitate access to the knowledge graph by AI systems and humans, we develop
 
 Figure 4 highlights the round trip between an MCP client, the tool entry point, the cached `TrainingDataStore`, and the supporting indexes. The singleton service ensures the large RDF graphs are parsed only once, while each strategy method (`search_by_keyword`, `search_by_provider`, etc.) delegates to the relevant index before hydrating JSON responses. This separation keeps latency low for LLM-powered clients and makes it explicit when the live TeSS API is used instead of the offline store.
 
-![Figure 4: Lifecycle of a keyword search request](./diagrams/mcp-request-lifecycle.pdf)
+![Figure 4: Lifecycle of a keyword search request](./diagrams/mcp-request-lifecycle.cropped.pdf)
 
 The sequence also documents how we guard against stale caches: if the TTL harvest is refreshed, restarting the MCP server rebuilds the store and indexes, while resolving individual tool calls. This predictable lifecycle allowed us to integrate the MCP server into GitHub Copilot and Claude Desktop without introducing client-specific state handling.
 
@@ -215,7 +215,7 @@ These user stories were directly used as prompts to test the tool. For some user
 
 The project timeline (Figure 5) summarises the five phases of the project, from harvesting and loader refactors through to user-story validation and documentation. We recorded 11 prompts during the `release-0.0.1-beta` cycle and reran the highest-priority scenario for `release-0.0.2-beta` after tightening the indexes, which provided concrete evidence of how well the MCP server answers persona-driven questions.
 
-![Figure 5: Project timeline and validation phases](./diagrams/project-timeline.pdf)
+![Figure 5: Project timeline and validation phases](./diagrams/project-timeline.cropped.pdf)
 
 Most prompts succeeded without manual intervention, but the replay revealed two recurring blockers: missing persistent identifiers for instructors (which limited collaborator discovery stories) and under-specified course locations (which reduced the precision of location-based filtering). Feeding these findings back into the identifier recommendations created a tight feedback loop between the qualitative user-story evaluations and the quantitative loader statistics.
 
