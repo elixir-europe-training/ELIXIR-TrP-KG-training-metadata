@@ -231,7 +231,7 @@ The use of MCP for scientific applications is promising, because, if combined wi
 
 Future work regarding this project includes:
 
-- Support the application of the recommendations for using identifiers in bioschemas markup to metadata providers and TeSS
+- Support the application of the recommendations for using identifiers in Bioschemas markup to metadata providers and TeSS
 - Providing weekly knowledge graph updates through GitHub actions
 - Feed the results of this project forward into the German BioHackathon project '[On the path to machine-actionable training materials](https://www.denbi.de/de-nbi-events/1939-4th-biohackathon-germany-on-the-path-to-machine-actionable-training-materials)'
 
