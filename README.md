@@ -1,5 +1,9 @@
 # Project 18: Mining the potential of knowledge graphs for metadata on training
 
+[![PyPI - Version](https://img.shields.io/pypi/v/elixir-training-mcp.svg?logo=pypi&label=PyPI&logoColor=silver)](https://pypi.org/project/elixir-training-mcp/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/elixir-training-mcp.svg?logo=python&label=Python&logoColor=silver)](https://pypi.org/project/elixir-training-mcp/)
+
+
 ## Abstract
 
 Knowledge graphs (KGs) can greatly increase the potential of data by revealing hidden relationships and turning it into useful information. A KG is a graph-based representation of data that stores relations between subjects, predicates and objects in triplestores. These entities are typically described in pre-defined ontologies, which increase interoperability and connect data that would otherwise remain isolated in siloed databases. This structured data representation can greatly facilitate complex querying and applications to deep learning approaches like generative AI.
@@ -11,6 +15,41 @@ In this project, we aim to create queryable KGs derived from training metadata i
 ## Leads
 
 Geert van Geest, Harshita Gupta, Vincent Emonet
+
+## 🚜 Harvesting training data
+
+[![Harvest](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata/actions/workflows/harvest.yml/badge.svg)](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata/actions/workflows/harvest.yml)
+
+> [!IMPORTANT]
+>
+> Data is automatically harvested by a workflow every first day of the month, and can be downloaded from GitHub workflows latest run artifacts: https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata/actions/workflows/harvest.yml
+>
+> You can unzip the artifact and replace the `.ttl` files in the folder `src/elixir_training_mcp/data/` with the new files from the artifact.
+
+Otherwise you can run harvesting manually (takes ~30min)
+
+Harvest TeSS:
+
+```sh
+uv run src/elixir_training_mcp/harvest/harvest_tess.py
+```
+
+Harvest GTN:
+
+```sh
+uv run src/elixir_training_mcp/harvest/harvest_gtn.py
+```
+
+
+> [!NOTE]
+>
+> TeSS contains training materials and courses from various providers, such as GTN (Galaxy Training Network) training materials. Metadata about material in TeSS and GTN can be matched on `schema:url`
+
+Deploy a SPARQL endpoint on http://localhost:8000:
+
+```sh
+uv run rdflib-endpoint serve src/elixir_training_mcp/data/*_harvest.ttl
+```
 
 ## 💬 MCP server
 
@@ -105,30 +144,5 @@ You can also connect to a running server using Streamable HTTP:
         }
     }
 }
-```
-
-## Harvesting
-
-The `data/tess_harvest.ttl` files is included in the repository (7MB), you can run the script to harvest JSON-LD data and build this ttl file, but it takes ~30min due to parsing JSON-LD being expensive:
-
-```sh
-uv run src/elixir_training_mcp/harvest/harvest_tess.py
-```
-
-Harvest GTN:
-
-```sh
-uv run src/elixir_training_mcp/harvest/harvest_gtn.py
-```
-
-
-> [!NOTE]
->
-> TeSS contains training materials and courses from various providers, such as GTN (Galaxy Training Network) training materials. Metadata about material in TeSS and GTN can be matched on `schema:url`
-
-Deploy a SPARQL endpoint on http://localhost:8000:
-
-```sh
-uv run rdflib-endpoint serve src/elixir_training_mcp/data/*_harvest.ttl
 ```
 

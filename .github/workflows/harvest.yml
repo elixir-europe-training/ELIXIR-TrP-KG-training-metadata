@@ -1,0 +1,95 @@
+name: Harvest training data
+on:
+  schedule:
+    # Run on the 1st of every month at 2:00 AM Amsterdam time (1:00 AM UTC)
+    - cron: '0 1 1 * *'
+  workflow_dispatch:
+
+jobs:
+  harvest-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/uv.lock
+
+      - name: Run TeSS harvesting script
+        run: uv run src/elixir_training_mcp/harvest/harvest_tess.py
+
+      - name: Run GTN harvesting script
+        run: uv run src/elixir_training_mcp/harvest/harvest_gtn.py
+
+      - name: Upload harvested data as artifacts
+        uses: actions/upload-artifact@v5
+        with:
+          name: harvested-training-data
+          path: src/elixir_training_mcp/data/
+          retention-days: 30
+
+      # NOTE: commented out to avoid growing up the repo and pypi release to a large size
+      # Users can easily download the data from the workflow run artifacts if needed
+
+      # - name: Check for changes
+      #   id: check-changes
+      #   run: |
+      #     git pull
+      #     if git diff --quiet; then
+      #       echo "has_changes=false" >> $GITHUB_OUTPUT
+      #     else
+      #       echo "has_changes=true" >> $GITHUB_OUTPUT
+      #     fi
+
+      # - name: Configure git
+      #   if: steps.check-changes.outputs.has_changes == 'true'
+      #   run: |
+      #     git config user.name "github-actions[bot]"
+      #     git config user.email "github-actions[bot]@users.noreply.github.com"
+
+
+      # - name: Stage harvested data
+      #   if: steps.check-changes.outputs.has_changes == 'true'
+      #   run: git add src/elixir_training_mcp/data/
+
+      # - name: Bump version with hatch
+      #   if: steps.check-changes.outputs.has_changes == 'true'
+      #   run: uvx hatch version fix
+
+      # - name: Commit version bump and data changes
+      #   if: steps.check-changes.outputs.has_changes == 'true'
+      #   run: |
+      #     git add src/elixir_training_mcp/__init__.py
+      #     git commit -m "chore(harvest): update training data and bump version"
+
+      # - name: Create git tag
+      #   if: steps.check-changes.outputs.has_changes == 'true'
+      #   run: |
+      #     VERSION=$(uvx hatch version)
+      #     git tag "v${VERSION}"
+
+      # - name: Push changes and tag
+      #   if: steps.check-changes.outputs.has_changes == 'true'
+      #   run: |
+      #     git push origin main
+      #     git push origin --tags
+
+      # - name: Build distribution
+      #   if: steps.check-changes.outputs.has_changes == 'true'
+      #   run: |
+      #     uv build
+
+      # - name: Publish to PyPI
+      #   if: steps.check-changes.outputs.has_changes == 'true'
+      #   uses: pypa/gh-action-pypi-publish@release/v1
+      #   with:
+      #     password: ${{ secrets.PYPI_API_TOKEN }}
