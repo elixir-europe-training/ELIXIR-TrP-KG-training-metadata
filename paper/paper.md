@@ -6,15 +6,15 @@ tags:
   - metadata
   - training
 authors:
-  - name: Vincent Emonet
-    orcid: 0000-0002-1501-1082
-    affiliation: 1
-  - name: Harshita Gupta
-    affiliation: 3
-    orcid: 0009-0000-1141-3116
   - name: Dimitris Panouris
     affiliation: 3
     orcid: 0009-0005-2282-2982
+  - name: Harshita Gupta
+    affiliation: 3
+    orcid: 0009-0000-1141-3116
+  - name: Vincent Emonet
+    orcid: 0000-0002-1501-1082
+    affiliation: 1
   - name: Jacobo Miranda
     affiliation: 4
     orcid: 0009-0005-0673-021X
