@@ -56,7 +56,7 @@ group: Project 18
 git_url: https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata
 # This is the short authors description that is used at the
 # bottom of the generated paper (typically the first two authors):
-authors_short: Vincent Emonet, Harshita Gupta et al.
+authors_short: Dimitris Panouris, Harshita Gupta et al.
 ---
 
 \setlength{\textfloatsep}{12pt}
