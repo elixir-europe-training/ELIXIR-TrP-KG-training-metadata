@@ -2,7 +2,7 @@
 
 [![PyPI - Version](https://img.shields.io/pypi/v/elixir-training-mcp.svg?logo=pypi&label=PyPI&logoColor=silver)](https://pypi.org/project/elixir-training-mcp/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/elixir-training-mcp.svg?logo=python&label=Python&logoColor=silver)](https://pypi.org/project/elixir-training-mcp/)
-
+[![Generate paper PDF](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata/actions/workflows/paper.yml/badge.svg)](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata/actions/workflows/paper.yml)
 
 ## Abstract
 

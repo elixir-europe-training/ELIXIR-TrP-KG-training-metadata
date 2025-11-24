@@ -1,4 +1,4 @@
-name: Generate PDF
+name: Generate paper PDF
 on:
   push:
     branches: [ main ]
@@ -7,34 +7,42 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
+
     - name: biohackathon name given?
       run: |
         sed -n '/^---$/,/^---$/{//b;p}' paper/paper.md | grep biohackathon_name
+
     - name: biohackathon location given?
       run: |
         sed -n '/^---$/,/^---$/{//b;p}' paper/paper.md | grep biohackathon_location
+
     - name: biohackathon url given?
       run: |
         sed -n '/^---$/,/^---$/{//b;p}' paper/paper.md | grep biohackathon_url
+
     - name: Git repository given?
       run: |
         sed -n '/^---$/,/^---$/{//b;p}' paper/paper.md | grep git_url
+
     - name: Setup Node.js (for Mermaid CLI)
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: '20'
+
     - name: Install Mermaid CLI
       run: npm i -g @mermaid-js/mermaid-cli
+
     - name: Install pdfcrop (for trimming PDF margins)
       run: sudo apt-get update && sudo apt-get install -y texlive-extra-utils
+
     - name: Render and crop Mermaid diagrams
       shell: bash
       run: |
           set -euo pipefail
           echo '{ "args": ["--no-sandbox","--disable-setuid-sandbox"] }' > puppeteer-config.json
           shopt -s globstar nullglob
-              
+
           found=false
           for f in paper/diagrams/**/*.mmd paper/diagrams/*.mmd; do
             [ -e "$f" ] || continue
@@ -45,10 +53,11 @@ jobs:
             echo "Cropping ${base}.pdf -> ${base}.cropped.pdf"
             pdfcrop "${base}.pdf" "${base}.cropped.pdf" >/dev/null
           done
-              
+
           if [ "$found" = false ]; then
             echo "No .mmd files found under paper/diagrams/, skipping render."
           fi
+
     - name: List generated diagrams
       run: ls -la paper/diagrams || true
 
@@ -57,6 +66,7 @@ jobs:
         compgen -G "paper/diagrams/*.cropped.pdf" >/dev/null || { echo "No cropped PDFs generated!"; exit 1; }
         echo "Cropped PDFs found:"
         ls -1 paper/diagrams/*.cropped.pdf
+
     - uses: kohlerdominik/docker-run-action@v2.0.0
       with:
         image: ghcr.io/biohackrxiv/bhxiv-gen-pdf:master
@@ -64,12 +74,14 @@ jobs:
         workdir: /work
         run: |
           gen-pdf paper
+
     - name: Create info file
       run: |
          echo -e "ref: $GITHUB_REF \ncommit: $GITHUB_SHA\nbuild: $(date +"%Y-%m-%dT%H:%M:%SZ")" \
          > info.txt
+
     - name: Upload generated PDF as artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: PDF and info.txt
         path: |
