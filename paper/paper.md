@@ -7,43 +7,53 @@ tags:
   - training
 authors:
   - name: Dimitris Panouris
-    affiliation: 3
+    affiliation: 1
     orcid: 0009-0005-2282-2982
+    role: Software, Data curation, Visualization, Writing
   - name: Harshita Gupta
-    affiliation: 3
+    affiliation: 1
     orcid: 0009-0000-1141-3116
+    role: Software, Data curation, Validation, Writing, Conceptualization, Funding acquisition, Supervision
   - name: Vincent Emonet
     orcid: 0000-0002-1501-1082
-    affiliation: 1
-  - name: Jacobo Miranda
-    affiliation: 4
-    orcid: 0009-0005-0673-021X
-  - name: Phil Reed
     affiliation: 2
+    role: Software, Data curation, Validation, Writing, Conceptualization, Funding acquisition, Supervision
+  - name: Jacobo Miranda
+    affiliation: 3
+    orcid: 0009-0005-0673-021X
+    role: Software, Investigation
+  - name: Phil Reed
+    affiliation: 4
     orcid: 0000-0002-4479-715X
+    role: Data curation, Resources, Validation, Writing
   - name: Jerven Bolleman
     orcid: 0000-0002-7449-1266
-    affiliation: 1
-  - name: Finn Bacall
     affiliation: 2
+    role: Data curation, Validation
+  - name: Finn Bacall
+    affiliation: 4
     orcid: 0000-0002-0048-3300
+    role: Data curation, Resources, Validation
   - name: Geert van Geest
-    affiliation: 1
+    affiliation: 2
     orcid: 0000-0002-1561-078X
+    role: Data curation, Validation, Writing, Conceptualization, Funding acquisition, Supervision
 
 affiliations:
-  - name: SIB Swiss Institute of Bioinformatics, Switzerland
-    index: 1
-    ror: 002n09z45
-  - name: University of Manchester, UK
-    index: 2
-    ror: 027m9bs27
   - name: SciLifeLab, Sweden
-    index: 3
+    index: 1
     ror: 04ev03g22
+  - name: SIB Swiss Institute of Bioinformatics, Switzerland
+    index: 2
+    ror: 002n09z45
   - name: EMBL Heidelberg, Germany
-    index: 4
+    index: 3
     ror: 03mstc592
+  - name: University of Manchester, UK
+    index: 4
+    ror: 027m9bs27
+
+
 
 date: 4 November 2025
 cito-bibliography: paper.bib
@@ -225,7 +235,7 @@ There is a wealth of metadata on training courses, events and materials availabl
 
 Although the metadata we worked with was represented in Bioschemas format, the metadata was not in a shape so that a knowledge graph query can make use of all the possible links. For example, persons, organisations and locations typically were not associated with an persistent identifier (`@id`), resulting in unlinked nodes. This first attempt to create a knowledge graph out of this metadata provided therefore valuable cues to metadata providers to interlink their data with other resources.
 
-The use of MCP for scientific applications is promising, because, if combined with a LLM, it allows for natural language querying while providing information from a trusted resource. In addition, multiple MCP can be used at the same time by the end user, which allows the user to combine multiple trusted resources. In our case, we evaluated an interesting combination of using our MCP with the [GitHub MCP](https://github.com/github/github-mcp-server). Since many training materials were hosted on GitHub, we could use our MCP to query the metadata, and combine that with the actual content of the training material on GitHub. For example, to get information on specific part of tutorial organized by a specific institution. Showing the potential for linking and combining resources by makign use of MCP modularity.
+The use of MCP for scientific applications is promising, because, if combined with a LLM, it allows for natural language querying while providing information from a trusted resource. In addition, multiple MCP can be used at the same time by the end user, which allows the user to combine multiple trusted resources. In our case, we evaluated an interesting combination of using our MCP with the [GitHub MCP](https://github.com/github/github-mcp-server). Since many training materials were hosted on GitHub, we could use our MCP to query the metadata, and combine that with the actual content of the training material on GitHub. For example, to get information on specific part of tutorial organized by a specific institution, which shows the potential for linking and combining resources by making use of MCP modularity.
 
 # Future work
 
