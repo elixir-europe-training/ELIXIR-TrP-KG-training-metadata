@@ -254,6 +254,12 @@ We thank the organizers of the Biohackathon Europe 2025 for organizing the event
 
 - [GitHub repository](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata)
 - [Google sheet](https://docs.google.com/spreadsheets/d/1QomHwBi9SO8PupcYewexE6E7DRE3N7EJmh8WDwHpBgE/edit?usp=sharing) with user stories
+- Diagrams:
+  - [System overview](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata/blob/main/paper/diagrams/system-overview.mmd)
+  - [Data pipeline](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata/blob/main/paper/diagrams/data-pipeline.mmd)
+  - [Data model + indexes](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata/blob/main/paper/diagrams/data-model-indexes.mmd)
+  - [MCP request lifecycle](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata/blob/main/paper/diagrams/mcp-request-lifecycle.mmd)
+  - [Project timeline](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata/blob/main/paper/diagrams/project-timeline.mmd)
 
 
 ## References
