@@ -225,7 +225,7 @@ These user stories were directly used as prompts to test the tool. For some user
 
 The project timeline (Figure 5) summarises the five phases of the project, from harvesting and loader refactors through to user-story validation and documentation. We recorded 11 prompts during the `release-0.0.1-beta` cycle and reran the highest-priority scenario for `release-0.0.2-beta` after tightening the indexes, which provided concrete evidence of how well the MCP server answers persona-driven questions.
 
-![Project timeline and validation phases. Find the full diagram [here](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata/blob/main/paper/diagrams/project-timeline.mmd)](./diagrams/project-timeline.cropped.pdf)
+![Project timeline and validation phases. A link to the full diagram is available at the supplemental information.](./diagrams/project-timeline.cropped.pdf)
 
 Most prompts succeeded without manual intervention, but the replay revealed two recurring blockers: missing persistent identifiers for instructors (which limited collaborator discovery stories) and under-specified course locations (which reduced the precision of location-based filtering). Feeding these findings back into the identifier recommendations created a tight feedback loop between the qualitative user-story evaluations and the quantitative loader statistics.
 
