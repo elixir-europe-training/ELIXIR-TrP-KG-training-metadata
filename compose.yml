@@ -23,10 +23,25 @@ services:
       - index:/index
 
   # SPARQL endpoint with the text index loaded (-t), started once the index is built
+  # SPARQL updates require the access token from .env, and are persisted on disk next to the index
   qlever:
     image: adfreiburg/qlever:latest
     entrypoint: ["qlever-server"]
-    command: ["-i", "/index/training", "-p", "7001", "-t", "-j", "4", "-m", "2GB", "-c", "1GB"]
+    command:
+      - "-i"
+      - "/index/training"
+      - "-p"
+      - "7001"
+      - "-t"
+      - "-j"
+      - "4"
+      - "-m"
+      - "2GB"
+      - "-c"
+      - "1GB"
+      - "-a"
+      - "${QLEVER_ACCESS_TOKEN:?Set QLEVER_ACCESS_TOKEN in .env}"
+      - "--persist-updates"
     working_dir: /index
     ports:
       - "7001:7001"
@@ -35,7 +50,45 @@ services:
     depends_on:
       index:
         condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "--data-urlencode", "query=ASK {}", "http://localhost:7001"]
+      interval: 5s
+      retries: 60
     restart: unless-stopped
+
+  # One-shot job: once the endpoint is up, compute VoID statistics with docs/generate-void.ru
+  # and store them in the ${GRAPH_BASE}void named graph,
+  # then load docs/sparql-examples.ttl in the ${GRAPH_BASE}sparql-examples named graph
+  generate-metadata:
+    image: adfreiburg/qlever:latest
+    entrypoint: ["bash", "-c"]
+    command:
+      - |
+        set -e
+        # Authenticated request to the endpoint, the verbose JSON response is only printed on failure
+        qlever-request() {
+          curl -sS --fail-with-body -o /tmp/response.json -H "Authorization: Bearer $${QLEVER_ACCESS_TOKEN}" "$$@" \
+            || { cat /tmp/response.json; exit 1; }
+        }
+        # Remove the examples first, so they are not counted in the VoID statistics when re-running
+        qlever-request http://qlever:7001 -H "Content-Type: application/sparql-update" \
+          --data-binary "DROP SILENT GRAPH <$${GRAPH_BASE}sparql-examples>"
+        sed "s|__VOID_GRAPH__|$${GRAPH_BASE}void|g" /generate-void.ru > /tmp/generate-void.ru
+        qlever-request http://qlever:7001 -H "Content-Type: application/sparql-update" --data-binary @/tmp/generate-void.ru
+        echo "VoID statistics stored in graph $${GRAPH_BASE}void"
+        # Graph Store Protocol PUT replaces the content of the graph
+        qlever-request -X PUT "http://qlever:7001/?graph=$${GRAPH_BASE}sparql-examples" \
+          -H "Content-Type: text/turtle" --data-binary @/sparql-examples.ttl
+        echo "SPARQL examples stored in graph $${GRAPH_BASE}sparql-examples"
+    environment:
+      GRAPH_BASE: ${GRAPH_BASE:-https://w3id.org/elixir-trainer/graph/}
+      QLEVER_ACCESS_TOKEN: ${QLEVER_ACCESS_TOKEN:?Set QLEVER_ACCESS_TOKEN in .env}
+    volumes:
+      - ./docs/generate-void.ru:/generate-void.ru:ro
+      - ./docs/sparql-examples.ttl:/sparql-examples.ttl:ro
+    depends_on:
+      qlever:
+        condition: service_healthy
 
 volumes:
   index:

@@ -51,6 +51,19 @@ Deploy a SPARQL endpoint on http://localhost:8000:
 uv run rdflib-endpoint serve src/elixir_training_mcp/data/*_harvest.ttl
 ```
 
+Or deploy a QLever SPARQL endpoint on http://localhost:7001, loading each `data/*.ttl` file in its own named graph. Create a `.env` file with an access token used for SPARQL updates (to insert the VoID description generated from the graph):
+
+```sh
+echo "QLEVER_ACCESS_TOKEN=$(openssl rand -hex 24)" > .env
+docker compose up -d
+```
+
+Once the endpoint is up, the `generate-metadata` job runs [`docs/generate-void.ru`](docs/generate-void.ru) to store VoID statistics (class and property partitions) in the `https://w3id.org/elixir-trainer/graph/void` named graph, then loads [`docs/sparql-examples.ttl`](docs/sparql-examples.ttl) in the `https://w3id.org/elixir-trainer/graph/sparql-examples` named graph. To regenerate them without rebuilding the index:
+
+```sh
+docker compose run --rm --no-deps generate-metadata
+```
+
 ## 💬 MCP server
 
 A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server to access and search through the training materials of multiple Elixir repositories, such as [TeSS](https://tess.elixir-europe.org/) and [Glittr](https://glittr.org/).
