@@ -27,7 +27,7 @@
 #     #     g.parse(f, format="ttl")
 
 #     # SPARQL query to get all training materials with relevant fields
-#     query = """PREFIX schema: <http://schema.org/>
+#     query = """PREFIX schema: <https://schema.org/>
 #     PREFIX dct: <http://purl.org/dc/terms/>
 #     SELECT DISTINCT ?course ?name ?description ?provider ?keywords ?teaches ?startDate ?endDate ?country ?locality ?capacity ?mode
 #     WHERE {

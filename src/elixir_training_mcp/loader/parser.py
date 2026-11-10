@@ -19,6 +19,7 @@ from ..data_models import (
 from .dedupe import resolve_resource_identifier, select_richest
 from .utils import (
     DCT,
+    SCHEMA,
     collect_literal_strings,
     first_literal,
     first_node,
@@ -27,15 +28,10 @@ from .utils import (
     node_to_str,
     schema_objects,
     schema_predicates,
-    SCHEMA_NAMESPACES,
 )
 
 # Resource types supported by the loader; mirrors the original implementation.
-RESOURCE_TYPES = tuple(
-    namespace[name]
-    for namespace in SCHEMA_NAMESPACES
-    for name in ("Course", "LearningResource", "Event")
-)
+RESOURCE_TYPES = tuple(SCHEMA[name] for name in ("Course", "LearningResource", "Event"))
 
 
 def extract_resources_from_graph(graph: Graph, source_key: str) -> dict[str, TrainingResource]:

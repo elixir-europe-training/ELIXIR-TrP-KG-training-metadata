@@ -1,5 +1,5 @@
 @prefix dct: <http://purl.org/dc/terms/> .
-@prefix schema1: <http://schema.org/> .
+@prefix schema1: <https://schema.org/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <https://tess.elixir-europe.org/events/10-fair-things-for-imaging-working-document> a schema1:Course ;

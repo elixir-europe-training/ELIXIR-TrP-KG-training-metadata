@@ -5,7 +5,7 @@ This document contains SPARQL queries to search through the ELIXIR training mate
 ## Find all Python courses
 
 ```sparql
-PREFIX schema: <http://schema.org/>
+PREFIX schema: <https://schema.org/>
 PREFIX dct: <http://purl.org/dc/terms/>
 
 SELECT ?course ?name ?description
@@ -20,7 +20,7 @@ WHERE {
 ## Find courses by location and date range
 
 ```sparql
-PREFIX schema: <http://schema.org/>
+PREFIX schema: <https://schema.org/>
 
 SELECT ?course ?name ?country ?locality ?startDate ?endDate
 WHERE {
@@ -40,7 +40,7 @@ WHERE {
 ## Find courses with specific learning outcomes
 
 ```sparql
-PREFIX schema: <http://schema.org/>
+PREFIX schema: <https://schema.org/>
 
 SELECT ?course ?name ?teaches
 WHERE {
@@ -54,7 +54,7 @@ WHERE {
 ## Find all courses provided by a specific organization
 
 ```sparql
-PREFIX schema: <http://schema.org/>
+PREFIX schema: <https://schema.org/>
 
 SELECT ?course ?name ?provider
 WHERE {
@@ -69,7 +69,7 @@ WHERE {
 ## Find courses with prerequisites
 
 ```sparql
-PREFIX schema: <http://schema.org/>
+PREFIX schema: <https://schema.org/>
 
 SELECT ?course ?name ?prerequisites
 WHERE {
@@ -82,7 +82,7 @@ WHERE {
 ## Find courses by capacity and course mode
 
 ```sparql
-PREFIX schema: <http://schema.org/>
+PREFIX schema: <https://schema.org/>
 
 SELECT ?course ?name ?mode ?capacity ?country
 WHERE {
@@ -101,7 +101,7 @@ WHERE {
 ## Find courses with multiple funding organizations
 
 ```sparql
-PREFIX schema: <http://schema.org/>
+PREFIX schema: <https://schema.org/>
 
 SELECT ?course ?name (COUNT(?funder) as ?funderCount) ?funderNames
 WHERE {
@@ -116,7 +116,7 @@ WHERE {
 ## Find courses organized by a specific person
 
 ```sparql
-PREFIX schema: <http://schema.org/>
+PREFIX schema: <https://schema.org/>
 
 SELECT ?course ?name ?organizer
 WHERE {
@@ -132,7 +132,7 @@ WHERE {
 ## Find courses with specific keywords or topics
 
 ```sparql
-PREFIX schema: <http://schema.org/>
+PREFIX schema: <https://schema.org/>
 PREFIX edam: <http://edamontology.org/>
 
 SELECT ?course ?name ?keywords ?topics
@@ -148,7 +148,7 @@ WHERE {
 ## Find upcoming courses near a geographic location
 
 ```sparql
-PREFIX schema: <http://schema.org/>
+PREFIX schema: <https://schema.org/>
 
 SELECT ?course ?name ?locality ?distance ?startDate
 WHERE {

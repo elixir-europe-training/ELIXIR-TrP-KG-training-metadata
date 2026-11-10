@@ -16,11 +16,31 @@ from typing import Any
 
 import httpx
 from rdflib import Graph, URIRef
+from rdflib.term import Node
 
 # TeSS is behind a Cloudflare challenge that only lets through requests accepting application/json,
 # so JSON-LD requests must also list it, otherwise they get a 403 HTML challenge page
 JSONLD_ACCEPT = "application/ld+json, application/json;q=0.9"
 USER_AGENT = "elixir-trainer (+https://github.com/elixir-europe-training/ELIXIR-trainer)"
+
+# TeSS JSON-LD uses `"@context": "http://schema.org"`, we normalize all schema.org IRIs to https
+SCHEMA_HTTP = "http://schema.org/"
+SCHEMA = "https://schema.org/"
+
+
+def to_https_schema(g: Graph) -> None:
+    """Rewrite in place every http://schema.org/ IRI (subject, predicate or object) to https://schema.org/."""
+
+    def fix(term: Node) -> Node:
+        if isinstance(term, URIRef) and term.startswith(SCHEMA_HTTP):
+            return URIRef(SCHEMA + term[len(SCHEMA_HTTP):])
+        return term
+
+    for s, p, o in list(g):
+        fixed = (fix(s), fix(p), fix(o))
+        if fixed != (s, p, o):
+            g.remove((s, p, o))
+            g.add(fixed)
 
 
 def enrich_sib_organization(g: Graph) -> None:
@@ -32,7 +52,7 @@ def enrich_sib_organization(g: Graph) -> None:
     Args:
         g: RDFlib Graph to enrich in place
     """
-    query = """PREFIX schema: <http://schema.org/>
+    query = """PREFIX schema: <https://schema.org/>
     DELETE { ?org ?p ?o . ?s1 ?p1 ?org }
     INSERT {
         <https://ror.org/002n09z45> ?p ?o ;
@@ -86,7 +106,7 @@ def enrich_locations_osm(g: Graph) -> None:
         g: RDFlib Graph to enrich in place
     """
     # Query all blank node locations with coordinates
-    query_string = """PREFIX schema: <http://schema.org/>
+    query_string = """PREFIX schema: <https://schema.org/>
     SELECT ?location ?lat ?lon
     WHERE {
         ?location a schema:Place ;
@@ -175,7 +195,7 @@ async def harvest_tess_data(
     base_url = repo_url.rstrip("/")
     all_data: list[dict[str, Any]] = []
     g = Graph()
-    g.bind("schema", "http://schema.org/")
+    g.bind("schema", SCHEMA)
 
     async with httpx.AsyncClient(follow_redirects=True, timeout=20, headers={"User-Agent": USER_AGENT}) as client:
         for resource_type in resource_types:
@@ -235,6 +255,7 @@ async def harvest_tess_data(
                 page_number += 1
 
     # g.parse("data/tess_harvest.ttl", format="ttl")
+    to_https_schema(g)
     # Enrich graph with canonical ROR URI for SIB
     enrich_sib_organization(g)
 

@@ -7,28 +7,20 @@ from rdflib.term import BNode, Literal, Node, URIRef
 
 from ..data_models import literal_to_str
 
-# Common schema namespaces appear in both HTTP and HTTPS forms in the harvest
-# data. Keeping both avoids missing predicates due to protocol mismatches.
-SCHEMA_HTTP = Namespace("http://schema.org/")
-SCHEMA_HTTPS = Namespace("https://schema.org/")
-SCHEMA_NAMESPACES: tuple[Namespace, ...] = (SCHEMA_HTTP, SCHEMA_HTTPS)
+# Harvesters normalize all schema.org IRIs to https
+SCHEMA = Namespace("https://schema.org/")
 DCT = Namespace("http://purl.org/dc/terms/")
 
 
 def bind_common_namespaces(dataset: Dataset) -> None:
     """Ensure the RDF dataset has schema.org namespaces registered for debugging."""
-    dataset.namespace_manager.bind("schema", SCHEMA_HTTPS, override=False)
-    dataset.namespace_manager.bind("schema_http", SCHEMA_HTTP, override=False)
+    dataset.namespace_manager.bind("schema", SCHEMA, override=False)
     dataset.namespace_manager.bind("dct", DCT, override=False)
 
 
 def schema_predicates(*local_names: str) -> tuple[URIRef, ...]:
     """Return schema.org predicates for every provided local name."""
-    predicates: list[URIRef] = []
-    for name in local_names:
-        for namespace in SCHEMA_NAMESPACES:
-            predicates.append(namespace[name])
-    return tuple(predicates)
+    return tuple(SCHEMA[name] for name in local_names)
 
 
 def schema_objects(graph: Graph, subject: Node, local_name: str) -> Iterator[Node]:

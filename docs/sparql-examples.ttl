@@ -1,0 +1,208 @@
+@prefix ex: <https://w3id.org/elixir-trainer/sparql-examples/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# Prefixes shared by all examples, declared with SHACL so clients can rebuild the PREFIX header
+_:sparql_examples_prefixes
+    a owl:Ontology ;
+    rdfs:comment """SPARQL query examples to search the ELIXIR training materials harvested from TeSS and GTN.""" ;
+    owl:imports sh: ;
+    sh:declare _:prefix_rdf, _:prefix_rdfs, _:prefix_xsd, _:prefix_schema, _:prefix_dct, _:prefix_edam .
+
+_:prefix_rdf sh:prefix "rdf" ;
+    sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI .
+_:prefix_rdfs sh:prefix "rdfs" ;
+    sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI .
+_:prefix_xsd sh:prefix "xsd" ;
+    sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI .
+_:prefix_schema sh:prefix "schema" ;
+    sh:namespace "https://schema.org/"^^xsd:anyURI .
+_:prefix_dct sh:prefix "dct" ;
+    sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI .
+_:prefix_edam sh:prefix "edam" ;
+    sh:namespace "http://edamontology.org/"^^xsd:anyURI .
+
+# Examples from src/elixir_training_mcp/QUERIES.md
+
+ex:1 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Find all Python courses"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+
+SELECT ?course ?name ?description
+WHERE {
+  ?course a schema:Course ;
+    schema:name ?name ;
+    schema:description ?description .
+  FILTER(CONTAINS(LCASE(?name), "python") || CONTAINS(LCASE(?description), "python"))
+}""" ;
+    schema:keywords "course", "python", "full-text" ;
+    schema:target <http://localhost:7001> .
+
+ex:2 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Find courses by location and date range"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?course ?name ?country ?locality ?startDate ?endDate
+WHERE {
+  ?course a schema:Course ;
+    schema:name ?name ;
+    schema:hasCourseInstance ?instance .
+  ?instance schema:location ?location ;
+    schema:startDate ?startDate ;
+    schema:endDate ?endDate .
+  ?location schema:address ?address .
+  ?address schema:addressCountry ?country ;
+    schema:addressLocality ?locality .
+  FILTER(?startDate >= "2025-11-01"^^xsd:date && ?endDate <= "2025-12-31"^^xsd:date)
+}
+ORDER BY ?startDate""" ;
+    schema:keywords "course", "location", "date" ;
+    schema:target <http://localhost:7001> .
+
+ex:3 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Find courses with specific learning outcomes"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+
+SELECT ?course ?name ?teaches
+WHERE {
+  ?course a schema:Course ;
+    schema:name ?name ;
+    schema:teaches ?teaches .
+  FILTER(CONTAINS(LCASE(?teaches), "ansible") || CONTAINS(LCASE(?teaches), "galaxy"))
+}""" ;
+    schema:keywords "course", "learning outcome", "teaches" ;
+    schema:target <http://localhost:7001> .
+
+ex:4 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Find all courses provided by a specific organization"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+
+SELECT ?course ?name ?provider
+WHERE {
+  ?course a schema:Course ;
+    schema:name ?name ;
+    schema:provider ?providerOrg .
+  ?providerOrg schema:name ?provider .
+  FILTER(?provider = "GTN" || ?provider = "Bioinformatics.ca")
+}""" ;
+    schema:keywords "course", "provider", "organization" ;
+    schema:target <http://localhost:7001> .
+
+ex:5 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Find courses with prerequisites"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+
+SELECT ?course ?name ?prerequisites
+WHERE {
+  ?course a schema:Course ;
+    schema:name ?name ;
+    schema:coursePrerequisites ?prerequisites .
+}""" ;
+    schema:keywords "course", "prerequisites" ;
+    schema:target <http://localhost:7001> .
+
+ex:6 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Find courses by capacity and course mode"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+
+SELECT ?course ?name ?mode ?capacity ?country
+WHERE {
+  ?course a schema:Course ;
+    schema:name ?name ;
+    schema:hasCourseInstance ?instance .
+  ?instance schema:courseMode ?mode ;
+    schema:maximumAttendeeCapacity ?capacity ;
+    schema:location ?location .
+  ?location schema:address ?address .
+  ?address schema:addressCountry ?country .
+  FILTER(?capacity > 20)
+}
+ORDER BY DESC(?capacity)""" ;
+    schema:keywords "course", "capacity", "course mode" ;
+    schema:target <http://localhost:7001> .
+
+ex:7 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Find courses with multiple funding organizations"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+
+SELECT ?course ?name (COUNT(DISTINCT ?funderOrg) AS ?funderCount) (GROUP_CONCAT(DISTINCT ?funderName; separator=", ") AS ?funderNames)
+WHERE {
+  ?course a schema:Course ;
+    schema:name ?name ;
+    schema:hasCourseInstance ?instance .
+  ?instance schema:funder ?funderOrg .
+  ?funderOrg schema:name ?funderName .
+}
+GROUP BY ?course ?name
+HAVING(COUNT(DISTINCT ?funderOrg) > 1)""" ;
+    schema:keywords "course", "funder", "aggregation" ;
+    schema:target <http://localhost:7001> .
+
+ex:8 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Find courses organized by a specific person"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+
+SELECT ?course ?name ?organizer
+WHERE {
+  ?course a schema:Course ;
+    schema:name ?name ;
+    schema:hasCourseInstance ?instance .
+  ?instance schema:organizer ?organizerOrg .
+  ?organizerOrg schema:name ?organizer .
+  FILTER(CONTAINS(?organizer, "Martin \u010Cech"))
+}""" ;
+    schema:keywords "course", "organizer", "person" ;
+    schema:target <http://localhost:7001> .
+
+ex:9 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Find courses with specific keywords or topics"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+PREFIX edam: <http://edamontology.org/>
+
+SELECT ?course ?name ?keywords ?topics
+WHERE {
+  ?course a schema:Course ;
+    schema:name ?name .
+  OPTIONAL { ?course schema:keywords ?keywords . }
+  OPTIONAL { ?course schema:about ?topics . }
+  FILTER(CONTAINS(LCASE(?keywords), "admin") || CONTAINS(LCASE(?keywords), "galaxy"))
+}""" ;
+    schema:keywords "course", "keywords", "topic", "EDAM" ;
+    schema:target <http://localhost:7001> .
+
+ex:10 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Find upcoming courses near a geographic location"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+
+SELECT ?course ?name ?locality ?lat ?lon ?startDate
+WHERE {
+  ?course a schema:Course ;
+    schema:name ?name ;
+    schema:hasCourseInstance ?instance .
+  ?instance schema:location ?location ;
+    schema:startDate ?startDate .
+  ?location schema:latitude ?lat ;
+    schema:longitude ?lon ;
+    schema:address ?address .
+  ?address schema:addressLocality ?locality .
+  # Filter for courses in Canada as example
+  FILTER(CONTAINS(?locality, "Toronto") || CONTAINS(?locality, "Halifax") || CONTAINS(?locality, "Vancouver"))
+}
+ORDER BY ?startDate""" ;
+    schema:keywords "course", "location", "geo" ;
+    schema:target <http://localhost:7001> .
