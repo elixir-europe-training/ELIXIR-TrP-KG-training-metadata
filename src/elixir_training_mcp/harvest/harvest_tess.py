@@ -13,10 +13,14 @@ import asyncio
 import json
 from pathlib import Path
 from typing import Any
-from importlib.resources import files
 
 import httpx
 from rdflib import Graph, URIRef
+
+# TeSS is behind a Cloudflare challenge that only lets through requests accepting application/json,
+# so JSON-LD requests must also list it, otherwise they get a 403 HTML challenge page
+JSONLD_ACCEPT = "application/ld+json, application/json;q=0.9"
+USER_AGENT = "elixir-trainer (+https://github.com/elixir-europe-training/ELIXIR-trainer)"
 
 
 def enrich_sib_organization(g: Graph) -> None:
@@ -173,7 +177,7 @@ async def harvest_tess_data(
     g = Graph()
     g.bind("schema", "http://schema.org/")
 
-    async with httpx.AsyncClient(follow_redirects=True, timeout=20) as client:
+    async with httpx.AsyncClient(follow_redirects=True, timeout=20, headers={"User-Agent": USER_AGENT}) as client:
         for resource_type in resource_types:
             page_number = 1
             while True:
@@ -234,9 +238,9 @@ async def harvest_tess_data(
     # Enrich graph with canonical ROR URI for SIB
     enrich_sib_organization(g)
 
-    # Create data folder if it doesn't exist
-    # Path("data").mkdir(exist_ok=True)
-    g.serialize(str(files("elixir_training_mcp").joinpath("data/tess_harvest.ttl")), format="ttl")
+    # Save next to the other harvested graphs in data/ (loaded by the Qlever triplestore)
+    Path("data").mkdir(exist_ok=True)
+    g.serialize("data/tess_harvest.ttl", format="ttl")
     print(f"Harvested {len(all_data)} total resources")
     return all_data
 
@@ -267,7 +271,7 @@ async def _fetch_jsonld_parallel(
     async def fetch_one(url: str) -> dict[str, Any]:
         async with semaphore:
             # print(f"  Fetching: {url}")
-            response = await client.get(url, headers={"accept": "application/ld+json"})
+            response = await client.get(url, headers={"accept": JSONLD_ACCEPT})
             response.raise_for_status()
             return response.json()
 
