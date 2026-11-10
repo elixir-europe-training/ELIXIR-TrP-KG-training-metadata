@@ -3,6 +3,7 @@
 services:
   # One-shot job: build the Qlever index from all Turtle files in data/
   # with a full-text index on all literals (-W) scored with BM25 (-S bm25)
+  # Each file is loaded in its own named graph: ${GRAPH_BASE}<filename without .ttl>
   index:
     image: adfreiburg/qlever:latest
     user: root # named volumes are owned by root
@@ -11,10 +12,12 @@ services:
       - |
         set -e
         rm -rf /index/*
-        args=(); for f in /input/*.ttl; do args+=(-f "$$f"); done
+        args=(); for f in /input/*.ttl; do args+=(-f "$$f" -g "$${GRAPH_BASE}$$(basename "$$f" .ttl)"); done
         cd /index && qlever-index -i training -F ttl -p false -W -S bm25 "$${args[@]}"
         # The server writes logs next to the index files, and runs as the non-root qlever user
         chown -R qlever:qlever /index
+    environment:
+      GRAPH_BASE: ${GRAPH_BASE:-https://w3id.org/elixir-trainer/graph/}
     volumes:
       - ./data:/input:ro
       - index:/index
