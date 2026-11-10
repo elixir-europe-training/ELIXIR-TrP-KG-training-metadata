@@ -1,0 +1,38 @@
+# Qlever SPARQL endpoint serving the harvested data/*.ttl files on http://localhost:7001
+# The index is rebuilt from data/*.ttl on every `docker compose up`
+services:
+  # One-shot job: build the Qlever index from all Turtle files in data/
+  # with a full-text index on all literals (-W) scored with BM25 (-S bm25)
+  index:
+    image: adfreiburg/qlever:latest
+    user: root # named volumes are owned by root
+    entrypoint: ["bash", "-c"]
+    command:
+      - |
+        set -e
+        rm -rf /index/*
+        args=(); for f in /input/*.ttl; do args+=(-f "$$f"); done
+        cd /index && qlever-index -i training -F ttl -p false -W -S bm25 "$${args[@]}"
+        # The server writes logs next to the index files, and runs as the non-root qlever user
+        chown -R qlever:qlever /index
+    volumes:
+      - ./data:/input:ro
+      - index:/index
+
+  # SPARQL endpoint with the text index loaded (-t), started once the index is built
+  qlever:
+    image: adfreiburg/qlever:latest
+    entrypoint: ["qlever-server"]
+    command: ["-i", "/index/training", "-p", "7001", "-t", "-j", "4", "-m", "2GB", "-c", "1GB"]
+    working_dir: /index
+    ports:
+      - "7001:7001"
+    volumes:
+      - index:/index
+    depends_on:
+      index:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+volumes:
+  index:
