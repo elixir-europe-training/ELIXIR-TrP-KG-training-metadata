@@ -226,7 +226,7 @@ SELECT DISTINCT ?type ?item ?title ?evidence ?detail WHERE {
   BIND(STRAFTER(STR(?cls), "https://schema.org/") AS ?type)
   OPTIONAL { ?item schema:name ?title }
 
-  # 1. linked, named entity -- mentions / author / provider / organizer
+  # linked, named entity -- mentions / author / provider / organizer
   {
     VALUES (?prop ?evidence) {
       (schema:mentions   "mentions")
@@ -240,7 +240,7 @@ SELECT DISTINCT ?type ?item ?title ?evidence ?detail WHERE {
     BIND(CONCAT(STR(?nodeName), " <", STR(?node), ">") AS ?detail)
   }
   UNION
-  # 2. free text on the item
+  # free text on the item
   {
     VALUES (?prop ?evidence) {
       (schema:name        "name")
