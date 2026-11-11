@@ -18,7 +18,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     # SPARQL endpoint with the harvested training data, the VoID description and the SPARQL examples
-    sparql_endpoint_url: str = "http://localhost:7001"
+    # sparql_endpoint_url: str = "http://localhost:7001"
+    sparql_endpoint_url: str = "https://biosoda.unil.ch/elixir-trainer/sparql"
     graph_base: str = "https://w3id.org/elixir-trainer/graph/"
 
     # Embedded LanceDB vector store, rebuilt at startup from the examples and VoID of the endpoint
