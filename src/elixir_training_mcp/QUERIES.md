@@ -165,3 +165,95 @@ WHERE {
   FILTER(CONTAINS(?locality, "Toronto") || CONTAINS(?locality, "Halifax") || CONTAINS(?locality, "Vancouver"))
 } ORDER BY ?startDate
 ```
+
+## Find sources and learning resources made by authors/contributors/instructors who also made materials for social sciences
+```sparql
+PREFIX schema: <https://schema.org/>
+
+SELECT DISTINCT ?person ?personName ?itemType ?item ?title ?role ?instance ?start WHERE {
+  # people behind a social-science item
+  VALUES ?seedCls { schema:Course schema:LearningResource }
+  ?seed a ?seedCls .
+  VALUES ?seedProp { schema:name schema:keywords schema:description }
+  ?seed ?seedProp ?seedText .
+  FILTER(REGEX(LCASE(STR(?seedText)), "social[ -]?sci"))
+
+  {
+    ?seed schema:hasCourseInstance ?seedInstance .
+    ?seedInstance schema:instructor ?person .
+  }
+  UNION
+  {
+    VALUES ?seedRel { schema:author schema:contributor }
+    ?seed ?seedRel ?person .
+  }
+
+  FILTER(isIRI(?person))
+  ?person a schema:Person .
+  OPTIONAL { ?person schema:name ?personName }
+
+  # everything that person made or taught
+  VALUES ?itemCls { schema:Course schema:LearningResource }
+  ?item a ?itemCls .
+  BIND(STRAFTER(STR(?itemCls), "https://schema.org/") AS ?itemType)
+  OPTIONAL { ?item schema:name ?title }
+
+  {
+    ?item schema:hasCourseInstance ?instance .
+    ?instance schema:instructor ?person .
+    OPTIONAL { ?instance schema:startDate ?start }
+    BIND("instructor" AS ?role)
+  }
+  UNION
+  {
+    VALUES ?rel { schema:author schema:contributor }
+    ?item ?rel ?person .
+    BIND(STRAFTER(STR(?rel), "https://schema.org/") AS ?role)
+  }
+}
+ORDER BY ?personName ?itemType ?item
+```
+
+
+## Find all Bioconductor courses and learning resources on a particular topic, e.g. single-cell sequencing
+
+```sparql
+PREFIX schema: <https://schema.org/>
+
+SELECT DISTINCT ?type ?item ?title ?evidence ?detail WHERE {
+  VALUES ?cls { schema:Course schema:LearningResource }
+  ?item a ?cls .
+  BIND(STRAFTER(STR(?cls), "https://schema.org/") AS ?type)
+  OPTIONAL { ?item schema:name ?title }
+
+  # 1. linked, named entity -- mentions / author / provider / organizer
+  {
+    VALUES (?prop ?evidence) {
+      (schema:mentions   "mentions")
+      (schema:author     "author")
+      (schema:provider   "provider")
+      (schema:organizer  "organizer")
+    }
+    ?item ?prop ?node .
+    ?node schema:name ?nodeName .
+    FILTER(REGEX(LCASE(STR(?nodeName)), "bioconductor"))
+    BIND(CONCAT(STR(?nodeName), " <", STR(?node), ">") AS ?detail)
+  }
+  UNION
+  # 2. free text on the item
+  {
+    VALUES (?prop ?evidence) {
+      (schema:name        "name")
+      (schema:description "description")
+      # (schema:keywords    "keywords")
+    }
+    ?item ?prop ?text .
+    FILTER(REGEX(LCASE(STR(?text)), "bioconductor") &&
+         REGEX(LCASE(STR(?text)), "single[ -]?cell"))
+    BIND(SUBSTR(STR(?text), 1, 120) AS ?detail)
+  }
+}
+ORDER BY ?type ?item ?evidence
+```
+
+
