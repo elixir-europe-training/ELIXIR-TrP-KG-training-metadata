@@ -166,7 +166,7 @@ WHERE {
 } ORDER BY ?startDate
 ```
 
-## Find sources and learning resources made by authors/contributors/instructors who also made materials for social sciences
+## Find courses and learning resources made by authors/contributors/instructors who also made materials for social sciences
 ```sparql
 PREFIX schema: <https://schema.org/>
 
