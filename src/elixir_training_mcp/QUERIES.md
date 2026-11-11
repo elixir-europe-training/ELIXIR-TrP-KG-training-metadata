@@ -166,6 +166,29 @@ WHERE {
 } ORDER BY ?startDate
 ```
 
+
+## Find learning resources that are based on Python 3
+```sparql
+PREFIX schema: <https://schema.org/>
+
+SELECT DISTINCT ?s ?name ?dp ?dm
+WHERE {
+  ?s a ?c .
+  FILTER((?c IN (schema:LearningResource, <https://schema.org/LearningResource>)) || (?c IN (schema:Course, <https://schema.org/Course>)))
+  ?s schema:name ?name .
+
+  # strict Python-3 match: avoids "python", "python 2", "python 3D"
+  ?s ?p ?v .
+  FILTER(REGEX(LCASE(STR(?v)), "python ?3(\\.\\d+)?"))
+
+  OPTIONAL { ?s schema:datePublished ?dp }
+  OPTIONAL { ?s schema:dateModified  ?dm }
+}
+ORDER BY DESC(?dp) DESC(?dm)
+LIMIT 25
+```
+
+
 ## Find courses and learning resources made by authors/contributors/instructors who also made materials for social sciences
 ```sparql
 PREFIX schema: <https://schema.org/>
@@ -256,4 +279,91 @@ SELECT DISTINCT ?type ?item ?title ?evidence ?detail WHERE {
 ORDER BY ?type ?item ?evidence
 ```
 
+## Find all learning resources that use a certain package, e.g. scanpy
+```
+PREFIX schema: <https://schema.org/>
 
+SELECT ?mat ?name (MAX(?dp) AS ?pub)
+WHERE {
+  ?mat a schema:LearningResource ;
+       schema:name ?name .
+
+  OPTIONAL { ?mat schema:datePublished ?dp }
+
+  FILTER EXISTS {
+    { ?mat schema:mentions ?m . ?m schema:name ?tool }   # structured: bio.tools record
+    UNION { ?mat schema:description ?tool }
+    UNION { ?mat schema:keywords    ?tool }
+    UNION { ?mat schema:name        ?tool }
+    FILTER(CONTAINS(LCASE(STR(?tool)), "scanpy"))
+  }
+}
+GROUP BY ?mat ?name
+ORDER BY DESC(?pub)
+```
+
+## Find all course (event) organisers in a specific country and the number of courses they organised
+```sparql
+PREFIX schema: <https://schema.org/>
+
+SELECT ?key
+       (SAMPLE(?orgName) AS ?organizer)
+       (SAMPLE(?url) AS ?orgUrl)
+       (COUNT(DISTINCT ?event) AS ?events)
+WHERE {
+  ?event a schema:Event ;
+         schema:organizer ?org ;
+         schema:location ?loc .
+  ?loc schema:address ?addr .
+  ?addr schema:addressCountry ?country .
+  ?org schema:name ?orgName .
+  OPTIONAL { ?org schema:url ?url }
+  BIND(COALESCE(?url, STR(?orgName)) AS ?key)
+  FILTER(?country = "Switzerland")
+}
+GROUP BY ?key
+ORDER BY DESC(?events)
+```
+
+## Get the number of instructors per country, in which a course has taken place
+```sparql
+PREFIX schema: <https://schema.org/>
+
+SELECT ?country
+       (COUNT(DISTINCT ?c) AS ?courses)
+       (COUNT(DISTINCT ?p) AS ?instructors)
+WHERE {
+  ?c a schema:Course ;
+     schema:hasCourseInstance ?ci .
+  ?ci schema:instructor ?p ;
+      schema:location ?loc .
+  ?loc schema:address ?a .
+  ?a schema:addressCountry ?country .
+  FILTER(isIRI(?p))
+}
+GROUP BY ?country
+ORDER BY DESC(?instructors)
+```
+
+## Find all instructors in a particular country
+```sparql
+PREFIX schema: <https://schema.org/>
+
+SELECT DISTINCT ?country ?instructor ?instructorName ?course ?courseName ?instance ?start WHERE {
+  VALUES ?country { "United Kingdom" }          # <-- exact string, single knob
+
+  ?course a schema:Course ;
+          schema:hasCourseInstance ?instance .
+  ?instance schema:instructor ?instructor ;
+            schema:location ?loc .
+  ?loc schema:address ?addr .
+  ?addr schema:addressCountry ?country .
+
+  FILTER(isIRI(?instructor))
+
+  OPTIONAL { ?instructor schema:name ?instructorName }
+  OPTIONAL { ?course     schema:name ?courseName }
+  OPTIONAL { ?instance   schema:startDate ?start }
+}
+ORDER BY ?instructorName ?start
+```
