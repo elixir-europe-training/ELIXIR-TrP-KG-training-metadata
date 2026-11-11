@@ -41,7 +41,7 @@ WHERE {
   FILTER(CONTAINS(LCASE(?name), "python") || CONTAINS(LCASE(?description), "python"))
 }""" ;
     schema:keywords "course", "python", "full-text" ;
-    schema:target <http://localhost:7001> .
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
 
 ex:2 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
     rdfs:comment "Find courses by location and date range"@en ;
@@ -64,7 +64,7 @@ WHERE {
 }
 ORDER BY ?startDate""" ;
     schema:keywords "course", "location", "date" ;
-    schema:target <http://localhost:7001> .
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
 
 ex:3 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
     rdfs:comment "Find courses with specific learning outcomes"@en ;
@@ -79,7 +79,7 @@ WHERE {
   FILTER(CONTAINS(LCASE(?teaches), "ansible") || CONTAINS(LCASE(?teaches), "galaxy"))
 }""" ;
     schema:keywords "course", "learning outcome", "teaches" ;
-    schema:target <http://localhost:7001> .
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
 
 ex:4 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
     rdfs:comment "Find all courses provided by a specific organization"@en ;
@@ -95,7 +95,7 @@ WHERE {
   FILTER(?provider = "GTN" || ?provider = "Bioinformatics.ca")
 }""" ;
     schema:keywords "course", "provider", "organization" ;
-    schema:target <http://localhost:7001> .
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
 
 ex:5 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
     rdfs:comment "Find courses with prerequisites"@en ;
@@ -109,7 +109,7 @@ WHERE {
     schema:coursePrerequisites ?prerequisites .
 }""" ;
     schema:keywords "course", "prerequisites" ;
-    schema:target <http://localhost:7001> .
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
 
 ex:6 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
     rdfs:comment "Find courses by capacity and course mode"@en ;
@@ -130,7 +130,7 @@ WHERE {
 }
 ORDER BY DESC(?capacity)""" ;
     schema:keywords "course", "capacity", "course mode" ;
-    schema:target <http://localhost:7001> .
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
 
 ex:7 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
     rdfs:comment "Find courses with multiple funding organizations"@en ;
@@ -148,7 +148,7 @@ WHERE {
 GROUP BY ?course ?name
 HAVING(COUNT(DISTINCT ?funderOrg) > 1)""" ;
     schema:keywords "course", "funder", "aggregation" ;
-    schema:target <http://localhost:7001> .
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
 
 ex:8 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
     rdfs:comment "Find courses organized by a specific person"@en ;
@@ -165,7 +165,7 @@ WHERE {
   FILTER(CONTAINS(?organizer, "Martin \u010Cech"))
 }""" ;
     schema:keywords "course", "organizer", "person" ;
-    schema:target <http://localhost:7001> .
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
 
 ex:9 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
     rdfs:comment "Find courses with specific keywords or topics"@en ;
@@ -182,7 +182,7 @@ WHERE {
   FILTER(CONTAINS(LCASE(?keywords), "admin") || CONTAINS(LCASE(?keywords), "galaxy"))
 }""" ;
     schema:keywords "course", "keywords", "topic", "EDAM" ;
-    schema:target <http://localhost:7001> .
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
 
 ex:10 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
     rdfs:comment "Find upcoming courses near a geographic location"@en ;
@@ -207,7 +207,7 @@ WHERE {
 }
 ORDER BY ?startDate""" ;
     schema:keywords "course", "location", "geo" ;
-    schema:target <http://localhost:7001> .
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
 
 ex:11 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
     rdfs:comment "Find upcoming courses of an organization (e.g. SIB), as provider or organizer, with their dates, mode and location"@en ;
@@ -236,4 +236,220 @@ WHERE {
 }
 ORDER BY ?startDate""" ;
     schema:keywords "course", "organization", "provider", "organizer", "upcoming", "date" ;
-    schema:target <http://localhost:7001> .
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
+
+ex:12 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Find courses and learning resources that are based on Python 3"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+
+SELECT DISTINCT ?s ?name ?dp ?dm
+WHERE {
+  VALUES ?c { schema:LearningResource schema:Course }
+  ?s a ?c ;
+    schema:name ?name .
+  # Strict Python 3 match: avoids "python", "python 2", "python 3D"
+  ?s ?p ?v .
+  FILTER(REGEX(LCASE(STR(?v)), "python ?3(\\\\.\\\\d+)?"))
+  OPTIONAL { ?s schema:datePublished ?dp }
+  OPTIONAL { ?s schema:dateModified ?dm }
+}
+ORDER BY DESC(?dp) DESC(?dm)
+LIMIT 25""" ;
+    schema:keywords "course", "learning resource", "python", "full-text", "regex" ;
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
+
+ex:13 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Find courses and learning resources made by authors, contributors or instructors who also made materials for social sciences"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+
+SELECT DISTINCT ?person ?personName ?itemType ?item ?title ?role ?instance ?start
+WHERE {
+  # People behind a social science item
+  VALUES ?seedCls { schema:Course schema:LearningResource }
+  ?seed a ?seedCls .
+  VALUES ?seedProp { schema:name schema:keywords schema:description }
+  ?seed ?seedProp ?seedText .
+  FILTER(REGEX(LCASE(STR(?seedText)), "social[ -]?sci"))
+  {
+    ?seed schema:hasCourseInstance ?seedInstance .
+    ?seedInstance schema:instructor ?person .
+  } UNION {
+    VALUES ?seedRel { schema:author schema:contributor }
+    ?seed ?seedRel ?person .
+  }
+  FILTER(isIRI(?person))
+  ?person a schema:Person .
+  OPTIONAL { ?person schema:name ?personName }
+
+  # Everything that person made or taught
+  VALUES ?itemCls { schema:Course schema:LearningResource }
+  ?item a ?itemCls .
+  BIND(STRAFTER(STR(?itemCls), "https://schema.org/") AS ?itemType)
+  OPTIONAL { ?item schema:name ?title }
+  {
+    ?item schema:hasCourseInstance ?instance .
+    ?instance schema:instructor ?person .
+    OPTIONAL { ?instance schema:startDate ?start }
+    BIND("instructor" AS ?role)
+  } UNION {
+    VALUES ?rel { schema:author schema:contributor }
+    ?item ?rel ?person .
+    BIND(STRAFTER(STR(?rel), "https://schema.org/") AS ?role)
+  }
+}
+ORDER BY ?personName ?itemType ?item""" ;
+    schema:keywords "course", "learning resource", "person", "author", "contributor", "instructor", "social sciences" ;
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
+
+ex:14 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Find all Bioconductor courses and learning resources on a particular topic, e.g. single-cell sequencing"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+
+SELECT DISTINCT ?type ?item ?title ?evidence ?detail
+WHERE {
+  VALUES ?cls { schema:Course schema:LearningResource }
+  ?item a ?cls .
+  BIND(STRAFTER(STR(?cls), "https://schema.org/") AS ?type)
+  OPTIONAL { ?item schema:name ?title }
+  {
+    # Linked named entity: mentions, author, provider or organizer
+    VALUES (?prop ?evidence) {
+      (schema:mentions "mentions")
+      (schema:author "author")
+      (schema:provider "provider")
+      (schema:organizer "organizer")
+    }
+    ?item ?prop ?node .
+    ?node schema:name ?nodeName .
+    FILTER(REGEX(LCASE(STR(?nodeName)), "bioconductor"))
+    BIND(CONCAT(STR(?nodeName), " <", STR(?node), ">") AS ?detail)
+  } UNION {
+    # Free text on the item
+    VALUES (?prop ?evidence) {
+      (schema:name "name")
+      (schema:description "description")
+    }
+    ?item ?prop ?text .
+    FILTER(REGEX(LCASE(STR(?text)), "bioconductor") && REGEX(LCASE(STR(?text)), "single[ -]?cell"))
+    BIND(SUBSTR(STR(?text), 1, 120) AS ?detail)
+  }
+}
+ORDER BY ?type ?item ?evidence""" ;
+    schema:keywords "course", "learning resource", "bioconductor", "single-cell", "topic", "full-text" ;
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
+
+ex:15 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Find all learning resources that use a certain package, e.g. scanpy"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+
+SELECT ?mat ?name (MAX(?dp) AS ?pub)
+WHERE {
+  ?mat a schema:LearningResource ;
+    schema:name ?name .
+  OPTIONAL { ?mat schema:datePublished ?dp }
+  FILTER EXISTS {
+    # Structured bio.tools record, or free text
+    { ?mat schema:mentions ?m . ?m schema:name ?tool }
+    UNION { ?mat schema:description ?tool }
+    UNION { ?mat schema:keywords ?tool }
+    UNION { ?mat schema:name ?tool }
+    FILTER(CONTAINS(LCASE(STR(?tool)), "scanpy"))
+  }
+}
+GROUP BY ?mat ?name
+ORDER BY DESC(?pub)""" ;
+    schema:keywords "learning resource", "tool", "package", "mentions", "bio.tools" ;
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
+
+ex:16 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Find all event organizers in a specific country, e.g. Switzerland, and the number of events they organized"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+
+# Organizers are grouped by URL, or by name when they have no URL
+SELECT ?key (SAMPLE(?orgName) AS ?organizer) (SAMPLE(?url) AS ?orgUrl) (COUNT(DISTINCT ?event) AS ?events)
+WHERE {
+  ?event a schema:Event ;
+    schema:organizer ?org ;
+    schema:location ?loc .
+  ?loc schema:address ?addr .
+  ?addr schema:addressCountry ?country .
+  ?org schema:name ?orgName .
+  OPTIONAL { ?org schema:url ?url }
+  BIND(COALESCE(?url, STR(?orgName)) AS ?key)
+  FILTER(?country = "Switzerland")
+}
+GROUP BY ?key
+ORDER BY DESC(?events)""" ;
+    schema:keywords "event", "organizer", "country", "aggregation" ;
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
+
+ex:17 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Get the number of courses and instructors per country in which a course has taken place"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+
+SELECT ?country (COUNT(DISTINCT ?c) AS ?courses) (COUNT(DISTINCT ?p) AS ?instructors)
+WHERE {
+  ?c a schema:Course ;
+    schema:hasCourseInstance ?ci .
+  ?ci schema:instructor ?p ;
+    schema:location ?loc .
+  ?loc schema:address ?a .
+  ?a schema:addressCountry ?country .
+  FILTER(isIRI(?p))
+}
+GROUP BY ?country
+ORDER BY DESC(?instructors)""" ;
+    schema:keywords "course", "instructor", "country", "aggregation", "statistics" ;
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
+
+ex:18 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Find all instructors of courses in a particular country, e.g. United Kingdom"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+
+SELECT DISTINCT ?country ?instructor ?instructorName ?course ?courseName ?instance ?start
+WHERE {
+  # Country name, matched exactly
+  VALUES ?country { "United Kingdom" }
+  ?course a schema:Course ;
+    schema:hasCourseInstance ?instance .
+  ?instance schema:instructor ?instructor ;
+    schema:location ?loc .
+  ?loc schema:address ?addr .
+  ?addr schema:addressCountry ?country .
+  FILTER(isIRI(?instructor))
+  OPTIONAL { ?instructor schema:name ?instructorName }
+  OPTIONAL { ?course schema:name ?courseName }
+  OPTIONAL { ?instance schema:startDate ?start }
+}
+ORDER BY ?instructorName ?start""" ;
+    schema:keywords "course", "instructor", "person", "country" ;
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
+
+ex:19 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Get the number of courses each provider organized in a particular year, e.g. 2024"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+
+SELECT ?providerUrl ?providerName (COUNT(DISTINCT ?provider) AS ?nodes) (COUNT(DISTINCT ?course) AS ?courses)
+WHERE {
+  # Year to look for, matched on the start of the start date string
+  VALUES ?year { "2024" }
+  ?course a schema:Course ;
+    schema:provider ?provider ;
+    schema:hasCourseInstance ?instance .
+  ?instance schema:startDate ?start .
+  FILTER(STRSTARTS(STR(?start), ?year))
+  ?provider schema:url ?providerUrl ;
+    schema:name ?providerName .
+}
+GROUP BY ?providerUrl ?providerName
+ORDER BY DESC(?courses)""" ;
+    schema:keywords "course", "provider", "date", "year", "aggregation", "statistics" ;
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .

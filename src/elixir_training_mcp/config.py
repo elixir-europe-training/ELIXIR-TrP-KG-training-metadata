@@ -41,7 +41,9 @@ class Settings(BaseSettings):
     ]
 
     # Public hostnames of the app, e.g. `training.example.org`, accepted by the MCP DNS rebinding protection
-    allowed_hosts: CommaList = []
+    allowed_hosts: CommaList = [
+        "biosoda.unil.ch",
+    ]
 
     @property
     def examples_graph(self) -> str:
