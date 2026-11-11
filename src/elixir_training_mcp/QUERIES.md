@@ -367,3 +367,28 @@ SELECT DISTINCT ?country ?instructor ?instructorName ?course ?courseName ?instan
 }
 ORDER BY ?instructorName ?start
 ```
+
+## Get the number of courses a provider organized in a particular year, e.g. 2024
+
+```sparql
+PREFIX schema: <https://schema.org/>
+
+SELECT ?providerUrl ?providerName
+       (COUNT(DISTINCT ?provider) AS ?nodes)
+       (COUNT(DISTINCT ?course)   AS ?courses)
+WHERE {
+  VALUES ?year { "2024" }                    # <-- year to look for
+
+  ?course a schema:Course ;
+          schema:provider ?provider ;
+          schema:hasCourseInstance ?instance .
+
+  ?instance schema:startDate ?start .
+  FILTER(STRSTARTS(STR(?start), ?year))
+
+  ?provider schema:url  ?providerUrl ;
+            schema:name ?providerName .
+}
+GROUP BY ?providerUrl ?providerName
+ORDER BY DESC(?courses)
+```
