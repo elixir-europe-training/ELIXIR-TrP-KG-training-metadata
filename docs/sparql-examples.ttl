@@ -26,7 +26,7 @@ _:prefix_dct sh:prefix "dct" ;
 _:prefix_edam sh:prefix "edam" ;
     sh:namespace "http://edamontology.org/"^^xsd:anyURI .
 
-# Examples from src/elixir_training_mcp/QUERIES.md
+# Examples of queries over the harvested training data
 
 ex:1 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
     rdfs:comment "Find all Python courses"@en ;
@@ -47,8 +47,8 @@ ex:2 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
     rdfs:comment "Find courses by location and date range"@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX schema: <https://schema.org/>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
+# Dates are plain strings like "2026-05-27 09:00:00 UTC", compared as strings
 SELECT ?course ?name ?country ?locality ?startDate ?endDate
 WHERE {
   ?course a schema:Course ;
@@ -60,7 +60,7 @@ WHERE {
   ?location schema:address ?address .
   ?address schema:addressCountry ?country ;
     schema:addressLocality ?locality .
-  FILTER(?startDate >= "2025-11-01"^^xsd:date && ?endDate <= "2025-12-31"^^xsd:date)
+  FILTER(STR(?startDate) >= "2026-11-01" && STR(?endDate) < "2027-01-01")
 }
 ORDER BY ?startDate""" ;
     schema:keywords "course", "location", "date" ;
@@ -188,6 +188,7 @@ ex:10 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
     rdfs:comment "Find upcoming courses near a geographic location"@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX schema: <https://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT ?course ?name ?locality ?lat ?lon ?startDate
 WHERE {
@@ -200,9 +201,39 @@ WHERE {
     schema:longitude ?lon ;
     schema:address ?address .
   ?address schema:addressLocality ?locality .
-  # Filter for courses in Canada as example
-  FILTER(CONTAINS(?locality, "Toronto") || CONTAINS(?locality, "Halifax") || CONTAINS(?locality, "Vancouver"))
+  # Courses starting after a given date, in a bounding box around Lausanne (Switzerland)
+  FILTER(STR(?startDate) >= "2026-11-10")
+  FILTER(xsd:decimal(?lat) > 46.0 && xsd:decimal(?lat) < 47.0 && xsd:decimal(?lon) > 6.0 && xsd:decimal(?lon) < 7.5)
 }
 ORDER BY ?startDate""" ;
     schema:keywords "course", "location", "geo" ;
+    schema:target <http://localhost:7001> .
+
+ex:11 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Find upcoming courses of an organization (e.g. SIB), as provider or organizer, with their dates, mode and location"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+
+# Organizations are matched on their name or IRI (e.g. a ROR ID), an organization can have several names
+SELECT DISTINCT ?course ?name ?url ?startDate ?endDate ?mode ?locality ?country
+WHERE {
+  ?course a schema:Course ;
+    schema:name ?name ;
+    schema:hasCourseInstance ?instance .
+  ?instance schema:startDate ?startDate .
+  { ?course schema:provider ?org } UNION { ?instance schema:organizer ?org }
+  ?org schema:name ?orgName .
+  FILTER(CONTAINS(LCASE(?orgName), "sib") || ?org = <https://ror.org/002n09z45>)
+  FILTER(STR(?startDate) >= "2026-11-10")
+  OPTIONAL { ?course schema:url ?url }
+  OPTIONAL { ?instance schema:endDate ?endDate }
+  OPTIONAL { ?instance schema:courseMode ?mode }
+  OPTIONAL {
+    ?instance schema:location/schema:address ?address .
+    OPTIONAL { ?address schema:addressLocality ?locality }
+    OPTIONAL { ?address schema:addressCountry ?country }
+  }
+}
+ORDER BY ?startDate""" ;
+    schema:keywords "course", "organization", "provider", "organizer", "upcoming", "date" ;
     schema:target <http://localhost:7001> .

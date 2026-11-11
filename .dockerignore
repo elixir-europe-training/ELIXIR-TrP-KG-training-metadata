@@ -1,0 +1,13 @@
+.git
+.github
+.venv
+.env
+.env.*
+.claude
+data
+paper
+user_stories_results
+**/__pycache__
+.mypy_cache
+.ruff_cache
+.pytest_cache

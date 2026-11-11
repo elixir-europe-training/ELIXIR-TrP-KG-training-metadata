@@ -64,44 +64,83 @@ Once the endpoint is up, the `generate-metadata` job runs [`docs/generate-void.r
 docker compose run --rm --no-deps generate-metadata
 ```
 
-## 💬 MCP server
+## 💬 MCP server and agent
 
-A [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server to access and search through the training materials of multiple Elixir repositories, such as [TeSS](https://tess.elixir-europe.org/) and [Glittr](https://glittr.org/).
+A remote [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server to search the training knowledge graph with SPARQL, with an [MCP App](https://modelcontextprotocol.io/extensions/apps/overview) showing the upcoming trainings of an organization. The same app serves a chat agent using it ([Pydantic AI](https://ai.pydantic.dev) with the [light-chat](https://github.com/vemonet/light-chat) UI):
+
+- `/mcp`: MCP server (Streamable HTTP)
+- `/chat`: [AG-UI](https://docs.ag-ui.com) endpoint of the agent
+- `/`: chat UI, showing the MCP Apps widgets
+
+### 🧰 Available MCP tools
+
+| Tool | Description |
+| ---- | ----------- |
+| `get_sparql_examples` | SPARQL query examples relevant to a question |
+| `get_sparql_schema` | Schema of the classes relevant to some concepts (predicates and types of their values, as ShEx) |
+| `execute_sparql_query` | Run a SPARQL SELECT or ASK query on the endpoint |
+| `show_upcoming_trainings` | MCP App: interactive view of the upcoming trainings of an organization (e.g. `SIB`), filterable by text, mode and country |
+
+The examples and classes schemas are loaded at startup from the `sparql-examples` and `void` named graphs of the SPARQL endpoint, and indexed in an embedded [LanceDB](https://lancedb.com) vector store (`data/lancedb`), searched with hybrid search (vectors and BM25 full-text search, fused with Reciprocal Rank Fusion). LanceDB generates the embeddings with [`Qwen/Qwen3-Embedding-0.6B`](https://huggingface.co/Qwen/Qwen3-Embedding-0.6B) (Apache 2.0, 100+ languages), quantized to int8 and run with ONNX by [fastembed](https://github.com/qdrant/fastembed) (1.1 GB downloaded on first start).
 
 ### ⚡️ Usage
 
 > [!IMPORTANT]
 >
-> Requirement: [`uv`](https://docs.astral.sh/uv/getting-started/installation/), to easily handle python scripts and virtual environments
+> Requirements: [`uv`](https://docs.astral.sh/uv/getting-started/installation/), and the SPARQL endpoint deployed with `docker compose up -d` (see above).
 
-Use with STDIO transport:
-
-```sh
-uv run elixir-training-mcp
-```
-
-Use with Deploy as Streamable HTTP server:
+Configure the agent in a `.env` file, it uses an OpenAI-compatible endpoint ([OpenRouter](https://openrouter.ai) by default):
 
 ```sh
-uv run elixir-training-mcp --http
+OPENAI_API_KEY=sk-or-...
+# Optional
+OPENAI_BASE_URL=https://openrouter.ai/api/v1
+MODELS=deepseek/deepseek-v4.1-flash-1017,mistralai/mistral-large-4-0
+SPARQL_ENDPOINT_URL=http://localhost:7001
+# Public hostnames of the app, when deployed behind a reverse proxy
+ALLOWED_HOSTS=training.example.org
 ```
 
-### 🧰 Available MCP tools
+Start the app on http://localhost:8000:
 
-Once the server is running you can call the following tools from your MCP-compatible client:
+```sh
+uv run elixir-trainer
+```
 
-| Tool | Description |
-| ---- | ----------- |
-| `search_training_materials` | Proxies the live TeSS API and returns raw JSON results. |
-| `keyword_search` | Searches the harvested TTL datasets (TeSS + GTN) by free-text keyword and returns enriched metadata. |
-| `provider_search` | Filters harvested resources by provider name (case-insensitive). |
-| `location_search` | Returns TeSS course instances in a given country (optionally city). |
-| `date_search` | Finds TeSS course instances starting within a provided ISO date range. |
-| `topic_search` | Matches harvested resources by EDAM identifier or topic label. |
-| `dataset_stats` | Summarises dataset diagnostics (resource counts, type distribution, access modes). |
+Or only the MCP server with the STDIO transport:
 
-> [!NOTE]
-> The local tools read from `data/tess_harvest.ttl` and `data/gtn_harvest.ttl`. Regenerate these files with the harvest scripts if you need fresher data.
+```sh
+uv run elixir-trainer --stdio
+```
+
+### 🐳 Deploy with Docker
+
+The `api` service of [`compose.yml`](compose.yml) deploys the app on http://localhost:8000 (`API_PORT` to change it), next to the Qlever endpoint. It starts once the SPARQL examples and VoID are loaded, and reads the agent configuration (`OPENAI_API_KEY`, `MODELS`, `ALLOWED_HOSTS`...) from the `.env` file. The embedding model is downloaded on the first start only, in the `fastembed-cache` volume.
+
+Deploy everything:
+
+```sh
+docker compose up -d --build
+```
+
+> [!TIP]
+>
+> To skip the first download, copy a local cache of the model (`data/fastembed`, filled when running the app with `uv`) in the volume before the first start:
+>
+> ```sh
+> docker compose build api
+> docker volume create elixir-trp-kg-training-metadata_fastembed-cache
+> docker run --rm -v elixir-trp-kg-training-metadata_fastembed-cache:/cache -v ./data/fastembed:/src:ro elixir-trp-kg-training-metadata-api cp -a /src/. /cache/
+> ```
+
+When deployed behind a reverse proxy, add its public hostname to `ALLOWED_HOSTS` in `.env`, so the MCP server accepts the requests forwarded to `/mcp`.
+
+Check lint and types:
+
+```sh
+uv run --group dev ruff check src
+uv run --group dev mypy src
+```
 
 ### 🔌 Connect client to MCP server
 
@@ -112,7 +151,7 @@ To add a new MCP server to [**VSCode GitHub Copilot**](https://code.visualstudio
 - Install the [`GitHub.copilot`](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) extension
 - Open the Command Palette (`ctrl+shift+p` or `cmd+shift+p`)
 - Search for `MCP: Add Server...`
-  - Choose `STDIO`, and provide the command: `uvx elixir-training-mcp`
+  - Choose `STDIO`, and provide the command: `uvx --from elixir-training-mcp elixir-trainer --stdio`
   - Or choose `HTTP`, and provide the MCP server URL, e.g. http://localhost:8000/mcp
 
 To use it with STDIO transport, your VSCode `mcp.json` should look like:
@@ -123,7 +162,7 @@ To use it with STDIO transport, your VSCode `mcp.json` should look like:
       "elixir-training-mcp": {
          "type": "stdio",
          "command": "uvx",
-         "args": ["elixir-training-mcp"]
+         "args": ["--from", "elixir-training-mcp", "elixir-trainer", "--stdio"]
       }
    }
 }
@@ -140,7 +179,7 @@ To use it with STDIO transport, your VSCode `mcp.json` should look like:
 >          "type": "stdio",
 >          "cwd": "~/dev/ELIXIR-TrP-KG-training-metadata",
 >          "command": "uv",
->          "args": ["run", "elixir-training-mcp"]
+>          "args": ["run", "elixir-trainer", "--stdio"]
 >       }
 >    }
 > }

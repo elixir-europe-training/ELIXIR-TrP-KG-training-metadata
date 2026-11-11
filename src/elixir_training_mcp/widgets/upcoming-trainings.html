@@ -1,0 +1,365 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      /* Colors from the host style variables of the MCP Apps spec when it sends them, so the widget blends in the chat */
+      :root {
+        --fg: var(--color-text-primary, #1f2328);
+        --muted: var(--color-text-secondary, #656d76);
+        --bg: var(--color-background-primary, #ffffff);
+        --panel: var(--color-background-secondary, #f6f8fa);
+        --border: var(--color-border-primary, #d0d7de);
+        --accent: #0b7a75;
+        --accent-soft: rgba(11, 122, 117, 0.1);
+        color-scheme: light;
+      }
+      :root[data-theme="dark"] {
+        --fg: var(--color-text-primary, #e6edf3);
+        --muted: var(--color-text-secondary, #8d96a0);
+        --bg: var(--color-background-primary, #0d1117);
+        --panel: var(--color-background-secondary, #161b22);
+        --border: var(--color-border-primary, #30363d);
+        --accent: #3fc1b8;
+        --accent-soft: rgba(63, 193, 184, 0.14);
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 14px 16px;
+        font: 13px/1.45 var(--font-sans, system-ui, sans-serif);
+        color: var(--fg);
+        background: var(--bg);
+      }
+      h1 {
+        font-size: 16px;
+        margin: 0;
+      }
+      .sub {
+        color: var(--muted);
+        margin: 2px 0 12px;
+      }
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      input,
+      select,
+      button {
+        font: inherit;
+        color: inherit;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 5px 9px;
+      }
+      input {
+        flex: 1;
+        min-width: 140px;
+      }
+      button {
+        cursor: pointer;
+      }
+      .chip {
+        border-radius: 999px;
+        padding: 3px 10px;
+      }
+      .chip[aria-pressed="true"] {
+        background: var(--accent-soft);
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .list {
+        max-height: 560px;
+        overflow-y: auto;
+        padding-right: 2px;
+      }
+      .month {
+        position: sticky;
+        top: 0;
+        background: var(--bg);
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 0.04em;
+        padding: 8px 0 6px;
+      }
+      .card {
+        display: grid;
+        grid-template-columns: 52px minmax(0, 1fr);
+        gap: 12px;
+        padding: 10px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        margin-bottom: 8px;
+        background: var(--panel);
+      }
+      .date {
+        text-align: center;
+        border-radius: 8px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        padding: 6px 0;
+        align-self: start;
+      }
+      .date .day {
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.1;
+      }
+      .date .mon {
+        font-size: 11px;
+        text-transform: uppercase;
+      }
+      .title {
+        font-weight: 600;
+        font-size: 14px;
+        color: var(--fg);
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .title:hover {
+        color: var(--accent);
+        text-decoration: underline;
+      }
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 10px;
+        color: var(--muted);
+        margin: 3px 0;
+      }
+      .mode {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .desc {
+        margin: 4px 0;
+        overflow-wrap: anywhere;
+      }
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        align-items: center;
+      }
+      .tag {
+        font-size: 11px;
+        padding: 1px 7px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        color: var(--muted);
+      }
+      .ask {
+        margin-left: auto;
+        font-size: 12px;
+        padding: 2px 9px;
+      }
+      .empty {
+        color: var(--muted);
+        padding: 20px 0;
+        text-align: center;
+      }
+      details {
+        margin-top: 10px;
+        color: var(--muted);
+      }
+      pre {
+        white-space: pre-wrap;
+        font-size: 11px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="title">Upcoming trainings</h1>
+    <div class="sub" id="sub">Loading...</div>
+    <div class="toolbar">
+      <input id="filter" type="search" placeholder="Filter by title, topic or place" />
+      <span id="modes"></span>
+      <select id="country"></select>
+    </div>
+    <div class="list" id="list"></div>
+    <details>
+      <summary>SPARQL query</summary>
+      <pre id="query"></pre>
+    </details>
+    <script>
+      // Minimal MCP App, speaking the MCP Apps JSON-RPC protocol over postMessage without the SDK
+      let lastId = 0;
+      const pending = {};
+      const request = (method, params) =>
+        new Promise((resolve, reject) => {
+          const id = ++lastId;
+          pending[id] = { resolve, reject };
+          parent.postMessage({ jsonrpc: "2.0", id, method, params }, "*");
+        });
+      const notify = (method, params) => parent.postMessage({ jsonrpc: "2.0", method, params }, "*");
+      const $ = (id) => document.getElementById(id);
+      const esc = (s) =>
+        String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+      let data = { trainings: [] };
+      const state = { mode: null, country: "" };
+
+      // Theme and style variables of the host context
+      const applyContext = (ctx = {}) => {
+        if (ctx.theme) document.documentElement.dataset.theme = ctx.theme;
+        for (const [name, value] of Object.entries(ctx.styles?.variables ?? {}))
+          if (value) document.documentElement.style.setProperty(name, value);
+      };
+
+      // Dates are strings like "2026-05-27 09:00:00 UTC"
+      const parseDate = (s) => (s ? new Date(s.slice(0, 10) + "T00:00:00") : null);
+      const fmt = (d, opts) => d.toLocaleDateString(undefined, opts);
+
+      const filtered = () => {
+        const text = $("filter").value.toLowerCase();
+        return data.trainings.filter(
+          (t) =>
+            (!state.mode || t.mode === state.mode) &&
+            (!state.country || t.country === state.country) &&
+            (!text ||
+              [t.name, t.description, t.locality, t.country, ...t.keywords, ...t.organizations]
+                .join(" ")
+                .toLowerCase()
+                .includes(text)),
+        );
+      };
+
+      /** Mode chips and country select, with the number of trainings of each value */
+      function renderFilters() {
+        const count = (key) => {
+          const c = {};
+          for (const t of data.trainings) if (t[key]) c[t[key]] = (c[t[key]] || 0) + 1;
+          return Object.entries(c).sort((a, b) => b[1] - a[1]);
+        };
+        $("modes").innerHTML = count("mode")
+          .map(([m, n]) => `<button class="chip" data-mode="${esc(m)}" aria-pressed="${state.mode === m}">${esc(m)} ${n}</button>`)
+          .join(" ");
+        const countries = count("country");
+        $("country").style.display = countries.length > 1 ? "" : "none";
+        $("country").innerHTML =
+          `<option value="">All countries</option>` +
+          countries.map(([c, n]) => `<option value="${esc(c)}">${esc(c)} (${n})</option>`).join("");
+        $("country").value = state.country;
+      }
+
+      /** Trainings grouped by the month they start */
+      function renderList() {
+        const rows = filtered();
+        if (!rows.length) {
+          $("list").innerHTML = data.total
+            ? `<div class="empty">No trainings match the filters</div>`
+            : `<div class="empty">No trainings found for organizations matching "${esc(data.organization)}" from ${esc(data.fromDate)}</div>`;
+          return resize();
+        }
+        let html = "";
+        let month = "";
+        rows.forEach((t, i) => {
+          const start = parseDate(t.startDate);
+          const end = parseDate(t.endDate);
+          const m = fmt(start, { month: "long", year: "numeric" });
+          if (m !== month) html += `<div class="month">${esc((month = m))}</div>`;
+          const range =
+            end && end.getTime() !== start.getTime()
+              ? `${fmt(start, { day: "numeric", month: "short" })} - ${fmt(end, { day: "numeric", month: "short", year: "numeric" })}`
+              : fmt(start, { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+          const place = [t.locality, t.country].filter(Boolean).join(", ");
+          html += `<div class="card">
+            <div class="date"><div class="day">${start.getDate()}</div><div class="mon">${fmt(start, { month: "short" })}</div></div>
+            <div>
+              <a class="title" data-url="${esc(t.url)}">${esc(t.name)}</a>
+              <div class="meta">
+                <span>${esc(range)}</span>
+                ${t.mode ? `<span class="mode">${esc(t.mode)}</span>` : ""}
+                ${place ? `<span>${esc(place)}</span>` : ""}
+              </div>
+              ${t.description ? `<div class="desc">${esc(t.description)}</div>` : ""}
+              <div class="tags">
+                ${t.organizations.map((o) => `<span class="tag" title="Organization">${esc(o)}</span>`).join("")}
+                ${t.keywords.map((k) => `<span class="tag">#${esc(k)}</span>`).join("")}
+                <button class="ask" data-index="${data.trainings.indexOf(t)}">Ask about it</button>
+              </div>
+            </div>
+          </div>`;
+        });
+        $("list").innerHTML = html;
+        resize();
+      }
+
+      function render() {
+        $("title").textContent = `Upcoming trainings · ${data.organization}`;
+        $("sub").textContent = `${data.total} trainings from ${data.fromDate}, harvested from TeSS and GTN`;
+        $("query").textContent = data.query;
+        renderFilters();
+        renderList();
+      }
+
+      const resize = () => notify("ui/notifications/size-changed", { height: document.documentElement.scrollHeight });
+
+      // Links open through the host, the iframe sandbox blocks navigation
+      document.addEventListener("click", (e) => {
+        const link = e.target.closest(".title");
+        if (link?.dataset.url) request("ui/open-link", { url: link.dataset.url }).catch(() => window.open(link.dataset.url));
+        const mode = e.target.closest("[data-mode]");
+        if (mode) {
+          state.mode = state.mode === mode.dataset.mode ? null : mode.dataset.mode;
+          renderFilters();
+          renderList();
+        }
+        const ask = e.target.closest(".ask");
+        if (ask) {
+          const t = data.trainings[+ask.dataset.index];
+          const text = `Tell me more about the training "${t.name}" starting on ${t.startDate.slice(0, 10)} (${t.url}): who is it for, what does it teach, and what are the prerequisites?`;
+          request("ui/message", { role: "user", content: [{ type: "text", text }] });
+        }
+      });
+      $("filter").addEventListener("input", renderList);
+      $("country").addEventListener("change", (e) => {
+        state.country = e.target.value;
+        renderList();
+      });
+      $("query").parentElement.addEventListener("toggle", resize);
+
+      addEventListener("message", ({ data: m }) => {
+        if (!m || m.jsonrpc !== "2.0") return;
+        if (m.id !== undefined && pending[m.id]) {
+          m.error ? pending[m.id].reject(m.error) : pending[m.id].resolve(m.result);
+          delete pending[m.id];
+        } else if (m.method === "ui/notifications/tool-input") {
+          $("title").textContent = `Upcoming trainings · ${m.params.arguments?.organization ?? ""}`;
+        } else if (m.method === "ui/notifications/tool-result") {
+          if (m.params.structuredContent) {
+            data = m.params.structuredContent;
+            render();
+          } else {
+            $("sub").textContent = m.params.content?.find((c) => c.type === "text")?.text ?? "No result";
+            resize();
+          }
+        } else if (m.method === "ui/notifications/host-context-changed") {
+          applyContext(m.params);
+        }
+      });
+
+      request("ui/initialize", {
+        protocolVersion: "2026-01-26",
+        appInfo: { name: "Upcoming trainings", version: "0.1.0" },
+        appCapabilities: {},
+      }).then((r) => {
+        applyContext(r.hostContext);
+        notify("ui/notifications/initialized", {});
+      });
+    </script>
+  </body>
+</html>

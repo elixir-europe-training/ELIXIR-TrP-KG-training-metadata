@@ -1,5 +1,5 @@
 [project]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 name = "elixir-training-mcp"
 description = "A Model Context Protocol (MCP) server to access data about training materials."
 readme = "README.md"
@@ -20,7 +20,6 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -28,15 +27,22 @@ classifiers = [
 dynamic = ["version"]
 
 dependencies = [
-    "mcp >=1.19.0",
     "httpx >=0.28.1",
     "pydantic >=2.12.0",
     "pydantic-settings >=2.11.0",
     "rdflib >=7.4.0",
+    # Harvesters
     "lxml >=5.0.0",
     "extruct >=0.16.0",
     "w3lib >=2.2.0",
-    "pyld >=2.0.4"
+    "pyld >=2.0.4",
+    "mcp>=2.3.0",
+    "lancedb>=0.41.0",
+    "fastembed>=0.9.1",
+    "light-chat-ui[mcp-apps]>=0.0.3",
+    "pydantic-ai-slim[ag-ui,mcp,openai]>=2.54.0",
+    "fastapi>=0.143.0",
+    "uvicorn[standard]>=0.54.0",
 ]
 
 
@@ -46,9 +52,9 @@ dev = [
     "pytest-asyncio >=1.2.0",
     "pytest-cov >=7.0.0",
     "mypy >=1.18.0",
+    "ruff >=0.14.0",
     "pre-commit >=4.3.0",
-    "mcp[cli]",
-    "rdflib-endpoint[cli]",
+    "rdflib-endpoint[cli]>=0.5.3",
 ]
 
 [project.urls]
@@ -59,9 +65,7 @@ Tracker = "https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-meta
 Source = "https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata"
 
 [project.scripts]
-elixir-training-mcp = "elixir_training_mcp.mcp_server:cli"
-scrape-gtn = "elixir_training_mcp.gtn_sitemap_scraper:cli"
-serialize-gtn = "elixir_training_mcp.serialise_jsonld_ttl:cli"
+elixir-trainer = "elixir_training_mcp.main:cli"
 
 ## TOOLS
 [tool.hatch.version]
@@ -69,6 +73,7 @@ path = "src/elixir_training_mcp/__init__.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/elixir_training_mcp"]
+
 
 # [tool.hatch.metadata]
 # allow-direct-references = true
@@ -102,7 +107,7 @@ disallow_untyped_calls = false # needed due to _eval() not being typed in rdflib
 
 
 [tool.ruff]
-target-version = "py310"
+target-version = "py311"
 line-length = 120
 exclude = [
     "**/__init__.py",

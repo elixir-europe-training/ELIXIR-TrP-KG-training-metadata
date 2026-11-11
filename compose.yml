@@ -1,4 +1,4 @@
-# Qlever SPARQL endpoint serving the harvested data/*.ttl files on http://localhost:7001
+# Qlever SPARQL endpoint serving the harvested data/*.ttl files on http://localhost:7001 (or ${QLEVER_PORT})
 # The index is rebuilt from data/*.ttl on every `docker compose up`
 services:
   # One-shot job: build the Qlever index from all Turtle files in data/
@@ -44,7 +44,7 @@ services:
       - "--persist-updates"
     working_dir: /index
     ports:
-      - "7001:7001"
+      - "${QLEVER_PORT:-7001}:7001"
     volumes:
       - index:/index
     depends_on:
@@ -90,5 +90,29 @@ services:
       qlever:
         condition: service_healthy
 
+  # MCP server on /mcp, agent on /chat and chat UI on /, started once the examples and VoID are loaded (it indexes them
+  # at startup). The API key of the agent and the public hostnames (ALLOWED_HOSTS) are read from .env
+  api:
+    build: .
+    env_file: .env
+    environment:
+      SPARQL_ENDPOINT_URL: http://qlever:7001
+      GRAPH_BASE: ${GRAPH_BASE:-https://w3id.org/elixir-trainer/graph/}
+    ports:
+      - "${API_PORT:-8000}:8000"
+    volumes:
+      # Embedding model (1.1 GB) downloaded on the first start only
+      - fastembed-cache:/cache/fastembed
+    depends_on:
+      generate-metadata:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      interval: 30s
+      # The first start downloads the embedding model
+      start_period: 20m
+    restart: unless-stopped
+
 volumes:
   index:
+  fastembed-cache:
