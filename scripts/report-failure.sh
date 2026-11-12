@@ -16,7 +16,7 @@ body_file="${4:-}"
 # Read a variable from .env without sourcing it
 env_value() { { grep -E "^$1=" .env 2>/dev/null || true; } | tail -n 1 | cut -d= -f2- | sed -E "s/^['\"]//; s/['\"]$//"; }
 repo="$(env_value GITHUB_REPO)"
-repo="${repo:-elixir-europe-training/ELIXIR-TrP-KG-training-metadata}"
+repo="${repo:-elixir-europe-training/ELIXIR-trainer}"
 # The App ID is public, only the private key is secret
 app_id="$(env_value GITHUB_APP_ID)"
 app_id="${app_id:-5730005}"
@@ -37,10 +37,16 @@ github_token() {
   signature=$(printf '%s.%s' "$header" "$payload" \
     | openssl dgst -sha256 -sign "$private_key" -binary | b64url)
   jwt="$header.$payload.$signature"
-  installation=$(curl -sSf -H "Authorization: Bearer $jwt" "$api/repos/$repo/installation" | jq -r .id)
-  curl -sSf -X POST -H "Authorization: Bearer $jwt" "$api/app/installations/$installation/access_tokens" | jq -r .token
+  # errexit does not apply in command substitutions, so each failure is checked explicitly
+  installation=$(curl -sSf -H "Authorization: Bearer $jwt" "$api/repos/$repo/installation" | jq -r .id) || {
+    echo "Can not find the installation of the GitHub App $app_id on $repo: check that the App is installed on" \
+      "this repository (404), and that the private key belongs to this App (401)" >&2
+    return 1
+  }
+  curl -sSf -X POST -H "Authorization: Bearer $jwt" "$api/app/installations/$installation/access_tokens" \
+    | jq -r .token || { echo "Can not get an installation token of the GitHub App $app_id" >&2; return 1; }
 }
-token="$(github_token)"
+token="$(github_token)" || exit 1
 gh_api() { curl -sSf -H "Authorization: Bearer $token" -H "Accept: application/vnd.github+json" "$@"; }
 
 # Issue body: the fingerprint (hidden, used for deduplication), the details, and the end of the log.
