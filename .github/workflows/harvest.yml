@@ -34,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: harvested-training-data
-          path: src/elixir_training_mcp/data/
+          path: data/*.ttl
           retention-days: 30
 
       # NOTE: commented out to avoid growing up the repo and pypi release to a large size
@@ -59,7 +59,7 @@ jobs:
 
       # - name: Stage harvested data
       #   if: steps.check-changes.outputs.has_changes == 'true'
-      #   run: git add src/elixir_training_mcp/data/
+      #   run: git add data/
 
       # - name: Bump version with hatch
       #   if: steps.check-changes.outputs.has_changes == 'true'

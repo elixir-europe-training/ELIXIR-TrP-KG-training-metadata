@@ -42,9 +42,9 @@ In this project, we aim to create queryable KGs derived from training metadata i
 >
 > Data is automatically harvested by a workflow every first day of the month, and can be downloaded from GitHub workflows latest run artifacts: https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata/actions/workflows/harvest.yml
 >
-> You can unzip the artifact and replace the `.ttl` files in the folder `src/elixir_training_mcp/data/` with the new files from the artifact.
+> You can unzip the artifact and replace the `.ttl` files in the folder `data/` with the new files from the artifact.
 
-Otherwise you can run harvesting manually (takes ~30min)
+Otherwise you can run harvesting manually (TeSS is downloaded from its `materials.jsonld` and `events.jsonld` dumps)
 
 Harvest TeSS:
 
@@ -72,7 +72,7 @@ uv run src/elixir_training_mcp/harvest/harvest_scilifelab.py
 Deploy a SPARQL endpoint on http://localhost:8000:
 
 ```sh
-uv run rdflib-endpoint serve src/elixir_training_mcp/data/*_harvest.ttl
+uv run rdflib-endpoint serve data/*.ttl
 ```
 
 Or deploy a QLever SPARQL endpoint on http://localhost:7001, loading each `data/*.ttl` file in its own named graph. Create a `.env` file with an access token used for SPARQL updates (to insert the VoID description generated from the graph):

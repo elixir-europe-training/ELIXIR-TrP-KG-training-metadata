@@ -21,7 +21,7 @@ from typing import Any
 import httpx
 from rdflib import Graph
 
-from elixir_training_mcp.harvest.harvest_tess import SCHEMA, USER_AGENT, _fetch_jsonld_parallel, to_https_schema
+from elixir_training_mcp.harvest.harvest_tess import JSONLD_ACCEPT, SCHEMA, USER_AGENT, to_https_schema
 
 BASE_URL = "https://training.scilifelab.se"
 OUTPUT_TTL = Path("data/scilifelab_harvest.ttl")
@@ -258,6 +258,21 @@ def course_to_bioschemas(course: dict[str, Any]) -> dict[str, Any]:
     )
 
 
+async def fetch_json_parallel(
+    client: httpx.AsyncClient, urls: list[str], max_concurrent: int = 5
+) -> list[dict[str, Any]]:
+    """Fetch the JSON of each URL, with at most `max_concurrent` requests at a time."""
+    semaphore = asyncio.Semaphore(max_concurrent)
+
+    async def fetch_one(url: str) -> dict[str, Any]:
+        async with semaphore:
+            response = await client.get(url, headers={"accept": JSONLD_ACCEPT})
+            response.raise_for_status()
+            return response.json()
+
+    return await asyncio.gather(*(fetch_one(url) for url in urls))
+
+
 async def fetch_records(
     client: httpx.AsyncClient,
     resource: str,
@@ -289,7 +304,7 @@ async def fetch_records(
 
     print(f"Fetching {len(listed)} {resource} in parallel...")
     urls = [f"{BASE_URL}/{resource}/{item['slug']}.json" for item in listed]
-    details = await _fetch_jsonld_parallel(client, urls, max_concurrent=max_concurrent)
+    details = await fetch_json_parallel(client, urls, max_concurrent=max_concurrent)
     return [{**item, **detail} for item, detail in zip(listed, details, strict=True)]
 
 
