@@ -78,6 +78,31 @@
         border-color: var(--accent);
         color: var(--accent);
       }
+      /* Segmented control of the kind of trainings */
+      .kinds {
+        display: inline-flex;
+      }
+      .kinds button {
+        border-radius: 0;
+        margin-left: -1px;
+      }
+      .kinds button:first-child {
+        border-radius: 8px 0 0 8px;
+        margin-left: 0;
+      }
+      .kinds button:last-child {
+        border-radius: 0 8px 8px 0;
+      }
+      .kinds button[aria-pressed="true"] {
+        position: relative;
+        background: var(--accent-soft);
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .date svg {
+        display: block;
+        margin: 4px auto;
+      }
       .list {
         max-height: 560px;
         overflow-y: auto;
@@ -229,12 +254,14 @@
     </style>
   </head>
   <body>
-    <h1 id="title">Upcoming trainings</h1>
+    <h1 id="title">Trainings</h1>
     <div class="sub" id="sub">Loading...</div>
     <div class="toolbar">
-      <input id="filter" type="search" placeholder="Filter by title, topic or place" />
+      <span class="kinds" id="kinds"></span>
+      <input id="filter" type="search" placeholder="Filter by title, topic, type or place" />
       <span id="modes"></span>
       <select id="country"></select>
+      <select id="type"></select>
     </div>
     <div class="list" id="list"></div>
     <details>
@@ -257,7 +284,12 @@
         String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
       let data = { trainings: [] };
-      const state = { mode: null, country: "" };
+      // kind: "all", "courses" or "learning_resources", mode and country filter courses, type filters learning resources
+      const state = { kind: "all", mode: null, country: "", type: "" };
+      const KINDS = { all: "All", courses: "Courses", learning_resources: "Learning resources" };
+      const isCourse = (t) => t.kind === "course";
+      // Book icon in the badge of learning resources, which have no date
+      const BOOK = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg>`;
 
       // Theme and style variables of the host context
       const applyContext = (ctx = {}) => {
@@ -280,68 +312,86 @@
       const parseDate = (s) => (s ? new Date(s.slice(0, 10) + "T00:00:00") : null);
       const fmt = (d, opts) => d.toLocaleDateString(undefined, opts);
 
-      const filtered = () => {
+      const ofKind = (t, kind) => kind === "all" || (kind === "courses") === isCourse(t);
+
+      // Trainings matching the text, mode, country and type filters, of all kinds
+      const matching = () => {
         const text = $("filter").value.toLowerCase();
         return data.trainings.filter(
           (t) =>
-            (!state.mode || t.mode === state.mode) &&
-            (!state.country || t.country === state.country) &&
+            // Mode and country only filter courses, type only filters learning resources
+            (isCourse(t)
+              ? (!state.mode || t.mode === state.mode) && (!state.country || t.country === state.country)
+              : !state.type || t.resourceType === state.type) &&
             (!text ||
-              [t.name, t.description, t.locality, t.country, ...t.keywords, ...t.organizations]
+              [t.name, t.description, t.locality, t.country, t.resourceType, ...t.keywords, ...t.organizations]
                 .join(" ")
                 .toLowerCase()
                 .includes(text)),
         );
       };
 
-      /** Mode chips and country select, with the number of trainings of each value */
-      function renderFilters() {
-        const count = (key) => {
-          const c = {};
-          for (const t of data.trainings) if (t[key]) c[t[key]] = (c[t[key]] || 0) + 1;
-          return Object.entries(c).sort((a, b) => b[1] - a[1]);
-        };
-        $("modes").innerHTML = count("mode")
-          .map(([m, n]) => `<button class="chip" data-mode="${esc(m)}" aria-pressed="${state.mode === m}">${esc(m)} ${n}</button>`)
-          .join(" ");
-        const countries = count("country");
-        $("country").style.display = countries.length > 1 ? "" : "none";
-        $("country").innerHTML =
-          `<option value="">All countries</option>` +
-          countries.map(([c, n]) => `<option value="${esc(c)}">${esc(c)} (${n})</option>`).join("");
-        $("country").value = state.country;
+      /** Kind buttons, with the number of trainings of each kind matching the other filters */
+      function renderKinds(rows) {
+        $("kinds").innerHTML = Object.entries(KINDS)
+          .map(
+            ([k, label]) =>
+              `<button data-kind="${k}" aria-pressed="${state.kind === k}">${label} ${rows.filter((t) => ofKind(t, k)).length}</button>`,
+          )
+          .join("");
       }
 
-      /** Trainings grouped by the month they start */
-      function renderList() {
-        const rows = filtered();
-        if (!rows.length) {
-          $("list").innerHTML = data.total
-            ? `<div class="empty">No trainings match the filters</div>`
-            : `<div class="empty">No trainings found for organizations matching "${esc(data.organization)}" from ${esc(data.fromDate)}</div>`;
-          return resize();
-        }
-        let html = "";
-        let month = "";
-        rows.forEach((t, i) => {
+      /** Mode chips, country and type selects, with the number of trainings of each value */
+      function renderFilters() {
+        const courses = data.trainings.filter(isCourse);
+        const resources = data.trainings.filter((t) => !isCourse(t));
+        const count = (rows, key) => {
+          const c = {};
+          for (const t of rows) if (t[key]) c[t[key]] = (c[t[key]] || 0) + 1;
+          return Object.entries(c).sort((a, b) => b[1] - a[1]);
+        };
+        const select = (id, rows, key, all) => {
+          const values = count(rows, key);
+          $(id).style.display = values.length > 1 ? "" : "none";
+          $(id).innerHTML =
+            `<option value="">${all}</option>` + values.map(([v, n]) => `<option value="${esc(v)}">${esc(v)} (${n})</option>`).join("");
+          $(id).value = state[id];
+        };
+        // Course filters hidden when only learning resources are shown, and the opposite
+        const showCourses = state.kind !== "learning_resources" ? courses : [];
+        $("modes").innerHTML = count(showCourses, "mode")
+          .map(([m, n]) => `<button class="chip" data-mode="${esc(m)}" aria-pressed="${state.mode === m}">${esc(m)} ${n}</button>`)
+          .join(" ");
+        select("country", showCourses, "country", "All countries");
+        select("type", state.kind !== "courses" ? resources : [], "resourceType", "All types");
+      }
+
+      /** Card of a course, with its dates, or of a learning resource, with its type and publication date */
+      function card(t) {
+        let badge, meta;
+        if (isCourse(t)) {
           const start = parseDate(t.startDate);
           const end = parseDate(t.endDate);
-          const m = fmt(start, { month: "long", year: "numeric" });
-          if (m !== month) html += `<div class="month">${esc((month = m))}</div>`;
           const range =
             end && end.getTime() !== start.getTime()
               ? `${fmt(start, { day: "numeric", month: "short" })} - ${fmt(end, { day: "numeric", month: "short", year: "numeric" })}`
               : fmt(start, { weekday: "short", day: "numeric", month: "short", year: "numeric" });
           const place = [t.locality, t.country].filter(Boolean).join(", ");
-          html += `<div class="card">
-            <div class="date"><div class="day">${start.getDate()}</div><div class="mon">${fmt(start, { month: "short" })}</div></div>
+          badge = `<div class="day">${start.getDate()}</div><div class="mon">${fmt(start, { month: "short" })}</div>`;
+          meta = `<span>${esc(range)}</span>
+                ${t.mode ? `<span class="mode">${esc(t.mode)}</span>` : ""}
+                ${place ? `<span>${esc(place)}</span>` : ""}`;
+        } else {
+          const published = parseDate(t.datePublished);
+          badge = BOOK;
+          meta = `${t.resourceType ? `<span class="mode">${esc(t.resourceType)}</span>` : ""}
+                ${published && !isNaN(published) ? `<span>Published ${fmt(published, { month: "short", year: "numeric" })}</span>` : ""}`;
+        }
+        return `<div class="card">
+            <div class="date">${badge}</div>
             <div>
               ${t.url ? `<a class="title" href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.name)}</a>` : `<span class="title">${esc(t.name)}</span>`}
-              <div class="meta">
-                <span>${esc(range)}</span>
-                ${t.mode ? `<span class="mode">${esc(t.mode)}</span>` : ""}
-                ${place ? `<span>${esc(place)}</span>` : ""}
-              </div>
+              <div class="meta">${meta}</div>
               ${t.description ? `<div class="desc collapsed">${markdown(t.description)}</div><button class="more" hidden>Show more</button>` : ""}
               <div class="tags">
                 ${t.organizations.map((o) => `<span class="tag" title="Organization">${esc(o)}</span>`).join("")}
@@ -350,7 +400,26 @@
               </div>
             </div>
           </div>`;
-        });
+      }
+
+      /** Courses grouped by the month they start, then the learning resources */
+      function renderList() {
+        const matches = matching();
+        renderKinds(matches);
+        const rows = matches.filter((t) => ofKind(t, state.kind));
+        if (!rows.length) {
+          $("list").innerHTML = data.trainings.some((t) => ofKind(t, state.kind))
+            ? `<div class="empty">No trainings match the filters</div>`
+            : `<div class="empty">No ${state.kind === "all" ? "trainings" : KINDS[state.kind].toLowerCase()} found for organizations matching "${esc(data.organization)}"</div>`;
+          return resize();
+        }
+        let html = "";
+        let group = "";
+        for (const t of rows) {
+          const g = isCourse(t) ? fmt(parseDate(t.startDate), { month: "long", year: "numeric" }) : "Learning resources";
+          if (g !== group) html += `<div class="month">${esc((group = g))}</div>`;
+          html += card(t);
+        }
         $("list").innerHTML = html;
         // "Show more" only for the descriptions cut by the collapsed height
         for (const desc of document.querySelectorAll(".desc.collapsed")) {
@@ -362,10 +431,12 @@
       }
 
       function render() {
-        $("title").textContent = `Upcoming trainings · ${data.organization}`;
-        $("sub").textContent = `${data.total} trainings from ${data.fromDate}`;
+        const courses = data.trainings.filter(isCourse).length;
+        $("title").textContent = `Trainings · ${data.organization}`;
+        $("sub").textContent = `${courses} upcoming courses from ${data.fromDate} · ${data.trainings.length - courses} learning resources`;
         $("query").textContent = data.query;
-        // Filter text prefilled by the model, the user can change it
+        // Kind and filter text prefilled by the model, the user can change them
+        if (data.kind in KINDS) state.kind = data.kind;
         if (data.filter) $("filter").value = data.filter;
         renderFilters();
         renderList();
@@ -388,6 +459,12 @@
           more.textContent = desc.classList.toggle("collapsed") ? "Show more" : "Show less";
           resize();
         }
+        const kind = e.target.closest("[data-kind]");
+        if (kind) {
+          state.kind = kind.dataset.kind;
+          renderFilters();
+          renderList();
+        }
         const mode = e.target.closest("[data-mode]");
         if (mode) {
           state.mode = state.mode === mode.dataset.mode ? null : mode.dataset.mode;
@@ -397,15 +474,19 @@
         const ask = e.target.closest(".ask");
         if (ask) {
           const t = data.trainings[+ask.dataset.index];
-          const text = `Tell me more about the training "${t.name}" starting on ${t.startDate.slice(0, 10)} (${t.url}): who is it for, what does it teach, and what are the prerequisites?`;
+          const what = isCourse(t)
+            ? `the course "${t.name}" starting on ${t.startDate.slice(0, 10)}`
+            : `the learning resource "${t.name}"`;
+          const text = `Tell me more about ${what} (${t.url}): who is it for, what does it teach, and what are the prerequisites?`;
           request("ui/message", { role: "user", content: [{ type: "text", text }] });
         }
       });
       $("filter").addEventListener("input", renderList);
-      $("country").addEventListener("change", (e) => {
-        state.country = e.target.value;
-        renderList();
-      });
+      for (const id of ["country", "type"])
+        $(id).addEventListener("change", (e) => {
+          state[id] = e.target.value;
+          renderList();
+        });
       $("query").parentElement.addEventListener("toggle", resize);
 
       addEventListener("message", ({ data: m }) => {
@@ -414,8 +495,10 @@
           m.error ? pending[m.id].reject(m.error) : pending[m.id].resolve(m.result);
           delete pending[m.id];
         } else if (m.method === "ui/notifications/tool-input") {
-          $("title").textContent = `Upcoming trainings · ${m.params.arguments?.organization ?? ""}`;
-          if (m.params.arguments?.filter_text) $("filter").value = m.params.arguments.filter_text;
+          const args = m.params.arguments ?? {};
+          $("title").textContent = `Trainings · ${args.organization ?? ""}`;
+          if (args.filter_text) $("filter").value = args.filter_text;
+          if (args.kind in KINDS) state.kind = args.kind;
         } else if (m.method === "ui/notifications/tool-result") {
           if (m.params.structuredContent) {
             data = m.params.structuredContent;
@@ -431,7 +514,7 @@
 
       request("ui/initialize", {
         protocolVersion: "2026-01-26",
-        appInfo: { name: "Upcoming trainings", version: "0.1.0" },
+        appInfo: { name: "Trainings", version: "0.1.0" },
         appCapabilities: {},
       }).then((r) => {
         applyContext(r.hostContext);
