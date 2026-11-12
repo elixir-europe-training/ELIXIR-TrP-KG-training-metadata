@@ -67,11 +67,9 @@ authors_short: Vincent Emonet, Phil Reed, et al.
 
 # Introduction
 
-Citation test [@panouris_2025].
-
 Training registries such as ELIXIR TeSS, Glittr.org and SciLifeLab Training contain a rich body of metadata describing training materials, events, and contributors across the life‑science and biomedical domains. Although this information is represented in RDF, it remains insufficiently interconnected with other knowledge resources and is not easily discoverable or queryable by end users or automated systems. As a result, much of its potential value for learners, trainers, and research infrastructure professionals remains untapped.
 
-The Training Resources AI-driveN Exploration Repository (TRAINER) project delivers training metadata from three registries on one public knowledge graph, ready for people and AI agents. It **integrates** TeSS, Glittr and SciLifeLab, harmonized, following the TRX metadata model[@trx_2026]. 
+The Training Resources AI-driveN Exploration Repository (TRAINER) project picks up from previous work[@panouris_2025] to deliver training metadata from three registries on one public knowledge graph, ready for people and AI agents. It **integrates** TeSS, Glittr and SciLifeLab, harmonized, following the TRX metadata model[@trx_2026]. 
 It is **interactive**, answering SPARQL queries or plain language questions via its MCP server and interactive widgets. 
 It is **publicly available** (in the short term), providing a live endpoint with example queries, with automatic updates possible. 
 
@@ -85,17 +83,31 @@ A key innovation is enabling direct interaction with the linked data through a c
 
 
 ## Source registries and metadata models
-3 sources: Tess + GTN already there, scilifelab.se NEW. And now Tess serve dump of the JSON-LD so we dont need to run 30min harvesting that queries 1000s of pages
 
+We provided training materials and events from three sources: 
+- [ELIXIR TeSS Portal](https://tess.elixir-europe.org/)
+  - TeSS now serves a dump of all materials and events in JSON-LD, replacing the harvesting tool developed at BioHackathon 2025. This saves a 30 minutes harvesting that queried thousands of pages.
+- [Glittr.org](https://glittr.org/)
+- [SciLifeLab Training Portal](https://training.scilifelab.se/)
 
+ELIXIR TeSS and Glittr use Bioschemas profiles to describe learning resources ([TrainingMaterial](https://bioschemas.org/profiles/TrainingMaterial/1.0-RELEASE)) and events ([Course](https://bioschemas.org/profiles/Course/1.0-RELEASE), [CourseInstance](https://bioschemas.org/profiles/CourseInstance/1.0-RELEASE)).
+
+(TODO: shall we share the JSON-LD endpoints here?)
 
 ## Harmonization of schemas
 
+We used the TRX minimum metadata model for Training Registry eXchange[@trx_2026] to map the properties from SciLifeLab to ELIXIR TeSS and Bioschemas. This model allowed us to harmonize the properties which is essential for consistency in the knowledge graph.
+
+(TODO: how did we map SciLifeLab?)
 
 ## Inspirational models and interfaces
 
+(TODO: SIB queries, Claude things)
+
 
 # System architecture and pipeline
+
+(TODO: subheadings copied from 2025 paper)
 
 ## Offline processing pipeline
 
@@ -103,22 +115,33 @@ A key innovation is enabling direct interaction with the linked data through a c
 
 ## MCP server
 
+
 ### Tool execution lifecycle
 
+
 # Putting user stories into practice
-User-stories revisited and transformed to runnable SPARQL queries and to visualisation widgets
+The user-stories defined in 2025 were revisited and refreshed, including a more realistic query for Bioconductor. The user stories were then transformed to runnable SPARQL queries and to visualisation widgets.
+
+(TODO: some details about the transformation)
 
 
 ![Project timeline and validation phases. A link to the full diagram is available at the supplemental information.](./diagrams/project-timeline.cropped.pdf)
 
+(TODO: graphic from last year, note these are Mermaid mmd diagrams and we predict the URL of the PDF render that is made every time we build the paper.)
+
 # Discussion
 
+(TODO: What interesting things happened, what is their significance? What were the challenges, what could we not do and why? What are the security risks and how did we address them (or mention this in the architecture section)?)
+
 # Future work
+
+(TODO: What would be required to make this a live ELIXIR service? What are the options here eg embed within ELIXIR TeSS or standalone site? How could this be used beyond ELIXIR? What features will be developed next? What other opportunities are there eg dashboard for TeSS?)
 
 
 ## Acknowledgements
 
-We thank the organizers of the BioHackathon Europe 2026 for organizing the event and travel support for some of the authors.
+We thank the organizers of the BioHackathon Europe 2026 for putting on the event and travel support for some of the authors. We thank Alma Nilsson, Maria Doyle, Sebastian Lobentanzer, and Project 6 for providing suggestion, help and inspiration.
+
 
 ## Supplemental information
 
