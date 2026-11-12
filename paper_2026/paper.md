@@ -1,23 +1,23 @@
 ---
-title: 'A knowledge graph of learning resources in practice: ELIXIR TRAINER'
-title_short: 'A knowledge graph of learning resources in practice'
+title: 'Training Resources AI-driveN Exploration Repository (ELIXIR TRAINER)'
+title_short: 'ELIXIR TRAINER'
 tags:
   - knowledge graphs
   - metadata
   - training
 authors:
-  - name: Panayiotis Smeros
-    affiliation: 1
-    orcid: 0009-0004-5814-5824
-    role: Software, Data curation, Visualization, Writing, Conceptualization, Supervision
   - name: Vincent Emonet
     orcid: 0000-0002-1501-1082
-    affiliation: 1
+    affiliation: 2
     role: Software, Data curation, Validation, Writing, Conceptualization, Funding acquisition, Supervision
   - name: Phil Reed
     affiliation: 4
     orcid: 0000-0002-4479-715X
-    role: Data curation, Resources, Validation, Writing
+    role: Data curation, Resources, Validation, Writing, Conceptualization, Supervision
+  - name: Panayiotis Smeros
+    affiliation: 1
+    orcid: 0009-0004-5814-5824
+    role: Software, Data curation, Visualization, Writing, Conceptualization, Supervision
   - name: Ana Osojnik 
     affiliation: 3
     orcid: 0000-0001-6691-2959
@@ -58,7 +58,7 @@ group: Project 15
 git_url: https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata
 # This is the short authors description that is used at the
 # bottom of the generated paper (typically the first two authors):
-authors_short: Panayiotis Smeros, Vincent Emonet et al.
+authors_short: Vincent Emonet, Phil Reed, et al.
 ---
 
 \setlength{\textfloatsep}{12pt}
@@ -67,20 +67,21 @@ authors_short: Panayiotis Smeros, Vincent Emonet et al.
 
 # Introduction
 
+Citation test [@panouris_2025].
 
 
-# From Bioschemas to knowledge graphs
-
-
-
-### About and keywords
+# From training repositories to knowledge graph-based interactive user interfaces
 
 
 
-### Persons and organisations
+## Source registries and metadata models
 
 
-### Location
+
+## Harmonization of schemas
+
+
+## Inspirational models and interfaces
 
 
 # System architecture and pipeline
@@ -93,7 +94,11 @@ authors_short: Panayiotis Smeros, Vincent Emonet et al.
 
 ### Tool execution lifecycle
 
-# Defining user stories and testing
+# Putting user stories into practice
+
+
+
+![Project timeline and validation phases. A link to the full diagram is available at the supplemental information.](./diagrams/project-timeline.cropped.pdf)
 
 # Discussion
 
@@ -102,13 +107,13 @@ authors_short: Panayiotis Smeros, Vincent Emonet et al.
 
 ## Acknowledgements
 
-We thank the organizers of the Biohackathon Europe 2026 for organizing the event and travel support for some of the authors.
+We thank the organizers of the BioHackathon Europe 2026 for organizing the event and travel support for some of the authors.
 
 ## Supplemental information
 
 - [GitHub repository](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata)
 - [Google sheet](https://docs.google.com/spreadsheets/d/19XxU7RF_A9EwVn52FfFpj4qWr7521ETYnIJ7lcIB4ho/edit?gid=0#gid=0) with user stories
 - Diagrams:
-  - 
+  - [Figure 5. Project timeline](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata/blob/main/paper_2026/diagrams/project-timeline.mmd)
 
 ## References
