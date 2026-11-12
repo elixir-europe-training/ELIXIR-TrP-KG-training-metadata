@@ -4,7 +4,7 @@
 The package lives under `src/elixir_training_mcp/`:
 
 - `main.py`: FastAPI app serving the MCP server on `/mcp`, a Pydantic AI agent over AG-UI on `/chat`, and the light-chat UI on `/`. The `cli()` entry point starts it with uvicorn, or the MCP server alone with `--stdio`.
-- `mcp_server.py`: MCP server (`MCPServer` of the MCP SDK v2) with the `get_sparql_examples`, `get_sparql_schema` and `execute_sparql_query` tools, and the `show_upcoming_trainings` MCP App tool (`Apps` extension).
+- `mcp_server.py`: MCP server (`MCPServer` of the MCP SDK v2) with the `get_sparql_examples`, `get_sparql_schema` and `execute_sparql_query` tools, and the `show_upcoming_trainings` and `show_instructors_map` MCP App tools (`Apps` extension).
 - `widgets/`: self-contained HTML of the MCP Apps widgets, speaking the MCP Apps protocol over `postMessage` without SDK or build step.
 - `sparql.py`: SPARQL queries to the endpoint, loading the examples and the VoID schema from their named graphs.
 - `vectordb.py`: embedded LanceDB index of the examples and classes schemas, with a fastembed embedding function registered in the LanceDB registry, searched with hybrid search.

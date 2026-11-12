@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any, NotRequired
 
 import httpx
-from mcp.server.apps import Apps
+from mcp.server.apps import Apps, ResourceCsp
 from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import CallToolResult, TextContent, ToolAnnotations
@@ -33,7 +33,9 @@ Training Network (GTN), in a knowledge graph using the schema.org and Bioschemas
 To answer a question: search relevant query examples with `get_sparql_examples`, check the classes and predicates with
 `get_sparql_schema`, then run the query with `execute_sparql_query`.
 To show the upcoming trainings of an organization (e.g. SIB, VIB, EMBL-EBI), use `show_upcoming_trainings`: it shows
-them to the user in an interactive view, and returns a summary."""
+them to the user in an interactive view, and returns a summary.
+To show where instructors teach, or the instructors of a country, use `show_instructors_map`: it shows a map of the
+instructors by country, filterable by topic, to the user."""
 
 SPARQL_GUIDELINES = """## SPARQL query guidelines
 - Base the query on the examples and classes schemas, never use classes or predicates not found in them
@@ -223,6 +225,194 @@ apps.add_html_resource(
     "ui://elixir-training/upcoming-trainings.html",
     (WIDGETS / "upcoming-trainings.html").read_text(),
     title="Upcoming trainings",
+)
+
+
+# Data sent to the widget in `structuredContent`, as read by `widgets/instructors-map.html`
+class TaughtCourse(TypedDict):
+    name: str
+    url: str | None
+    startDate: str | None
+    mode: str | None
+    locality: str | None
+    country: str | None
+    # EDAM topics, and the free text keywords not already in the topics
+    topics: list[str]
+    keywords: list[str]
+    providers: list[str]
+
+
+class Instructor(TypedDict):
+    name: str
+    orcid: str | None
+    affiliations: list[str]
+    # Indexes of the courses in `InstructorsMapData.courses`
+    courses: list[int]
+
+
+class InstructorsMapData(TypedDict):
+    country: str | None
+    topic: str | None
+    instructors: list[Instructor]
+    courses: list[TaughtCourse]
+    query: str
+
+
+# Course instances with their instructors, each encoded as `IRI~name~affiliation;affiliation` (the IRI is empty for
+# blank nodes). Instructors are grouped in a subquery first, to get their affiliations once
+INSTRUCTORS_QUERY = """PREFIX schema: <https://schema.org/>
+SELECT ?course ?instance (SAMPLE(?n) AS ?name) (SAMPLE(?u) AS ?url) (SAMPLE(?start) AS ?startDate)
+  (SAMPLE(?m) AS ?mode) (SAMPLE(?loc) AS ?locality) (SAMPLE(?ctry) AS ?country)
+  (GROUP_CONCAT(DISTINCT ?instructor; separator="|") AS ?instructors)
+  (GROUP_CONCAT(DISTINCT ?topic; separator="|") AS ?topics)
+  (GROUP_CONCAT(DISTINCT ?kw; separator="|") AS ?keywords)
+  (GROUP_CONCAT(DISTINCT ?providerName; separator="|") AS ?providers)
+WHERE {
+  {
+    SELECT ?p (SAMPLE(?pn) AS ?pName) (GROUP_CONCAT(DISTINCT ?affName; separator=";") AS ?affs) WHERE {
+      ?x schema:instructor ?p .
+      ?p schema:name ?pn .
+      OPTIONAL { ?p schema:memberOf/schema:name ?affName }
+    } GROUP BY ?p
+  }
+  ?course schema:hasCourseInstance ?instance .
+  ?instance schema:instructor ?p .
+  BIND(CONCAT(IF(isIRI(?p), STR(?p), ""), "~", ?pName, "~", COALESCE(?affs, "")) AS ?instructor)
+  OPTIONAL { ?course schema:name ?n }
+  OPTIONAL { ?course schema:url ?u }
+  OPTIONAL { ?course schema:about/schema:name ?topic }
+  OPTIONAL { ?course schema:keywords ?kw }
+  OPTIONAL { ?course schema:provider/schema:name ?providerName }
+  OPTIONAL { ?instance schema:startDate ?start }
+  OPTIONAL { ?instance schema:courseMode ?m }
+  OPTIONAL {
+    ?instance schema:location/schema:address ?address .
+    OPTIONAL { ?address schema:addressLocality ?loc }
+    OPTIONAL { ?address schema:addressCountry ?ctry }
+  }
+}
+GROUP BY ?course ?instance"""
+
+
+def unique_ci(values: Iterable[str]) -> list[str]:
+    """Values without the case-insensitive duplicates, in their first order"""
+    seen: dict[str, str] = {}
+    for v in values:
+        seen.setdefault(v.lower(), v)
+    return list(seen.values())
+
+
+def to_instructors_map(rows: list[dict[str, str]]) -> tuple[list[TaughtCourse], list[Instructor]]:
+    """Courses and their instructors. Instructors are merged by name: many are blank nodes, and the same ORCID is
+    sometimes given to different people"""
+    courses: list[TaughtCourse] = []
+    instructors: dict[str, Instructor] = {}
+    for raw in rows:
+        row = {k: html.unescape(v) for k, v in raw.items()}
+
+        def split(key: str, row: dict[str, str] = row) -> list[str]:
+            return [v.strip() for v in row.get(key, "").split("|") if v.strip()]
+
+        index = len(courses)
+        topics = unique_ci(split("topics"))
+        lower_topics = {t.lower() for t in topics}
+        courses.append(
+            {
+                "name": row.get("name") or row["course"],
+                "url": row.get("url") or (row["course"] if row["course"].startswith("http") else None),
+                "startDate": row["startDate"][:10] if row.get("startDate") else None,
+                "mode": row.get("mode"),
+                "locality": row.get("locality"),
+                "country": row.get("country"),
+                "topics": topics,
+                "keywords": [k for k in unique_ci(split("keywords")) if k.lower() not in lower_topics],
+                "providers": sorted(unique_ci(split("providers")), key=len)[:2],
+            }
+        )
+        for value in split("instructors"):
+            iri, name, affs = [*value.split("~", 2), "", ""][:3]
+            name = " ".join(name.split())
+            if not name:
+                continue
+            # Same person written with or without hyphens, e.g. "Carlevaro-Fita" and "Carlevaro Fita"
+            key = re.sub(r"[\s-]+", " ", name.lower())
+            person = instructors.setdefault(key, {"name": name, "orcid": None, "affiliations": [], "courses": []})
+            if iri.startswith("https://orcid.org/") and not person["orcid"]:
+                person["orcid"] = iri
+            person["affiliations"] = unique_ci(person["affiliations"] + [a for a in affs.split(";") if a])
+            if index not in person["courses"]:
+                person["courses"].append(index)
+    return courses, list(instructors.values())
+
+
+def place(c: TaughtCourse) -> str:
+    """Country of a course, or `Online` / `No location` without address, as grouped in the widget"""
+    if c["country"] and c["country"] != "Virtual":
+        return c["country"]
+    return "Online" if c["country"] == "Virtual" or c["mode"] == "online" else "No location"
+
+
+@apps.tool(resource_uri="ui://elixir-training/instructors-map.html", annotations=READ_ONLY)
+async def show_instructors_map(country: str | None = None, topic: str | None = None) -> CallToolResult:
+    """Show a map of the instructors of courses by country to the user, in an interactive view where they can pick a
+    country, and sort and filter its instructors by number of courses, topic, mode, provider and date. Only a summary
+    is returned to you, do not repeat the list in your answer.
+
+    Args:
+        country: Country to select first, in English (e.g. "Switzerland", "United Kingdom")
+        topic: Topic to filter the courses first, matched case-insensitively on part of their topics, keywords and
+            name (e.g. "single-cell", "proteomics", "python")
+    """
+    try:
+        res = await query_sparql(INSTRUCTORS_QUERY)
+    except httpx.HTTPError as e:
+        raise ToolError(f"Could not query the SPARQL endpoint: {e!r}") from e
+    courses, instructors = to_instructors_map(bindings(res))
+    country = country.strip() if country else None
+    topic = topic.strip() if topic else None
+    data: InstructorsMapData = {
+        "country": country,
+        "topic": topic,
+        "instructors": instructors,
+        "courses": courses,
+        "query": INSTRUCTORS_QUERY,
+    }
+
+    # Summary for the model, with the same initial filters as the widget
+    def matches(c: TaughtCourse) -> bool:
+        return not topic or topic.lower() in " ".join([c["name"], *c["topics"], *c["keywords"]]).lower()
+
+    kept = {i for i, c in enumerate(courses) if matches(c)}
+    by_country: dict[str, set[str]] = {}
+    for p in instructors:
+        for i in kept.intersection(p["courses"]):
+            by_country.setdefault(place(courses[i]), set()).add(p["name"])
+    lines = [
+        f"Shown to the user: map of {len(instructors)} instructors of {len(courses)} courses"
+        + (f", filtered on the topic {topic!r} ({len(kept)} courses)" if topic else ""),
+        "Instructors per country: "
+        + ", ".join(f"{c} ({len(n)})" for c, n in sorted(by_country.items(), key=lambda x: -len(x[1]))[:12]),
+    ]
+    if country:
+        local = sorted(
+            (
+                (p, [i for i in p["courses"] if i in kept and place(courses[i]).lower() == country.lower()])
+                for p in instructors
+            ),
+            key=lambda x: -len(x[1]),
+        )
+        local = [x for x in local if x[1]]
+        lines.append(f"{len(local)} instructors in {country}, with the most courses:")
+        lines += [f"- {p['name']} ({len(ix)} courses) {p['orcid'] or ''}".rstrip() for p, ix in local[:15]]
+    return CallToolResult(content=[TextContent(type="text", text="\n".join(lines))], structured_content=dict(data))
+
+
+apps.add_html_resource(
+    "ui://elixir-training/instructors-map.html",
+    (WIDGETS / "instructors-map.html").read_text(),
+    title="Instructors map",
+    # d3 and the countries of Natural Earth (world-atlas) are loaded from jsDelivr
+    csp=ResourceCsp(resource_domains=["https://cdn.jsdelivr.net"], connect_domains=["https://cdn.jsdelivr.net"]),
 )
 
 

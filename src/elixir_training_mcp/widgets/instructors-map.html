@@ -1,0 +1,734 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+    <style>
+      /* Colors from the host style variables of the MCP Apps spec when it sends them, so the widget blends in the chat */
+      :root {
+        --fg: var(--color-text-primary, #1f2328);
+        --muted: var(--color-text-secondary, #656d76);
+        --bg: var(--color-background-primary, #ffffff);
+        --panel: var(--color-background-secondary, #f6f8fa);
+        --border: var(--color-border-primary, #d0d7de);
+        --land: #e3e7eb;
+        --accent: #0b7a75;
+        --accent-soft: rgba(11, 122, 117, 0.1);
+        color-scheme: light;
+      }
+      :root[data-theme="dark"] {
+        --fg: var(--color-text-primary, #e6edf3);
+        --muted: var(--color-text-secondary, #8d96a0);
+        --bg: var(--color-background-primary, #0d1117);
+        --panel: var(--color-background-secondary, #161b22);
+        --border: var(--color-border-primary, #30363d);
+        --land: #262c34;
+        --accent: #3fc1b8;
+        --accent-soft: rgba(63, 193, 184, 0.14);
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 14px 16px;
+        font: 13px/1.45 var(--font-sans, system-ui, sans-serif);
+        color: var(--fg);
+        background: var(--bg);
+      }
+      h1 {
+        font-size: 16px;
+        margin: 0;
+      }
+      h2 {
+        font-size: 14px;
+        margin: 0;
+      }
+      .sub {
+        color: var(--muted);
+        margin: 2px 0 12px;
+      }
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      input,
+      select,
+      button {
+        font: inherit;
+        color: inherit;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 5px 9px;
+      }
+      input {
+        flex: 1;
+        min-width: 140px;
+      }
+      button {
+        cursor: pointer;
+      }
+      .chip {
+        border-radius: 999px;
+        padding: 3px 10px;
+      }
+      .chip[aria-pressed="true"] {
+        background: var(--accent-soft);
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+        gap: 14px;
+        align-items: start;
+      }
+      @media (max-width: 760px) {
+        .layout {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+      /* Map */
+      .map-box {
+        position: relative;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--panel);
+        overflow: hidden;
+      }
+      .map-box svg {
+        display: block;
+        width: 100%;
+        height: auto;
+        cursor: grab;
+      }
+      .country {
+        fill: var(--land);
+        stroke: var(--bg);
+        stroke-width: 0.6;
+        vector-effect: non-scaling-stroke;
+      }
+      .country.has {
+        fill: var(--accent);
+        cursor: pointer;
+      }
+      .country:hover {
+        stroke: var(--fg);
+        stroke-width: 1;
+      }
+      .country.selected {
+        stroke: var(--fg);
+        stroke-width: 2;
+      }
+      .map-tools {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        display: flex;
+        gap: 4px;
+      }
+      .map-tools button {
+        padding: 2px 8px;
+        font-size: 12px;
+      }
+      .legend {
+        position: absolute;
+        left: 8px;
+        bottom: 8px;
+        font-size: 11px;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 2px 6px;
+      }
+      .legend i {
+        display: block;
+        width: 80px;
+        height: 8px;
+        border-radius: 4px;
+        background: linear-gradient(to right, var(--accent-soft), var(--accent));
+      }
+      .tooltip {
+        position: absolute;
+        pointer-events: none;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 4px 8px;
+        font-size: 12px;
+        white-space: nowrap;
+        display: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      }
+      .map-msg {
+        padding: 40px 12px;
+        text-align: center;
+        color: var(--muted);
+      }
+      .countries {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-top: 8px;
+      }
+      .countries .chip {
+        font-size: 12px;
+        padding: 1px 8px;
+      }
+      .countries .chip b {
+        font-weight: 600;
+        margin-left: 3px;
+      }
+      /* Instructors list */
+      .list-head {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+      .list {
+        max-height: 560px;
+        overflow-y: auto;
+        padding-right: 2px;
+      }
+      .person {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        margin-bottom: 6px;
+        background: var(--panel);
+      }
+      .person > .row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+        padding: 8px 10px;
+        cursor: pointer;
+      }
+      .name {
+        font-weight: 600;
+        font-size: 14px;
+      }
+      .orcid {
+        font-size: 11px;
+        color: var(--accent);
+        margin-left: 4px;
+        cursor: pointer;
+      }
+      .meta {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .count {
+        text-align: right;
+        white-space: nowrap;
+      }
+      .count b {
+        font-size: 16px;
+        color: var(--accent);
+      }
+      .bar {
+        height: 3px;
+        border-radius: 2px;
+        background: var(--accent);
+        margin-top: 4px;
+      }
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-top: 4px;
+      }
+      .tag {
+        font-size: 11px;
+        padding: 0 7px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        background: var(--bg);
+        cursor: pointer;
+      }
+      .courses {
+        border-top: 1px solid var(--border);
+        padding: 6px 10px 8px;
+      }
+      .course {
+        display: grid;
+        grid-template-columns: 78px minmax(0, 1fr);
+        gap: 8px;
+        padding: 3px 0;
+      }
+      .course .date {
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .link {
+        color: var(--fg);
+        cursor: pointer;
+      }
+      .link:hover {
+        color: var(--accent);
+        text-decoration: underline;
+      }
+      .ask {
+        font-size: 12px;
+        padding: 2px 9px;
+        margin-top: 6px;
+      }
+      .empty {
+        color: var(--muted);
+        padding: 20px 0;
+        text-align: center;
+      }
+      details {
+        margin-top: 10px;
+        color: var(--muted);
+      }
+      pre {
+        white-space: pre-wrap;
+        font-size: 11px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Instructors map</h1>
+    <div class="sub" id="sub">Loading...</div>
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="Search an instructor or course" />
+      <input id="topic" type="search" list="topics" placeholder="Topic, e.g. single-cell" />
+      <datalist id="topics"></datalist>
+      <span id="modes"></span>
+      <select id="provider"></select>
+      <select id="period"></select>
+    </div>
+    <div class="layout">
+      <div>
+        <div class="map-box" id="map-box">
+          <div class="map-msg" id="map-msg">Loading the map...</div>
+          <div class="map-tools">
+            <button id="metric" title="Color countries by">Instructors</button>
+            <button id="view">World</button>
+          </div>
+          <div class="legend" id="legend" hidden><span id="legend-label"></span><span>0</span><i></i><span id="legend-max"></span></div>
+          <div class="tooltip" id="tooltip"></div>
+        </div>
+        <div class="countries" id="countries"></div>
+      </div>
+      <div>
+        <div class="list-head">
+          <h2 id="list-title">Instructors</h2>
+          <select id="sort" title="Sort instructors">
+            <option value="courses">Most courses</option>
+            <option value="recent">Most recent course</option>
+            <option value="countries">Most countries</option>
+            <option value="name">Name</option>
+          </select>
+        </div>
+        <div class="list" id="list"></div>
+      </div>
+    </div>
+    <details>
+      <summary>SPARQL query</summary>
+      <pre id="query"></pre>
+    </details>
+    <script>
+      // Minimal MCP App, speaking the MCP Apps JSON-RPC protocol over postMessage without the SDK
+      let lastId = 0;
+      const pending = {};
+      const request = (method, params) =>
+        new Promise((resolve, reject) => {
+          const id = ++lastId;
+          pending[id] = { resolve, reject };
+          parent.postMessage({ jsonrpc: "2.0", id, method, params }, "*");
+        });
+      const notify = (method, params) => parent.postMessage({ jsonrpc: "2.0", method, params }, "*");
+      const $ = (id) => document.getElementById(id);
+      const esc = (s) =>
+        String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+      const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
+      // Country names of the data that differ from the Natural Earth names of world-atlas
+      const ALIASES = {
+        "Czech Republic": "Czechia",
+        "United States": "United States of America",
+        USA: "United States of America",
+        UK: "United Kingdom",
+        "Türkiye": "Turkey",
+        "Bosnia and Herzegovina": "Bosnia and Herz.",
+        "North Macedonia": "Macedonia",
+        "The Netherlands": "Netherlands",
+        "Russian Federation": "Russia",
+      };
+      // Courses without address are grouped as online or without location, as `place()` of the MCP server
+      const NO_LOCATION = "No location";
+      const countryOf = (c) =>
+        c.country && c.country !== "Virtual"
+          ? ALIASES[c.country] ?? c.country
+          : c.country === "Virtual" || c.mode === "online"
+            ? "Online"
+            : NO_LOCATION;
+
+      let data = { instructors: [], courses: [] };
+      const state = { country: null, mode: null, metric: "instructors", view: "europe", open: new Set() };
+      const today = new Date().toISOString().slice(0, 10);
+
+      // Theme and style variables of the host context
+      const applyContext = (ctx = {}) => {
+        if (ctx.theme) document.documentElement.dataset.theme = ctx.theme;
+        for (const [name, value] of Object.entries(ctx.styles?.variables ?? {}))
+          if (value) document.documentElement.style.setProperty(name, value);
+      };
+
+      /** Counts of values in a list, most frequent first */
+      const countBy = (values) => {
+        const c = new Map();
+        for (const v of values) if (v) c.set(v, (c.get(v) || 0) + 1);
+        return [...c].sort((a, b) => b[1] - a[1]);
+      };
+
+      // EDAM topics first, then the free text keywords
+      const subjects = (c) => [...c.topics, ...c.keywords];
+
+      /** Indexes of the courses matching the filters, all countries */
+      function keptCourses() {
+        const topic = $("topic").value.trim().toLowerCase();
+        const provider = $("provider").value;
+        const period = $("period").value;
+        const kept = new Set();
+        data.courses.forEach((c, i) => {
+          if (state.mode && c.mode !== state.mode) return;
+          if (provider && !c.providers.includes(provider)) return;
+          if (period === "upcoming" && !(c.startDate >= today)) return;
+          if (period === "past" && !(c.startDate < today)) return;
+          if (/^\d{4}$/.test(period) && !c.startDate?.startsWith(period)) return;
+          if (topic && ![c.name, ...subjects(c)].join(" ").toLowerCase().includes(topic)) return;
+          kept.add(i);
+        });
+        return kept;
+      }
+
+      /** Instructors and courses per country, from the kept courses */
+      function countryStats(kept) {
+        const stats = new Map();
+        const get = (k) => stats.get(k) ?? stats.set(k, { instructors: new Set(), courses: new Set() }).get(k);
+        data.instructors.forEach((p, pi) => {
+          for (const i of p.courses) {
+            if (!kept.has(i)) continue;
+            const s = get(countryOf(data.courses[i]));
+            s.instructors.add(pi);
+            s.courses.add(i);
+          }
+        });
+        return stats;
+      }
+
+      // ---- Map, drawn with d3-geo once the countries are loaded ----
+      let map = null;
+      const EUROPE = { type: "MultiPoint", coordinates: [[-11, 35], [32, 35], [-11, 70], [32, 70], [40, 56]] };
+      const W = 800;
+      const H = 560;
+
+      async function initMap() {
+        if (typeof d3 === "undefined" || typeof topojson === "undefined") throw new Error("d3 not loaded");
+        const world = await d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-50m.json");
+        const features = topojson.feature(world, world.objects.countries).features;
+        const svg = d3.select("#map-box").insert("svg", ".map-tools").attr("viewBox", `0 0 ${W} ${H}`);
+        const g = svg.append("g");
+        const paths = g
+          .selectAll("path")
+          .data(features)
+          .join("path")
+          .attr("class", "country")
+          .on("click", (e, f) => {
+            if (!f.value) return;
+            selectCountry(state.country === f.properties.name ? null : f.properties.name);
+          })
+          .on("mousemove", (e, f) => {
+            const box = $("map-box").getBoundingClientRect();
+            const s = f.stats;
+            $("tooltip").style.display = "block";
+            $("tooltip").style.left = `${e.clientX - box.left + 12}px`;
+            $("tooltip").style.top = `${e.clientY - box.top + 12}px`;
+            $("tooltip").innerHTML = `<b>${esc(f.properties.name)}</b><br>${
+              s ? `${plural(s.instructors.size, "instructor")} · ${plural(s.courses.size, "course")}` : "No courses"
+            }`;
+          })
+          .on("mouseleave", () => ($("tooltip").style.display = "none"));
+        const zoom = d3.zoom().scaleExtent([1, 12]).on("zoom", (e) => g.attr("transform", e.transform));
+        svg.call(zoom).on("dblclick.zoom", null);
+        map = { svg, paths, zoom, features };
+        $("map-msg").remove();
+        $("legend").hidden = false;
+        project();
+        renderMap();
+      }
+
+      /** Project the countries, fitted on Europe or the whole world */
+      function project() {
+        const projection =
+          state.view === "europe"
+            ? d3.geoAzimuthalEqualArea().rotate([-10, -52]).fitExtent([[10, 10], [W - 10, H - 10]], EUROPE)
+            : d3.geoNaturalEarth1().fitExtent([[10, 10], [W - 10, H - 10]], { type: "Sphere" });
+        map.paths.attr("d", d3.geoPath(projection));
+        map.svg.call(map.zoom.transform, d3.zoomIdentity);
+        $("view").textContent = state.view === "europe" ? "World" : "Europe";
+      }
+
+      /** Countries colored by their number of instructors or courses */
+      function renderMap(stats) {
+        if (!map || !stats) return;
+        // Scale on the countries only, the online courses outnumber them
+        const values = [...stats].filter(([k]) => k !== NO_LOCATION && k !== "Online").map(([, s]) => s[state.metric].size);
+        const max = Math.max(1, ...values);
+        map.paths
+          .each((f) => {
+            f.stats = stats.get(f.properties.name);
+            f.value = f.stats ? f.stats[state.metric].size : 0;
+          })
+          .classed("has", (f) => f.value > 0)
+          .classed("selected", (f) => f.properties.name === state.country)
+          .attr("fill-opacity", (f) => (f.value ? 0.15 + 0.85 * Math.sqrt(f.value / max) : 1));
+        $("legend-label").textContent = state.metric === "instructors" ? "Instructors" : "Courses";
+        $("legend-max").textContent = max;
+        $("metric").textContent = state.metric === "instructors" ? "Color by courses" : "Color by instructors";
+      }
+
+      // ---- Filters, country chips and instructors list ----
+
+      const renderModes = () =>
+        ($("modes").innerHTML = countBy(data.courses.map((c) => c.mode))
+          .map(([m, n]) => `<button class="chip" data-mode="${esc(m)}" aria-pressed="${state.mode === m}">${esc(m)} ${n}</button>`)
+          .join(" "));
+
+      /** Mode chips, provider, period and topic suggestions, from all the courses */
+      function renderFilters() {
+        renderModes();
+        $("provider").innerHTML =
+          `<option value="">All providers</option>` +
+          countBy(data.courses.flatMap((c) => c.providers))
+            .slice(0, 60)
+            .map(([p, n]) => `<option value="${esc(p)}">${esc(p)} (${n})</option>`)
+            .join("");
+        const years = [...new Set(data.courses.map((c) => c.startDate?.slice(0, 4)).filter(Boolean))].sort().reverse();
+        $("period").innerHTML =
+          `<option value="">All dates</option><option value="upcoming">Upcoming</option><option value="past">Past</option>` +
+          years.map((y) => `<option value="${y}">${y}</option>`).join("");
+        $("topics").innerHTML = countBy(data.courses.flatMap(subjects))
+          .slice(0, 300)
+          .map(([t, n]) => `<option value="${esc(t)}">${n} courses</option>`)
+          .join("");
+      }
+
+      /** All countries as chips, sorted by the metric: for small countries and the ones out of the map */
+      function renderCountries(stats) {
+        $("countries").innerHTML = [...stats]
+          .sort((a, b) => b[1][state.metric].size - a[1][state.metric].size)
+          .map(
+            ([c, s]) =>
+              `<button class="chip" data-country="${esc(c)}" aria-pressed="${state.country === c}">${esc(c)}<b>${s[state.metric].size}</b></button>`,
+          )
+          .join("");
+      }
+
+      /** Instructors of the selected country (or all), with their kept courses there */
+      function renderList(kept) {
+        const text = $("search").value.trim().toLowerCase();
+        const rows = [];
+        data.instructors.forEach((p, pi) => {
+          const all = p.courses.filter((i) => kept.has(i));
+          const here = state.country ? all.filter((i) => countryOf(data.courses[i]) === state.country) : all;
+          if (!here.length) return;
+          if (text && ![p.name, ...p.affiliations, ...here.map((i) => data.courses[i].name)].join(" ").toLowerCase().includes(text))
+            return;
+          const dates = here.map((i) => data.courses[i].startDate).filter(Boolean).sort();
+          rows.push({ p, pi, here, last: dates.at(-1) ?? "", countries: new Set(all.map((i) => countryOf(data.courses[i]))).size });
+        });
+        const sort = $("sort").value;
+        const by = {
+          courses: (a, b) => b.here.length - a.here.length || a.p.name.localeCompare(b.p.name),
+          recent: (a, b) => b.last.localeCompare(a.last) || b.here.length - a.here.length,
+          countries: (a, b) => b.countries - a.countries || b.here.length - a.here.length,
+          name: (a, b) => a.p.name.localeCompare(b.p.name),
+        };
+        rows.sort(by[sort]);
+        $("list-title").textContent = `${plural(rows.length, "instructor")} · ${state.country ?? "all countries"}`;
+        if (!rows.length) {
+          $("list").innerHTML = `<div class="empty">No instructors match the filters</div>`;
+          return;
+        }
+        const max = Math.max(...rows.map((r) => r.here.length));
+        // Render the first rows only, the list is scrollable and filterable
+        $("list").innerHTML = rows
+          .slice(0, 300)
+          .map((r) => {
+            const topics = countBy(r.here.flatMap((i) => subjects(data.courses[i]))).slice(0, 4);
+            const open = state.open.has(r.pi);
+            return `<div class="person">
+              <div class="row" data-person="${r.pi}">
+                <div>
+                  <span class="name">${esc(r.p.name)}</span>${
+                    r.p.orcid ? `<a class="orcid" data-url="${esc(r.p.orcid)}" title="${esc(r.p.orcid)}">ORCID</a>` : ""
+                  }
+                  <div class="meta">${[
+                    r.p.affiliations.slice(0, 2).map(esc).join(", "),
+                    r.last ? `last ${r.last}` : "",
+                    r.countries > 1 ? `${r.countries} countries` : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}</div>
+                  <div class="tags">${topics.map(([t]) => `<span class="tag" data-topic="${esc(t)}">${esc(t)}</span>`).join("")}</div>
+                </div>
+                <div class="count"><b>${r.here.length}</b> ${r.here.length === 1 ? "course" : "courses"}
+                  <div class="bar" style="width:${Math.max(6, (100 * r.here.length) / max)}%"></div>
+                </div>
+              </div>
+              ${open ? renderCourses(r) : ""}
+            </div>`;
+          })
+          .join("");
+        if (rows.length > 300) $("list").innerHTML += `<div class="empty">${rows.length - 300} more, refine the filters</div>`;
+      }
+
+      /** Courses of an opened instructor, most recent first */
+      function renderCourses(r) {
+        const courses = r.here.map((i) => data.courses[i]).sort((a, b) => (b.startDate ?? "").localeCompare(a.startDate ?? ""));
+        return `<div class="courses">
+          ${courses
+            .map(
+              (c) => `<div class="course">
+                <span class="date">${esc(c.startDate ?? "")}</span>
+                <div>
+                  <a class="link" data-url="${esc(c.url)}">${esc(c.name)}</a>
+                  <div class="meta">${[c.mode, c.locality, c.country, c.providers[0]].filter(Boolean).map(esc).join(" · ")}</div>
+                </div>
+              </div>`,
+            )
+            .join("")}
+          <button class="ask" data-ask="${r.pi}">Ask about this instructor</button>
+        </div>`;
+      }
+
+      function render() {
+        const kept = keptCourses();
+        const stats = countryStats(kept);
+        const people = new Set([...stats.values()].flatMap((s) => [...s.instructors]));
+        const countries = [...stats.keys()].filter((k) => k !== NO_LOCATION && k !== "Online").length;
+        $("sub").textContent =
+          `${plural(people.size, "instructor")} of ${plural(kept.size, "course")} in ${countries} countries, ` +
+          `harvested from TeSS and GTN. Click a country to list its instructors.`;
+        renderMap(stats);
+        renderCountries(stats);
+        renderList(kept);
+        resize();
+      }
+
+      function selectCountry(country) {
+        state.country = country;
+        state.open.clear();
+        render();
+      }
+
+      // Height of the body content: the scrollHeight of the document never drops below the iframe height, so it would not shrink
+      const resize = () => notify("ui/notifications/size-changed", { height: Math.ceil(document.body.getBoundingClientRect().height) });
+      const openLink = (url) => request("ui/open-link", { url }).catch(() => window.open(url));
+
+      document.addEventListener("click", (e) => {
+        const t = e.target;
+        // Links open through the host, the iframe sandbox blocks navigation
+        const link = t.closest("[data-url]");
+        if (link) return link.dataset.url && openLink(link.dataset.url);
+        const mode = t.closest("[data-mode]");
+        if (mode) {
+          state.mode = state.mode === mode.dataset.mode ? null : mode.dataset.mode;
+          renderModes();
+          return render();
+        }
+        const country = t.closest("[data-country]");
+        if (country) return selectCountry(state.country === country.dataset.country ? null : country.dataset.country);
+        const tag = t.closest("[data-topic]");
+        if (tag) {
+          $("topic").value = tag.dataset.topic;
+          return render();
+        }
+        const ask = t.closest("[data-ask]");
+        if (ask) {
+          const p = data.instructors[+ask.dataset.ask];
+          const text = `Tell me more about the trainings taught by ${p.name}${p.orcid ? ` (${p.orcid})` : ""}: which topics, where, and for which audience?`;
+          return request("ui/message", { role: "user", content: [{ type: "text", text }] });
+        }
+        const person = t.closest("[data-person]");
+        if (person) {
+          const pi = +person.dataset.person;
+          state.open.has(pi) ? state.open.delete(pi) : state.open.add(pi);
+          renderList(keptCourses());
+          resize();
+        }
+      });
+
+      for (const id of ["search", "topic"]) $(id).addEventListener("input", render);
+      for (const id of ["provider", "period", "sort"]) $(id).addEventListener("change", render);
+      $("metric").addEventListener("click", () => {
+        state.metric = state.metric === "instructors" ? "courses" : "instructors";
+        render();
+      });
+      $("view").addEventListener("click", () => {
+        state.view = state.view === "europe" ? "world" : "europe";
+        if (map) project();
+      });
+      $("query").parentElement.addEventListener("toggle", resize);
+
+      addEventListener("message", ({ data: m }) => {
+        if (!m || m.jsonrpc !== "2.0") return;
+        if (m.id !== undefined && pending[m.id]) {
+          m.error ? pending[m.id].reject(m.error) : pending[m.id].resolve(m.result);
+          delete pending[m.id];
+        } else if (m.method === "ui/notifications/tool-result") {
+          if (m.params.structuredContent) {
+            data = m.params.structuredContent;
+            $("query").textContent = data.query;
+            renderFilters();
+            $("topic").value = data.topic ?? "";
+            if (data.country) state.country = ALIASES[data.country] ?? data.country;
+            render();
+          } else {
+            $("sub").textContent = m.params.content?.find((c) => c.type === "text")?.text ?? "No result";
+            resize();
+          }
+        } else if (m.method === "ui/notifications/host-context-changed") {
+          applyContext(m.params);
+        }
+      });
+
+      initMap()
+        .then(render)
+        .catch((e) => {
+          $("map-msg").textContent = `Could not load the map (${e.message}), pick a country below.`;
+          resize();
+        });
+
+      request("ui/initialize", {
+        protocolVersion: "2026-01-26",
+        appInfo: { name: "Instructors map", version: "0.1.0" },
+        appCapabilities: {},
+      }).then((r) => {
+        applyContext(r.hostContext);
+        notify("ui/notifications/initialized", {});
+      });
+    </script>
+  </body>
+</html>

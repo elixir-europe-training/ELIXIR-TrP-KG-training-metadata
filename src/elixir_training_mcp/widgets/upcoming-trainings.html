@@ -306,7 +306,8 @@
         renderList();
       }
 
-      const resize = () => notify("ui/notifications/size-changed", { height: document.documentElement.scrollHeight });
+      // Height of the body content: the scrollHeight of the document never drops below the iframe height, so it would not shrink
+      const resize = () => notify("ui/notifications/size-changed", { height: Math.ceil(document.body.getBoundingClientRect().height) });
 
       // Links open through the host, the iframe sandbox blocks navigation
       document.addEventListener("click", (e) => {

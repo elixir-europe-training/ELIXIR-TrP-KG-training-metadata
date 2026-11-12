@@ -72,7 +72,7 @@ docker compose run --rm --no-deps generate-metadata
 
 ## 💬 MCP server and agent
 
-A remote [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server to search the training knowledge graph with SPARQL, with an [MCP App](https://modelcontextprotocol.io/extensions/apps/overview) showing the upcoming trainings of an organization. The same app serves a chat agent using it ([Pydantic AI](https://ai.pydantic.dev) with the [light-chat](https://github.com/vemonet/light-chat) UI):
+A remote [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server to search the training knowledge graph with SPARQL, with [MCP Apps](https://modelcontextprotocol.io/extensions/apps/overview) showing the upcoming trainings of an organization, and a map of the instructors by country. The same app serves a chat agent using it ([Pydantic AI](https://ai.pydantic.dev) with the [light-chat](https://github.com/vemonet/light-chat) UI):
 
 - `/mcp`: MCP server (Streamable HTTP)
 - `/chat`: [AG-UI](https://docs.ag-ui.com) endpoint of the agent
@@ -86,6 +86,7 @@ A remote [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server 
 | `get_sparql_schema` | Schema of the classes relevant to some concepts (predicates and types of their values, as ShEx) |
 | `execute_sparql_query` | Run a SPARQL SELECT or ASK query on the endpoint |
 | `show_upcoming_trainings` | MCP App: interactive view of the upcoming trainings of an organization (e.g. `SIB`), filterable by text, mode and country |
+| `show_instructors_map` | MCP App: map of the instructors by country (e.g. `Switzerland`), listing the instructors of the selected country, sortable by number of courses, recent course or countries, and filterable by topic, mode, provider and date |
 
 The examples and classes schemas are loaded at startup from the `sparql-examples` and `void` named graphs of the SPARQL endpoint, and indexed in an embedded [LanceDB](https://lancedb.com) vector store (`data/lancedb`), searched with hybrid search (vectors and BM25 full-text search, fused with Reciprocal Rank Fusion). LanceDB generates the embeddings with [`Qwen/Qwen3-Embedding-0.6B`](https://huggingface.co/Qwen/Qwen3-Embedding-0.6B) (Apache 2.0, 100+ languages), quantized to int8 and run with ONNX by [fastembed](https://github.com/qdrant/fastembed) (1.1 GB downloaded on first start).
 
