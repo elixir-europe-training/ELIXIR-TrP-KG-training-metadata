@@ -1,10 +1,23 @@
-# Project 18: Mining the potential of knowledge graphs for metadata on training
+# 2026 Project 15: A knowledge graph of learning resources in practice
+
+Follows on from 2025 Project 18: Mining the potential of knowledge graphs for metadata on training
 
 [![PyPI - Version](https://img.shields.io/pypi/v/elixir-training-mcp.svg?logo=pypi&label=PyPI&logoColor=silver)](https://pypi.org/project/elixir-training-mcp/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/elixir-training-mcp.svg?logo=python&label=Python&logoColor=silver)](https://pypi.org/project/elixir-training-mcp/)
 [![Generate paper PDF](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata/actions/workflows/paper.yml/badge.svg)](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata/actions/workflows/paper.yml)
 
-## Abstract
+## Abstract 2026
+
+Training registries such as TeSS and Glittr.org contain a rich body of metadata describing training materials, events, and contributors across the life‑science and biomedical domains. Although this information is represented in RDF, it remains insufficiently interconnected with other knowledge resources and is not easily discoverable or queryable by end users or automated systems. As a result, much of its potential value for learners, trainers, and research infrastructure professionals remains untapped.
+
+This project will deliver a publicly available, continuously updated knowledge graph (KG) for training resources. The training KG will be made available alongside major Swiss Institute of Bioinformatics (SIB) knowledge graphs within the Expasy ecosystem. This co‑location will allow users to query and explore training data using the same tools, interfaces, and usage patterns they already employ for other available resources.
+
+We will focus on improving data quality, interoperability, and reusability across existing training registries. Author identification and attribution will be strengthened by leveraging persistent identifiers such as ORCID, enabling rich, reusable contributor profiles, while shared schemas will be used to harmonize metadata. By following SIB best practices for exposing SPARQL endpoints, including example queries and clear schemas, the KG will be FAIR, self-describing, and easily reusable by downstream users and services.
+
+A key innovation is enabling direct interaction with the linked data through a conversational interface. The training KG will be federated within the Expasy portal alongside resources such as UniProt and Bgee, improving cross‑resource discovery, visibility, and sustainability, supporting reuse by humans and agents.
+
+
+## Abstract 2025
 
 Knowledge graphs (KGs) can greatly increase the potential of data by revealing hidden relationships and turning it into useful information. A KG is a graph-based representation of data that stores relations between subjects, predicates and objects in triplestores. These entities are typically described in pre-defined ontologies, which increase interoperability and connect data that would otherwise remain isolated in siloed databases. This structured data representation can greatly facilitate complex querying and applications to deep learning approaches like generative AI.
 
@@ -14,7 +27,12 @@ In this project, we aim to create queryable KGs derived from training metadata i
 
 ## Leads
 
-Geert van Geest, Harshita Gupta, Vincent Emonet
+2026: Panayiotis Smeros, Vincent Emonet, Phil Reed
+
+2025: Geert van Geest, Harshita Gupta, Vincent Emonet
+
+> [!NOTE]
+> The following content is from the 2025 project
 
 ## 🚜 Harvesting training data
 
