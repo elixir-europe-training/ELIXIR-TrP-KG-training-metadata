@@ -5,6 +5,7 @@
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix spex: <https://purl.expasy.org/sparql-examples/ontology#> .
 
 # Prefixes shared by all examples, declared with SHACL so clients can rebuild the PREFIX header
 _:sparql_examples_prefixes
@@ -453,3 +454,34 @@ GROUP BY ?providerUrl ?providerName
 ORDER BY DESC(?courses)""" ;
     schema:keywords "course", "provider", "date", "year", "aggregation", "statistics" ;
     schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
+
+ex:18 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Using an ROR id, use wikidata to see if the course contributor works for an ELIXIR node"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+
+SELECT 
+  ?person 
+  ?ror_id
+WHERE {
+  ?person a schema:Person ;
+    schema:name  ?person_name .
+  ?materialsOrCourse schema:contributor  ?person ;
+    schema:name  ?materialsOrCourse_name .
+  # to be replaced with direct use of an ROR in TESS
+  SERVICE <https://sib-people-rdf.jerven-bolleman.workers.dev/sparql> {
+    ?person schema:memberOf ?org .
+    ?org schema:parentOrganization ?parent_organization .
+  }
+  BIND(SUBSTR(STR(?parent_organization), 17) AS ?ror_id)
+  SERVICE <https://query.wikidata.org/sparql> {
+    ?wd_org wdt:P6782 ?ror_id ;
+            wdt:P31 wd:Q109490328 .
+  }
+}
+""" ;
+    schema:keywords "course", "provider", "ELIXIR", "ROR", "wikidata" ;
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> ;
+    spec:federatesWith <https://query.wikidata.org/sparql>, <https://sib-people-rdf.jerven-bolleman.workers.dev/sparql> .
