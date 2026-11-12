@@ -106,6 +106,7 @@ app.include_router(
         placeholder="Ask about trainings",
         examples=[
             "Show the upcoming trainings of SIB",
+            "Show the learning resources of SIB on proteomics",
             "Show the map of the instructors teaching single-cell courses",
             "Which organizations provided the most courses in 2025?",
             "Which online courses on single-cell RNA-seq start in the next 3 months?",

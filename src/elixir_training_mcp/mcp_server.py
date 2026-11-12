@@ -1,5 +1,5 @@
 """MCP server with tools to write and run SPARQL queries over the ELIXIR training knowledge graph, and an MCP App
-showing the upcoming trainings of an organization."""
+showing the trainings of an organization."""
 
 import asyncio
 import html
@@ -9,7 +9,7 @@ from collections import Counter
 from collections.abc import Iterable
 from datetime import date
 from pathlib import Path
-from typing import Any, NotRequired
+from typing import Any, Literal, NotRequired
 
 import httpx
 from mcp.server.apps import Apps, ResourceCsp
@@ -32,8 +32,9 @@ Training Network (GTN), in a knowledge graph using the schema.org and Bioschemas
 
 To answer a question: search relevant query examples with `get_sparql_examples`, check the classes and predicates with
 `get_sparql_schema`, then run the query with `execute_sparql_query`.
-To show the upcoming trainings of an organization (e.g. SIB, VIB, EMBL-EBI), use `show_upcoming_trainings`: it shows
-them to the user in an interactive view, filterable on a text (e.g. a topic), and returns a summary.
+To show the trainings of an organization (e.g. SIB, VIB, EMBL-EBI), its upcoming courses and/or its learning resources
+(training materials), use `show_trainings`: it shows them to the user in an interactive view, filterable on the kind
+and on a text (e.g. a topic), and returns a summary.
 To show where instructors teach, or the instructors of a country, use `show_instructors_map`: it shows a map of the
 instructors by country, filterable by topic, to the user.
 To compare the number of courses of organizations, overall or in a year, and their onsite or online share, use
@@ -65,16 +66,25 @@ class SparqlQueryResults(TypedDict):
     truncated: NotRequired[bool]
 
 
-# Data sent to the widget in `structuredContent`, as read by `widgets/upcoming-trainings.html`
+# Data sent to the widget in `structuredContent`, as read by `widgets/trainings.html`
+TrainingKind = Literal["course", "learning_resource"]
+KindFilter = Literal["all", "courses", "learning_resources"]
+
+
 class Training(TypedDict):
+    """Upcoming course instance (with dates, mode and place), or learning resource (with type and publication date)"""
+
     id: str
+    kind: TrainingKind
     name: str
     url: str | None
-    startDate: str
+    startDate: str | None
     endDate: str | None
     mode: str | None
     locality: str | None
     country: str | None
+    datePublished: str | None
+    resourceType: str | None
     description: str | None
     organizations: list[str]
     keywords: list[str]
@@ -83,10 +93,10 @@ class Training(TypedDict):
 class TrainingsData(TypedDict):
     organization: str
     fromDate: str
-    total: int
     trainings: list[Training]
     query: str
     filter: str | None
+    kind: KindFilter
 
 
 async def search_docs(queries: list[str], doc_type: DocType) -> list[dict[str, Any]]:
@@ -106,13 +116,16 @@ def sparql_string(value: str) -> str:
     return '"' + re.sub(r'(["\\])', r"\\\1", value).replace("\n", " ") + '"'
 
 
-def upcoming_trainings_query(organization: str, from_date: str, limit: int) -> str:
+def org_match(organization: str) -> str:
+    """Pattern binding ?org to the organization IRI, or to the organizations with a name containing the text"""
+    if re.fullmatch(r"https?://[^\s<>\"{}|\\^`]+", organization):
+        return f"VALUES ?org {{ <{organization}> }}"
+    return f"?org schema:name ?orgName .\n      FILTER(CONTAINS(LCASE(?orgName), LCASE({sparql_string(organization)})))"
+
+
+def upcoming_courses_query(organization: str, from_date: str, limit: int) -> str:
     """Course instances starting from a date, with a provider or organizer matching the organization name or IRI.
     The matching instances are selected first in a subquery, then their details are retrieved"""
-    if re.fullmatch(r"https?://[^\s<>\"{}|\\^`]+", organization):
-        org_match = f"VALUES ?org {{ <{organization}> }}"
-    else:
-        org_match = f"?org schema:name ?orgName .\n      FILTER(CONTAINS(LCASE(?orgName), LCASE({sparql_string(organization)})))"
     return f"""PREFIX schema: <https://schema.org/>
 SELECT ?course (SAMPLE(?n) AS ?name) (SAMPLE(?u) AS ?url) (SAMPLE(?start) AS ?startDate) (SAMPLE(?end) AS ?endDate)
   (SAMPLE(?m) AS ?mode) (SAMPLE(?loc) AS ?locality) (SAMPLE(?ctry) AS ?country) (SAMPLE(?desc) AS ?description)
@@ -121,7 +134,7 @@ SELECT ?course (SAMPLE(?n) AS ?name) (SAMPLE(?u) AS ?url) (SAMPLE(?start) AS ?st
 WHERE {{
   {{
     SELECT DISTINCT ?course ?instance ?start WHERE {{
-      {org_match}
+      {org_match(organization)}
       {{ ?course schema:provider ?org }} UNION {{ ?instance schema:organizer ?org }}
       ?course schema:hasCourseInstance ?instance .
       ?instance schema:startDate ?start .
@@ -146,21 +159,55 @@ ORDER BY ?startDate
 LIMIT {limit}"""
 
 
-def to_training(row: dict[str, str]) -> Training:
+def learning_resources_query(organization: str, limit: int) -> str:
+    """Learning resources (training materials, without dates of their own) with a provider matching the organization
+    name or IRI, the most recently published first"""
+    return f"""PREFIX schema: <https://schema.org/>
+SELECT ?resource (SAMPLE(?n) AS ?name) (SAMPLE(?u) AS ?url) (MAX(STR(?dp)) AS ?datePublished)
+  (SAMPLE(?t) AS ?resourceType) (SAMPLE(?desc) AS ?description)
+  (GROUP_CONCAT(DISTINCT ?providerName; separator="|") AS ?organizations)
+  (GROUP_CONCAT(DISTINCT ?kw; separator="|") AS ?keywords)
+WHERE {{
+  {{
+    SELECT DISTINCT ?resource WHERE {{
+      {org_match(organization)}
+      ?resource schema:provider ?org ;
+        a schema:LearningResource .
+      FILTER NOT EXISTS {{ ?resource a schema:Course }}
+    }}
+  }}
+  ?resource schema:name ?n .
+  OPTIONAL {{ ?resource schema:provider/schema:name ?providerName }}
+  OPTIONAL {{ ?resource schema:url ?u }}
+  OPTIONAL {{ ?resource schema:datePublished ?dp }}
+  OPTIONAL {{ ?resource schema:learningResourceType ?t }}
+  OPTIONAL {{ ?resource schema:description ?desc }}
+  OPTIONAL {{ ?resource schema:keywords ?kw }}
+}}
+GROUP BY ?resource
+ORDER BY DESC(?datePublished)
+LIMIT {limit}"""
+
+
+def to_training(row: dict[str, str], kind: TrainingKind) -> Training:
     # Some harvested values contain HTML entities, e.g. `&amp;`
     row = {k: html.unescape(v) for k, v in row.items()}
     split = lambda key: [v for v in row.get(key, "").split("|") if v]  # noqa: E731
+    iri = row["course"] if kind == "course" else row["resource"]
     # Markdown description, rendered and collapsed by the widget, capped to keep the payload small
     desc = row.get("description", "").strip()
     return {
-        "id": row["course"],
+        "id": iri,
+        "kind": kind,
         "name": row["name"],
-        "url": row.get("url") or (row["course"] if row["course"].startswith("http") else None),
-        "startDate": row["startDate"],
+        "url": row.get("url") or (iri if iri.startswith("http") else None),
+        "startDate": row.get("startDate"),
         "endDate": row.get("endDate"),
         "mode": row.get("mode"),
         "locality": row.get("locality"),
         "country": row.get("country"),
+        "datePublished": row.get("datePublished"),
+        "resourceType": row.get("resourceType"),
         "description": (desc[:5000] + "...") if len(desc) > 5000 else desc or None,
         # An organization IRI can have many names (e.g. the ROR ID of SIB), the 2 shortest are kept
         "organizations": sorted(split("organizations"), key=len)[:2],
@@ -174,77 +221,109 @@ def top_counts(values: Iterable[str], top: int = 8) -> str:
 
 def training_text(t: Training) -> str:
     """Lowercase text searched by the filter of the widget"""
-    values = [t["name"], t["description"], t["locality"], t["country"], *t["keywords"], *t["organizations"]]
-    return " ".join(v or "" for v in values).lower()
+    values = [t["name"], t["description"], t["locality"], t["country"], t["resourceType"]]
+    return " ".join(v or "" for v in [*values, *t["keywords"], *t["organizations"]]).lower()
 
 
 def training_line(t: Training) -> str:
+    if t["kind"] == "learning_resource":
+        details = ", ".join(v for v in [t["resourceType"], (t["datePublished"] or "")[:10]] if v)
+        return f"- {t['name']}{f' ({details})' if details else ''} {t['url'] or ''}"
     place = ", ".join(v for v in [t["mode"], t["locality"], t["country"]] if v)
-    return f"- {t['startDate'][:10]} {t['name']} ({place}) {t['url'] or ''}"
+    return f"- {(t['startDate'] or '')[:10]} {t['name']}{f' ({place})' if place else ''} {t['url'] or ''}"
 
 
-@apps.tool(resource_uri="ui://elixir-training/upcoming-trainings.html", annotations=READ_ONLY)
-async def show_upcoming_trainings(
-    organization: str, from_date: str | None = None, limit: int = 300, filter_text: str | None = None
+def trainings_summary(trainings: list[Training], label: str, limit: int) -> list[str]:
+    """Summary for the model of the courses or learning resources shown"""
+    if not trainings:
+        return []
+    lines = [f"{len(trainings)} {label}" + (" (limit reached)" if len(trainings) >= limit else "")]
+    lines.append(f"- Providers: {top_counts(o for t in trainings for o in t['organizations'])}")
+    if trainings[0]["kind"] == "course":
+        lines.append(f"- Modes: {top_counts(t['mode'] or 'unknown' for t in trainings)}")
+        lines.append(f"- Countries: {top_counts(t['country'] or 'unknown' for t in trainings)}")
+    else:
+        lines.append(f"- Types: {top_counts(t['resourceType'] or 'unknown' for t in trainings)}")
+    return [*lines, f"First {label}:", *[training_line(t) for t in trainings[:10]]]
+
+
+@apps.tool(resource_uri="ui://elixir-training/trainings.html", annotations=READ_ONLY)
+async def show_trainings(
+    organization: str,
+    kind: KindFilter = "all",
+    filter_text: str | None = None,
+    from_date: str | None = None,
+    limit: int = 300,
 ) -> CallToolResult:
-    """Show the upcoming trainings (courses and events) of an organization to the user in an interactive view, with
-    their dates, mode, location and topics. Only a summary is returned to you, do not repeat the list in your answer.
+    """Show the trainings of an organization to the user in an interactive view: its upcoming courses and events,
+    with their dates, mode and location, and its learning resources (training materials such as tutorials, slides,
+    e-learning or recorded webinars, without dates), with their type. Only a summary is returned to you, do not
+    repeat the list in your answer.
 
     Args:
         organization: Name of the organization providing or organizing the trainings, matched case-insensitively
             on part of the name (e.g. "SIB", "VIB", "EMBL-EBI", "Galaxy"), or its IRI (e.g. a ROR ID
             https://ror.org/002n09z45)
-        from_date: Show trainings starting from this date (YYYY-MM-DD), today by default
-        limit: Maximum number of trainings
+        kind: Kind of trainings selected in the view: "courses" (upcoming courses and events), "learning_resources"
+            (training materials), or "all" for both. The user can still change it
         filter_text: Text prefilled in the filter box of the view, to show only the trainings with this text in their
-            title, description, topics, place or organizations (e.g. "single-cell", "Python", "Lausanne").
+            title, description, topics, type, place or organizations (e.g. "single-cell", "Python", "Lausanne").
             The user can still change it
+        from_date: Show courses starting from this date (YYYY-MM-DD), today by default
+        limit: Maximum number of courses, and of learning resources
     """
     filter_text = (filter_text or "").strip() or None
     from_date = from_date or date.today().isoformat()
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", from_date):
         raise ToolError(f"Invalid date {from_date!r}, use the YYYY-MM-DD format")
-    query = upcoming_trainings_query(organization.strip(), from_date, limit)
+    org = organization.strip()
+    courses_query = upcoming_courses_query(org, from_date, limit)
+    resources_query = learning_resources_query(org, limit)
+    # Both kinds are always retrieved, so the user can switch between them in the view
     try:
-        res = await query_sparql(query)
+        courses_res, resources_res = await asyncio.gather(query_sparql(courses_query), query_sparql(resources_query))
     except httpx.HTTPError as e:
         raise ToolError(f"Could not query the SPARQL endpoint: {e!r}") from e
-    trainings = [to_training(r) for r in bindings(res)]
+    courses = [to_training(r, "course") for r in bindings(courses_res)]
+    resources = [to_training(r, "learning_resource") for r in bindings(resources_res)]
     data: TrainingsData = {
         "organization": organization,
         "fromDate": from_date,
-        "total": len(trainings),
-        "trainings": trainings,
-        "query": query,
+        "trainings": courses + resources,
+        "query": f"# Upcoming courses\n{courses_query}\n\n# Learning resources\n{resources_query}",
         "filter": filter_text,
+        "kind": kind,
     }
-    if not trainings:
+    if not courses and not resources:
         text = (
-            f"No trainings found from {from_date} for organizations matching {organization!r}. "
+            f"No courses from {from_date} nor learning resources found for organizations matching {organization!r}. "
             "Try a shorter or different name, e.g. an acronym."
         )
-    else:
-        # Same matching as the filter box of the widget
-        shown = [t for t in trainings if filter_text.lower() in training_text(t)] if filter_text else trainings
-        text = "\n".join(
-            [
-                f"Shown to the user: {len(trainings)} trainings from {from_date} of organizations matching {organization!r}"
-                + (" (limit reached)" if len(trainings) >= limit else ""),
-                *([f"Filtered on {filter_text!r}: {len(shown)} trainings match"] if filter_text else []),
-                f"Providers: {top_counts(o for t in shown for o in t['organizations'])}",
-                f"Modes: {top_counts(t['mode'] or 'unknown' for t in shown)}",
-                f"Countries: {top_counts(t['country'] or 'unknown' for t in shown)}",
-                "First trainings:",
-                *[training_line(t) for t in shown[:15]],
-            ]
-        )
-    return CallToolResult(content=[TextContent(type="text", text=text)], structured_content=dict(data))
+        return CallToolResult(content=[TextContent(type="text", text=text)], structured_content=dict(data))
+
+    # Same filters as the initial state of the widget
+    def shown(trainings: list[Training]) -> list[Training]:
+        return [t for t in trainings if filter_text.lower() in training_text(t)] if filter_text else trainings
+
+    lines = [
+        f"Shown to the user: {len(courses)} courses from {from_date} and {len(resources)} learning resources "
+        f"of organizations matching {organization!r}"
+        + (f", selected kind: {kind}" if kind != "all" else "")
+        + (f", filtered on {filter_text!r}" if filter_text else "")
+    ]
+    if kind != "learning_resources":
+        lines += trainings_summary(shown(courses), "courses", limit)
+    if kind != "courses":
+        lines += trainings_summary(shown(resources), "learning resources", limit)
+    if len(lines) == 1:
+        lines.append(f"No {kind.replace('_', ' ')} match the filter")
+    return CallToolResult(content=[TextContent(type="text", text="\n".join(lines))], structured_content=dict(data))
 
 
 apps.add_html_resource(
-    "ui://elixir-training/upcoming-trainings.html",
-    (WIDGETS / "upcoming-trainings.html").read_text(),
-    title="Upcoming trainings",
+    "ui://elixir-training/trainings.html",
+    (WIDGETS / "trainings.html").read_text(),
+    title="Trainings",
     # marked and DOMPurify, to render the markdown descriptions, are loaded from jsDelivr
     csp=ResourceCsp(resource_domains=["https://cdn.jsdelivr.net"]),
 )
