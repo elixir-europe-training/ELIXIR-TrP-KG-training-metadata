@@ -6,33 +6,9 @@ Follows on from 2025 Project 18: Mining the potential of knowledge graphs for me
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/elixir-training-mcp.svg?logo=python&label=Python&logoColor=silver)](https://pypi.org/project/elixir-training-mcp/)
 [![Generate paper PDF](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata/actions/workflows/paper.yml/badge.svg)](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata/actions/workflows/paper.yml)
 
-## Abstract 2026
+This project integrates the metadata of ELIXIR training resources (materials, courses, events and their instructors, harvested weekly from [TeSS](https://tess.elixir-europe.org), the [Galaxy Training Network](https://training.galaxyproject.org) and the [SciLifeLab Training Portal](https://training.scilifelab.se)) in a single knowledge graph, served by a [QLever](https://github.com/ad-freiburg/qlever) SPARQL endpoint with example queries and a VoID description of its schema. The graph is made AI agent ready with an [MCP](https://modelcontextprotocol.io) server, which lets agents find relevant example queries and classes, run SPARQL queries, and show interactive views of the trainings, along with a chat agent using it.
 
-Training registries such as TeSS and Glittr.org contain a rich body of metadata describing training materials, events, and contributors across the life‑science and biomedical domains. Although this information is represented in RDF, it remains insufficiently interconnected with other knowledge resources and is not easily discoverable or queryable by end users or automated systems. As a result, much of its potential value for learners, trainers, and research infrastructure professionals remains untapped.
-
-This project will deliver a publicly available, continuously updated knowledge graph (KG) for training resources. The training KG will be made available alongside major Swiss Institute of Bioinformatics (SIB) knowledge graphs within the Expasy ecosystem. This co‑location will allow users to query and explore training data using the same tools, interfaces, and usage patterns they already employ for other available resources.
-
-We will focus on improving data quality, interoperability, and reusability across existing training registries. Author identification and attribution will be strengthened by leveraging persistent identifiers such as ORCID, enabling rich, reusable contributor profiles, while shared schemas will be used to harmonize metadata. By following SIB best practices for exposing SPARQL endpoints, including example queries and clear schemas, the KG will be FAIR, self-describing, and easily reusable by downstream users and services.
-
-A key innovation is enabling direct interaction with the linked data through a conversational interface. The training KG will be federated within the Expasy portal alongside resources such as UniProt and Bgee, improving cross‑resource discovery, visibility, and sustainability, supporting reuse by humans and agents.
-
-
-## Abstract 2025
-
-Knowledge graphs (KGs) can greatly increase the potential of data by revealing hidden relationships and turning it into useful information. A KG is a graph-based representation of data that stores relations between subjects, predicates and objects in triplestores. These entities are typically described in pre-defined ontologies, which increase interoperability and connect data that would otherwise remain isolated in siloed databases. This structured data representation can greatly facilitate complex querying and applications to deep learning approaches like generative AI.
-
-ELIXIR and its Nodes are making a major effort to make the wealth of open training materials on the computational life sciences reusable, amongst others by guidelines and support for annotating training materials with standardized metadata. One major step in standardizing metadata is the use of the Bioschemas training profile, which became a standard for representing training metadata. Despite being standardized and interoperable, there is still a lot of potential to turn these resources into valuable information, linking training data across various databases.
-
-In this project, we aim to create queryable KGs derived from training metadata in the Bioschemas format available from platforms like TeSS and glittr.org. In a subsequent step, we will investigate the potential of such KGs for several use cases, including construction of custom learning paths, creation of detailed trainer profiles, and connection of  training metadata to other databases. These use-cases will also shed light on the limits on the currently available metadata, and will help to make future choices on richer metadata and standards.
-
-## Leads
-
-2026: Panayiotis Smeros, Vincent Emonet, Phil Reed
-
-2025: Geert van Geest, Harshita Gupta, Vincent Emonet
-
-> [!NOTE]
-> The following content is from the 2025 project
+**Leads** · 2026: Panayiotis Smeros, Vincent Emonet, Phil Reed · 2025: Geert van Geest, Harshita Gupta, Vincent Emonet
 
 ## 🚜 Harvesting training data
 
@@ -73,13 +49,9 @@ uv run src/elixir_training_mcp/harvest/harvest_scilifelab.py
 >
 > TeSS contains training materials and courses from various providers, such as GTN (Galaxy Training Network) training materials. Metadata about material in TeSS and GTN can be matched on `schema:url`
 
-Deploy a SPARQL endpoint on http://localhost:8000:
+## 🗄️ SPARQL endpoint
 
-```sh
-uv run rdflib-endpoint serve data/*.ttl
-```
-
-Or deploy a QLever SPARQL endpoint on http://localhost:7001, loading each `data/*.ttl` file in its own named graph. Create a `.env` file with an access token used for SPARQL updates (to insert the VoID description generated from the graph):
+Deploy the QLever SPARQL endpoint on http://localhost:7001, loading each `data/*.ttl` file in its own named graph. Create a `.env` file with an access token used for SPARQL updates (to insert the VoID description generated from the graph):
 
 ```sh
 echo "QLEVER_ACCESS_TOKEN=$(openssl rand -hex 24)" > .env
@@ -205,7 +177,7 @@ The issues are opened by a dedicated GitHub App, and only the issues of this App
    GITHUB_APP_PRIVATE_KEY_PATH=/path/to/elixir-trainer-harvest.private-key.pem
    ```
 
-5. Set the `HARVEST_ISSUE_AUTHOR` repository variable to the login of the App bot: `elixir-trainer-harvest[bot]`
+The `fix-harvest` workflow only runs for the issues opened by the login of the App bot, `elixir-trainer-harvest[bot]`, set in the workflow.
 
 #### Setup on GitHub
 
@@ -213,9 +185,8 @@ By a repository admin, in the repository **Settings**:
 
 1. Create the `harvest-failure` label: `gh label create harvest-failure --color B60205 --description "Weekly update failure, starts the fix-harvest workflow"`
 2. **Environments > New environment** `fix-harvest`: restrict **Deployment branches** to `main`, and add the `CLAUDE_CODE_OAUTH_TOKEN` secret, generated by a maintainer with a Claude Pro or Max subscription by running `claude setup-token`. The fix runs count against the usage limits of this subscription
-3. **Secrets and variables > Actions > Variables**: add `HARVEST_ISSUE_AUTHOR=elixir-trainer-harvest[bot]`, the login of the App bot. The workflow never runs while it is not set
-4. **Actions > General**: enable **Allow GitHub Actions to create and approve pull requests** (if disabled at the organization level, an owner has to allow it)
-5. **Rules > Rulesets**: protect `main`, requiring a pull request with one approval, so the fixes are only deployed after review
+3. **Actions > General**: enable **Allow GitHub Actions to create and approve pull requests** (if disabled at the organization level, an owner has to allow it)
+4. **Rules > Rulesets**: protect `main`, requiring a pull request with one approval, so the fixes are only deployed after review
 
 Check lint and types:
 

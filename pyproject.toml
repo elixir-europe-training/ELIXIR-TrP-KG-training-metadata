@@ -54,7 +54,6 @@ dev = [
     "mypy >=1.18.0",
     "ruff >=0.14.0",
     "pre-commit >=4.3.0",
-    "rdflib-endpoint[cli]>=0.5.3",
 ]
 
 [project.urls]
