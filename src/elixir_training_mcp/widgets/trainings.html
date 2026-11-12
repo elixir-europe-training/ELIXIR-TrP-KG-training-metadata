@@ -229,10 +229,51 @@
         border: 1px solid var(--border);
         color: var(--muted);
       }
-      .ask {
+      .actions {
         margin-left: auto;
+        display: flex;
+        gap: 4px;
+        position: relative;
+      }
+      .actions > button {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
         font-size: 12px;
         padding: 2px 9px;
+      }
+      /* "Add to calendar" dropdown, like the one of TeSS */
+      .cal-menu {
+        position: absolute;
+        right: 0;
+        top: calc(100% + 4px);
+        z-index: 2;
+        min-width: 200px;
+        padding: 4px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+      }
+      .cal-menu a,
+      .cal-menu button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        padding: 6px 8px;
+        border: none;
+        border-radius: 6px;
+        background: none;
+        color: var(--fg);
+        font-size: 12px;
+        text-align: left;
+        text-decoration: none;
+      }
+      .cal-menu a:hover,
+      .cal-menu button:hover {
+        background: var(--accent-soft);
+        color: var(--accent);
       }
       .empty {
         color: var(--muted);
@@ -289,6 +330,13 @@
       const KINDS = { all: "All", courses: "Courses", learning_resources: "Learning resources" };
       const isCourse = (t) => t.kind === "course";
       // Book icon in the badge of learning resources, which have no date
+      const ICON = (d) =>
+        `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+      const CALENDAR = ICON(`<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>`);
+      const DOWNLOAD = ICON(`<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/>`);
+      const GOOGLE = ICON(`<path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 12h-9"/>`);
+      const CARET = ICON(`<path d="M6 9l6 6 6-6"/>`);
+      let hostCapabilities = {};
       const BOOK = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg>`;
 
       // Theme and style variables of the host context
@@ -366,6 +414,84 @@
         select("type", state.kind !== "courses" ? resources : [], "resourceType", "All types");
       }
 
+      // Calendar dates of a course: UTC times like 20261112T090000Z, or all-day dates like 20261112 when there is
+      // no time, with an exclusive end date as expected by Google Calendar and iCalendar
+      function calendarDates(t) {
+        const parse = (s) => s?.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?/);
+        const start = parse(t.startDate);
+        const end = parse(t.endDate) ?? start;
+        if (!start[4]) {
+          const next = new Date(Date.UTC(+end[1], +end[2] - 1, +end[3] + 1));
+          return { allDay: true, start: start.slice(1, 4).join(""), end: next.toISOString().slice(0, 10).replaceAll("-", "") };
+        }
+        const time = (m) => `${m[1]}${m[2]}${m[3]}T${m[4] ?? "00"}${m[5] ?? "00"}${m[6] ?? "00"}Z`;
+        return { allDay: false, start: time(start), end: time(end[4] ? end : start) };
+      }
+      const calendarLocation = (t) => [t.locality, t.country].filter(Boolean).join(", ") || t.mode || "";
+
+      const googleCalendarUrl = (t) => {
+        const { start, end } = calendarDates(t);
+        const params = new URLSearchParams({ action: "TEMPLATE", text: t.name, dates: `${start}/${end}`, details: t.url ?? "", location: calendarLocation(t) });
+        return `https://calendar.google.com/calendar/render?${params}`;
+      };
+
+      /** iCalendar file of a course, with escaped text values and lines folded at 75 characters */
+      function icsFile(t) {
+        const text = (s) => String(s ?? "").replace(/[\\;,]/g, (c) => "\\" + c).replace(/\r?\n/g, "\\n");
+        const { allDay, start, end } = calendarDates(t);
+        const date = allDay ? ";VALUE=DATE" : "";
+        const lines = [
+          "BEGIN:VCALENDAR",
+          "VERSION:2.0",
+          "PRODID:-//ELIXIR Training//Trainings MCP App//EN",
+          "BEGIN:VEVENT",
+          `UID:${t.id}`,
+          `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").slice(0, 15)}Z`,
+          `DTSTART${date}:${start}`,
+          `DTEND${date}:${end}`,
+          `SUMMARY:${text(t.name)}`,
+          ...(t.url ? [`URL:${t.url}`, `DESCRIPTION:${text(t.url)}`] : []),
+          ...(calendarLocation(t) ? [`LOCATION:${text(calendarLocation(t))}`] : []),
+          "END:VEVENT",
+          "END:VCALENDAR",
+        ];
+        return lines.map((l) => l.match(/.{1,74}/g).join("\r\n ")).join("\r\n") + "\r\n";
+      }
+
+      /** Download the .ics file through the host, the iframe sandbox blocks direct downloads, else with a link */
+      function saveEvent(t) {
+        const content = icsFile(t);
+        const name = `${t.name.replace(/[^\w-]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "event"}.ics`;
+        const direct = () => {
+          const a = Object.assign(document.createElement("a"), {
+            href: URL.createObjectURL(new Blob([content], { type: "text/calendar" })),
+            download: name,
+          });
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        };
+        if (!hostCapabilities.downloadFile) return direct();
+        request("ui/download-file", {
+          contents: [{ type: "resource", resource: { uri: `file:///${name}`, mimeType: "text/calendar", text: content } }],
+        }).catch(direct);
+      }
+
+      // Open or close a calendar menu, scrolling the list so an opened menu is not cut at its bottom
+      function toggleMenu(menu, open) {
+        menu.hidden = !open;
+        menu.previousElementSibling.setAttribute("aria-expanded", open);
+        if (!open) return;
+        const list = $("list");
+        const overflow = menu.getBoundingClientRect().bottom - list.getBoundingClientRect().bottom + 4;
+        if (overflow > 0) list.scrollTop += overflow;
+      }
+
+      const calendarDropdown = (t) => `<button class="cal-btn" aria-haspopup="true" aria-expanded="false">${CALENDAR} Add to calendar ${CARET}</button>
+                  <div class="cal-menu" hidden>
+                    <a href="${esc(googleCalendarUrl(t))}" target="_blank" rel="noopener">${GOOGLE} Google Calendar</a>
+                    <button class="ics" data-index="${data.trainings.indexOf(t)}">${DOWNLOAD} Save event (.ics file)</button>
+                  </div>`;
+
       /** Card of a course, with its dates, or of a learning resource, with its type and publication date */
       function card(t) {
         let badge, meta;
@@ -396,7 +522,10 @@
               <div class="tags">
                 ${t.organizations.map((o) => `<span class="tag" title="Organization">${esc(o)}</span>`).join("")}
                 ${t.keywords.map((k) => `<span class="tag">#${esc(k)}</span>`).join("")}
-                <button class="ask" data-index="${data.trainings.indexOf(t)}">Ask about it</button>
+                <span class="actions">
+                  <button class="ask" data-index="${data.trainings.indexOf(t)}">Ask about it</button>
+                  ${isCourse(t) && t.startDate ? calendarDropdown(t) : ""}
+                </span>
               </div>
             </div>
           </div>`;
@@ -453,6 +582,13 @@
           e.preventDefault();
           request("ui/open-link", { url: link.href }).catch(() => window.open(link.href, "_blank", "noopener"));
         }
+        // Calendar dropdown toggled by its button, closed by any other click
+        const calBtn = e.target.closest(".cal-btn");
+        for (const menu of document.querySelectorAll(".cal-menu:not([hidden])"))
+          if (menu.previousElementSibling !== calBtn) toggleMenu(menu, false);
+        if (calBtn) toggleMenu(calBtn.nextElementSibling, calBtn.nextElementSibling.hidden);
+        const ics = e.target.closest(".ics");
+        if (ics) saveEvent(data.trainings[+ics.dataset.index]);
         const more = e.target.closest(".more");
         if (more) {
           const desc = more.previousElementSibling;
@@ -517,7 +653,8 @@
         appInfo: { name: "Trainings", version: "0.1.0" },
         appCapabilities: {},
       }).then((r) => {
-        applyContext(r.hostContext);
+        hostCapabilities = r?.hostCapabilities ?? {};
+        applyContext(r?.hostContext);
         notify("ui/notifications/initialized", {});
       });
     </script>

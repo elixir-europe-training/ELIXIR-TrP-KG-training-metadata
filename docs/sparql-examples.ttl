@@ -484,4 +484,4 @@ WHERE {
 """ ;
     schema:keywords "course", "provider", "ELIXIR", "ROR", "wikidata" ;
     schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> ;
-    spec:federatesWith <https://query.wikidata.org/sparql>, <https://sib-people-rdf.jerven-bolleman.workers.dev/sparql> .
+    spex:federatesWith <https://query.wikidata.org/sparql>, <https://sib-people-rdf.jerven-bolleman.workers.dev/sparql> .

@@ -1,18 +1,10 @@
 """Harvest training data from TeSS repositories.
 
-This module provides functionality to harvest all training materials or events
-from a TeSS (Training e-Support System) repository using the JSON:API format.
-
-Features:
-- Paginated iteration through TeSS data
-- Parallel fetching of JSON-LD data (5 at a time)
-- Support for both events and materials endpoints
+Downloads the full JSON-LD dumps of training materials and events from a
+TeSS (Training e-Support System) repository, and converts them to Turtle.
 """
 
-import asyncio
-import json
 from pathlib import Path
-from typing import Any
 
 import httpx
 from rdflib import Graph, URIRef
@@ -159,102 +151,35 @@ def enrich_locations_osm(g: Graph) -> None:
 
 
 
-async def harvest_tess_data(
-    repo_url: str,
-    resource_types: list[str],
-    per_page: int = 100,
-    max_concurrent: int = 5,
-) -> list[dict[str, Any]]:
-    """Harvest all data from a TeSS repository.
+def harvest_tess_data(repo_url: str, resource_types: list[str]) -> Graph:
+    """Harvest TeSS events and materials from their full JSON-LD dumps into data/tess_harvest.ttl.
 
-    Fetches paginated data from a TeSS repository and retrieves the full JSON-LD
-    representation for each resource. Processes items page by page, and fetches
-    JSON-LD data 5 at a time in parallel.
+    Each `{repo_url}/{resource_type}.jsonld` returns a JSON-LD array with all the resources
+    of this type (expired events included), so no pagination or per-resource fetching is needed.
 
     Args:
-        repo_url: Base URL of the TeSS repository
-            (e.g., "https://tess.elixir-europe.org")
-        resource_type: Type of resource to harvest - "events" or "materials"
-            (default: "events")
-        per_page: Number of items per page (default: 100)
-        max_concurrent: Maximum number of concurrent JSON-LD fetches
-            (default: 5)
+        repo_url: Base URL of the TeSS repository (e.g. "https://tess.elixir-europe.org")
+        resource_types: Types of resources to harvest, e.g. ["materials", "events"]
 
     Returns:
-        List of all harvested resources with their full JSON-LD data
+        The harvested RDFLib Graph
 
     Raises:
-        httpx.HTTPError: If any HTTP request fails
-
-    Example:
-        >>> data = await harvest_tess_data(
-        ...     "https://tess.elixir-europe.org",
-        ...     resource_type="events"
-        ... )
+        httpx.HTTPError: If downloading a dump fails
     """
     base_url = repo_url.rstrip("/")
-    all_data: list[dict[str, Any]] = []
     g = Graph()
     g.bind("schema", SCHEMA)
 
-    async with httpx.AsyncClient(follow_redirects=True, timeout=20, headers={"User-Agent": USER_AGENT}) as client:
+    with httpx.Client(follow_redirects=True, timeout=300, headers={"User-Agent": USER_AGENT}) as client:
         for resource_type in resource_types:
-            page_number = 1
-            while True:
-                # Fetch a page of data
-                page_url = f"{base_url}/{resource_type}.json_api?per_page={per_page}&page_number={page_number}&include_expired=true"
-                # include_expired=true
+            dump_url = f"{base_url}/{resource_type}.jsonld"
+            print(f"Downloading {dump_url}")
+            response = client.get(dump_url, headers={"accept": JSONLD_ACCEPT})
+            response.raise_for_status()
+            print(f"Parsing {len(response.json())} {resource_type}")
+            g.parse(data=response.text, format="json-ld")
 
-                print(f"Fetching page {page_number}: {page_url}")
-                response = await client.get(page_url, headers={"accept": "application/vnd.api+json"})
-                response.raise_for_status()
-                page_data = response.json()
-
-                # Extract items from this page
-                items = page_data.get("data", [])
-                if not items:
-                    break
-
-                # Collect the self links for JSON-LD fetching
-                jsonld_urls = []
-                for item in items:
-                    if "links" in item and "self" in item["links"]:
-                        self_link = item["links"]["self"]
-                        jsonld_url = f"{base_url}{self_link}.jsonld"
-                        jsonld_urls.append(jsonld_url)
-
-                # Fetch JSON-LD data in parallel (5 at a time)
-                print(f"Fetching {len(jsonld_urls)} JSON-LD resources in parallel...")
-                jsonld_data = await _fetch_jsonld_parallel(client, jsonld_urls, max_concurrent=max_concurrent)
-
-                # Create tess data folder if it doesn't exist
-                tess_data_dir = Path("data/tess")
-                tess_data_dir.mkdir(parents=True, exist_ok=True)
-
-                # Load each JSON-LD file into the graph and dump to individual files
-                for idx, jsonld_item in enumerate(jsonld_data):
-                    if jsonld_item:
-                        g.parse(data=json.dumps(jsonld_item), format="json-ld")
-
-                        # # Generate filename from resource ID or use index as fallback
-                        # resource_id = jsonld_item.get("@id", "").split("/")[-1] or f"resource_{idx}"
-                        # filename = f"{resource_type}_{resource_id}.jsonld"
-                        # filepath = tess_data_dir / filename
-
-                        # # Dump individual JSON-LD file
-                        # with open(filepath, "w") as f:
-                        #     json.dump(jsonld_item, f, indent=2)
-
-                all_data.extend(jsonld_data)
-
-                # Check if there are more pages
-                links = page_data.get("links", {})
-                if "next" not in links:
-                    break
-
-                page_number += 1
-
-    # g.parse("data/tess_harvest.ttl", format="ttl")
     to_https_schema(g)
     # Enrich graph with canonical ROR URI for SIB
     enrich_sib_organization(g)
@@ -262,52 +187,13 @@ async def harvest_tess_data(
     # Save next to the other harvested graphs in data/ (loaded by the Qlever triplestore)
     Path("data").mkdir(exist_ok=True)
     g.serialize("data/tess_harvest.ttl", format="ttl")
-    print(f"Harvested {len(all_data)} total resources")
-    return all_data
-
-
-async def _fetch_jsonld_parallel(
-    client: httpx.AsyncClient,
-    urls: list[str],
-    max_concurrent: int = 5,
-) -> list[dict[str, Any]]:
-    """Fetch JSON-LD data from multiple URLs in parallel.
-
-    Fetches JSON-LD data with a concurrency limit to avoid overwhelming the server.
-
-    Args:
-        client: httpx AsyncClient instance
-        urls: List of JSON-LD URLs to fetch
-        max_concurrent: Maximum number of concurrent requests
-
-    Returns:
-        List of parsed JSON-LD data
-
-    Raises:
-        httpx.HTTPError: If any request fails
-    """
-    results: list[dict[str, Any]] = []
-    semaphore = asyncio.Semaphore(max_concurrent)
-
-    async def fetch_one(url: str) -> dict[str, Any]:
-        async with semaphore:
-            # print(f"  Fetching: {url}")
-            response = await client.get(url, headers={"accept": JSONLD_ACCEPT})
-            response.raise_for_status()
-            return response.json()
-
-    # Create tasks for all URLs
-    tasks = [fetch_one(url) for url in urls]
-
-    # Run all tasks concurrently
-    results = await asyncio.gather(*tasks)
-
-    return results
+    print(f"Harvested {len(g)} triples in data/tess_harvest.ttl")
+    return g
 
 
 if __name__ == "__main__":
-    asyncio.run(harvest_tess_data("https://tess.elixir-europe.org", ["materials", "events"]))
-    # 237 events / 3335 materials
+    harvest_tess_data("https://tess.elixir-europe.org", ["materials", "events"])
+    # 4620 materials / 16782 events (2026-11)
 
 
 # NOTE: in TeSS `schema:name "TheAlgorithms/Python" ;` matches the slug of the github repo URL
