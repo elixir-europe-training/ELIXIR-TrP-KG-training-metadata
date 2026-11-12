@@ -66,6 +66,7 @@ Source = "https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metad
 
 [project.scripts]
 elixir-trainer = "elixir_training_mcp.main:cli"
+elixir-trainer-harvest = "elixir_training_mcp.harvest.run:cli"
 
 ## TOOLS
 [tool.hatch.version]

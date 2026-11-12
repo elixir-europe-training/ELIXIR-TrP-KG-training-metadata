@@ -456,7 +456,7 @@ def nodes_to_nquads(nodes: list[dict[str, Any]]) -> Any:
     return nquads
 
 
-def jsonld_to_ttl() -> None:
+def jsonld_to_ttl(jsonld_dir: Path = JSONLD_DIR, output: Path = OUTPUT_TTL) -> Graph:
     """Main entry point: load all JSON-LD files and serialize to Turtle.
 
     Processes all .jsonld files in JSONLD_DIR, converts them to RDF triples using
@@ -474,8 +474,8 @@ def jsonld_to_ttl() -> None:
         OSError: If output directory cannot be created
         RuntimeError: If unknown context URLs are encountered
     """
-    files = sorted(JSONLD_DIR.rglob("*.jsonld"))
-    print(f"📂 Found {len(files)} JSON-LD files under {JSONLD_DIR}")
+    files = sorted(jsonld_dir.rglob("*.jsonld"))
+    print(f"📂 Found {len(files)} JSON-LD files under {jsonld_dir}")
 
     g = Graph()
     g.bind("schema", "https://schema.org/")
@@ -500,9 +500,17 @@ def jsonld_to_ttl() -> None:
         if i % 100 == 0 or i == len(files):
             print(f"  Processed {i}/{len(files)} | triples: {len(g):,} | files OK:{ok} ERR:{err}")
 
-    OUTPUT_TTL.parent.mkdir(parents=True, exist_ok=True)
-    g.serialize(OUTPUT_TTL, format="turtle")
-    print(f"\n Saved {len(g):,} triples to {OUTPUT_TTL}")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    g.serialize(output, format="turtle")
+    print(f"\n Saved {len(g):,} triples to {output}")
+    return g
+
+
+async def harvest_gtn(output: Path = OUTPUT_TTL, jsonld_dir: Path = JSONLD_DIR, max_urls: int | None = 50) -> Graph:
+    """Scrape the JSON-LD of the GTN pages into `jsonld_dir`, then convert them to a Turtle file"""
+    files = await GTNSitemapScraper(ScrapeConfig(out_dir=jsonld_dir)).scrape_all(max_urls=max_urls)
+    print(f"Saved {len(files)} JSON-LD files to {jsonld_dir}")
+    return jsonld_to_ttl(jsonld_dir, output)
 
 
 if __name__ == "__main__":

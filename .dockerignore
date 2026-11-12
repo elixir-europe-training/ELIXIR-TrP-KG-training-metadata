@@ -11,3 +11,5 @@ user_stories_results
 .mypy_cache
 .ruff_cache
 .pytest_cache
+logs
+scripts

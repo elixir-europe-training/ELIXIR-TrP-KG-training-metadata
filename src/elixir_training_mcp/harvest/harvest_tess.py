@@ -19,6 +19,8 @@ USER_AGENT = "elixir-trainer (+https://github.com/elixir-europe-training/ELIXIR-
 SCHEMA_HTTP = "http://schema.org/"
 SCHEMA = "https://schema.org/"
 
+OUTPUT_TTL = Path("data/tess_harvest.ttl")
+
 
 def to_https_schema(g: Graph) -> None:
     """Rewrite in place every http://schema.org/ IRI (subject, predicate or object) to https://schema.org/."""
@@ -151,8 +153,8 @@ def enrich_locations_osm(g: Graph) -> None:
 
 
 
-def harvest_tess_data(repo_url: str, resource_types: list[str]) -> Graph:
-    """Harvest TeSS events and materials from their full JSON-LD dumps into data/tess_harvest.ttl.
+def harvest_tess_data(repo_url: str, resource_types: list[str], output: Path = OUTPUT_TTL) -> Graph:
+    """Harvest TeSS events and materials from their full JSON-LD dumps into a Turtle file.
 
     Each `{repo_url}/{resource_type}.jsonld` returns a JSON-LD array with all the resources
     of this type (expired events included), so no pagination or per-resource fetching is needed.
@@ -160,6 +162,7 @@ def harvest_tess_data(repo_url: str, resource_types: list[str]) -> Graph:
     Args:
         repo_url: Base URL of the TeSS repository (e.g. "https://tess.elixir-europe.org")
         resource_types: Types of resources to harvest, e.g. ["materials", "events"]
+        output: Turtle file to write, by default data/tess_harvest.ttl (loaded by the Qlever triplestore)
 
     Returns:
         The harvested RDFLib Graph
@@ -184,10 +187,9 @@ def harvest_tess_data(repo_url: str, resource_types: list[str]) -> Graph:
     # Enrich graph with canonical ROR URI for SIB
     enrich_sib_organization(g)
 
-    # Save next to the other harvested graphs in data/ (loaded by the Qlever triplestore)
-    Path("data").mkdir(exist_ok=True)
-    g.serialize("data/tess_harvest.ttl", format="ttl")
-    print(f"Harvested {len(g)} triples in data/tess_harvest.ttl")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    g.serialize(output, format="ttl")
+    print(f"Harvested {len(g)} triples in {output}")
     return g
 
 

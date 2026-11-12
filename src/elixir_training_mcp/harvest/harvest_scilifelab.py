@@ -308,7 +308,7 @@ async def fetch_records(
     return [{**item, **detail} for item, detail in zip(listed, details, strict=True)]
 
 
-async def harvest_scilifelab(max_concurrent: int = 5) -> Graph:
+async def harvest_scilifelab(max_concurrent: int = 5, output: Path = OUTPUT_TTL) -> Graph:
     """Harvest all the events and catalogue courses of the SciLifeLab Training Portal to Bioschemas RDF."""
     async with httpx.AsyncClient(follow_redirects=True, timeout=30, headers={"User-Agent": USER_AGENT}) as client:
         events = await fetch_records(client, "events", max_concurrent=max_concurrent, include_expired="true")
@@ -330,11 +330,11 @@ async def harvest_scilifelab(max_concurrent: int = 5) -> Graph:
     g.bind("schema", SCHEMA)
     g.bind("dct", "http://purl.org/dc/terms/")
 
-    OUTPUT_TTL.parent.mkdir(parents=True, exist_ok=True)
-    g.serialize(OUTPUT_TTL, format="ttl")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    g.serialize(output, format="ttl")
     linked = sum(1 for event in events if event["id"] in course_iris)
     print(f"Harvested {len(events)} events ({linked} linked to a catalogue course) and {len(courses)} courses")
-    print(f"Saved {len(g):,} triples to {OUTPUT_TTL}")
+    print(f"Saved {len(g):,} triples to {output}")
     return g
 
 
