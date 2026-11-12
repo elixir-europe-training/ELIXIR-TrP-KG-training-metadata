@@ -40,6 +40,12 @@ Harvest GTN:
 uv run src/elixir_training_mcp/harvest/harvest_gtn.py
 ```
 
+Harvest the [SciLifeLab Training Portal](https://training.scilifelab.se) (events and catalogue courses):
+
+```sh
+uv run src/elixir_training_mcp/harvest/harvest_scilifelab.py
+```
+
 
 > [!NOTE]
 >
