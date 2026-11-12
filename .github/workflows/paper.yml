@@ -11,19 +11,19 @@ jobs:
 
     - name: biohackathon name given?
       run: |
-        sed -n '/^---$/,/^---$/{//b;p}' paper/paper.md | grep biohackathon_name
+        sed -n '/^---$/,/^---$/{//b;p}' paper_2026/paper.md | grep biohackathon_name
 
     - name: biohackathon location given?
       run: |
-        sed -n '/^---$/,/^---$/{//b;p}' paper/paper.md | grep biohackathon_location
+        sed -n '/^---$/,/^---$/{//b;p}' paper_2026/paper.md | grep biohackathon_location
 
     - name: biohackathon url given?
       run: |
-        sed -n '/^---$/,/^---$/{//b;p}' paper/paper.md | grep biohackathon_url
+        sed -n '/^---$/,/^---$/{//b;p}' paper_2026/paper.md | grep biohackathon_url
 
     - name: Git repository given?
       run: |
-        sed -n '/^---$/,/^---$/{//b;p}' paper/paper.md | grep git_url
+        sed -n '/^---$/,/^---$/{//b;p}' paper_2026/paper.md | grep git_url
 
     - name: Setup Node.js (for Mermaid CLI)
       uses: actions/setup-node@v6
@@ -44,7 +44,7 @@ jobs:
           shopt -s globstar nullglob
 
           found=false
-          for f in paper/diagrams/**/*.mmd paper/diagrams/*.mmd; do
+          for f in paper_2026/diagrams/**/*.mmd paper_2026/diagrams/*.mmd; do
             [ -e "$f" ] || continue
             found=true
             base="${f%.*}"
@@ -55,17 +55,17 @@ jobs:
           done
 
           if [ "$found" = false ]; then
-            echo "No .mmd files found under paper/diagrams/, skipping render."
+            echo "No .mmd files found under paper_2026/diagrams/, skipping render."
           fi
 
     - name: List generated diagrams
-      run: ls -la paper/diagrams || true
+      run: ls -la paper_2026/diagrams || true
 
     - name: Ensure cropped PDFs exist
       run: |
-        compgen -G "paper/diagrams/*.cropped.pdf" >/dev/null || { echo "No cropped PDFs generated!"; exit 1; }
+        compgen -G "paper_2026/diagrams/*.cropped.pdf" >/dev/null || { echo "No cropped PDFs generated!"; exit 1; }
         echo "Cropped PDFs found:"
-        ls -1 paper/diagrams/*.cropped.pdf
+        ls -1 paper_2026/diagrams/*.cropped.pdf
 
     - uses: kohlerdominik/docker-run-action@v2.0.0
       with:
@@ -73,7 +73,7 @@ jobs:
         volumes: ${{ github.workspace }}:/work
         workdir: /work
         run: |
-          gen-pdf paper
+          gen-pdf paper_2026
 
     - name: Create info file
       run: |
@@ -85,5 +85,5 @@ jobs:
       with:
         name: PDF and info.txt
         path: |
-          paper/paper.pdf
+          paper_2026/paper.pdf
           info.txt
