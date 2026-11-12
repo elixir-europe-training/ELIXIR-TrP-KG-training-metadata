@@ -364,7 +364,7 @@
 
       function render() {
         const orgCount = data.organizations.filter((o) => o.name !== null).length;
-        $("sub").textContent = `${num(data.total)} courses from ${num(orgCount)} organizations, by course mode · harvested from TeSS and GTN`;
+        $("sub").textContent = `${num(data.total)} courses from ${num(orgCount)} organizations, by course mode`;
         $("query").textContent = data.query;
         renderFilters();
         renderLegend();

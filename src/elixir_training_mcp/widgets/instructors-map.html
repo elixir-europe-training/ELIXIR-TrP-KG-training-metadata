@@ -629,8 +629,8 @@
         const people = new Set([...stats.values()].flatMap((s) => [...s.instructors]));
         const countries = [...stats.keys()].filter((k) => k !== NO_LOCATION && k !== "Online").length;
         $("sub").textContent =
-          `${plural(people.size, "instructor")} of ${plural(kept.size, "course")} in ${countries} countries, ` +
-          `harvested from TeSS and GTN. Click a country to list its instructors.`;
+          `${plural(people.size, "instructor")} of ${plural(kept.size, "course")} in ${countries} countries. ` +
+          `Click a country to list its instructors.`;
         renderMap(stats);
         renderCountries(stats);
         renderList(kept);

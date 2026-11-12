@@ -33,7 +33,7 @@ Training Network (GTN), in a knowledge graph using the schema.org and Bioschemas
 To answer a question: search relevant query examples with `get_sparql_examples`, check the classes and predicates with
 `get_sparql_schema`, then run the query with `execute_sparql_query`.
 To show the upcoming trainings of an organization (e.g. SIB, VIB, EMBL-EBI), use `show_upcoming_trainings`: it shows
-them to the user in an interactive view, and returns a summary.
+them to the user in an interactive view, filterable on a text (e.g. a topic), and returns a summary.
 To show where instructors teach, or the instructors of a country, use `show_instructors_map`: it shows a map of the
 instructors by country, filterable by topic, to the user.
 To compare the number of courses of organizations, overall or in a year, and their onsite or online share, use
@@ -86,6 +86,7 @@ class TrainingsData(TypedDict):
     total: int
     trainings: list[Training]
     query: str
+    filter: str | None
 
 
 async def search_docs(queries: list[str], doc_type: DocType) -> list[dict[str, Any]]:
@@ -149,8 +150,8 @@ def to_training(row: dict[str, str]) -> Training:
     # Some harvested values contain HTML entities, e.g. `&amp;`
     row = {k: html.unescape(v) for k, v in row.items()}
     split = lambda key: [v for v in row.get(key, "").split("|") if v]  # noqa: E731
-    # Short plain text description, without the markdown heading lines and line breaks
-    desc = re.sub(r"\s+", " ", re.sub(r"^#+ .*$", "", row.get("description", ""), flags=re.MULTILINE)).strip()
+    # Markdown description, rendered and collapsed by the widget, capped to keep the payload small
+    desc = row.get("description", "").strip()
     return {
         "id": row["course"],
         "name": row["name"],
@@ -160,7 +161,7 @@ def to_training(row: dict[str, str]) -> Training:
         "mode": row.get("mode"),
         "locality": row.get("locality"),
         "country": row.get("country"),
-        "description": (desc[:300] + "...") if len(desc) > 300 else desc or None,
+        "description": (desc[:5000] + "...") if len(desc) > 5000 else desc or None,
         # An organization IRI can have many names (e.g. the ROR ID of SIB), the 2 shortest are kept
         "organizations": sorted(split("organizations"), key=len)[:2],
         "keywords": split("keywords")[:6],
@@ -171,13 +172,21 @@ def top_counts(values: Iterable[str], top: int = 8) -> str:
     return ", ".join(f"{k} ({n})" for k, n in Counter(values).most_common(top))
 
 
+def training_text(t: Training) -> str:
+    """Lowercase text searched by the filter of the widget"""
+    values = [t["name"], t["description"], t["locality"], t["country"], *t["keywords"], *t["organizations"]]
+    return " ".join(v or "" for v in values).lower()
+
+
 def training_line(t: Training) -> str:
     place = ", ".join(v for v in [t["mode"], t["locality"], t["country"]] if v)
     return f"- {t['startDate'][:10]} {t['name']} ({place}) {t['url'] or ''}"
 
 
 @apps.tool(resource_uri="ui://elixir-training/upcoming-trainings.html", annotations=READ_ONLY)
-async def show_upcoming_trainings(organization: str, from_date: str | None = None, limit: int = 300) -> CallToolResult:
+async def show_upcoming_trainings(
+    organization: str, from_date: str | None = None, limit: int = 300, filter_text: str | None = None
+) -> CallToolResult:
     """Show the upcoming trainings (courses and events) of an organization to the user in an interactive view, with
     their dates, mode, location and topics. Only a summary is returned to you, do not repeat the list in your answer.
 
@@ -187,7 +196,11 @@ async def show_upcoming_trainings(organization: str, from_date: str | None = Non
             https://ror.org/002n09z45)
         from_date: Show trainings starting from this date (YYYY-MM-DD), today by default
         limit: Maximum number of trainings
+        filter_text: Text prefilled in the filter box of the view, to show only the trainings with this text in their
+            title, description, topics, place or organizations (e.g. "single-cell", "Python", "Lausanne").
+            The user can still change it
     """
+    filter_text = (filter_text or "").strip() or None
     from_date = from_date or date.today().isoformat()
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", from_date):
         raise ToolError(f"Invalid date {from_date!r}, use the YYYY-MM-DD format")
@@ -203,6 +216,7 @@ async def show_upcoming_trainings(organization: str, from_date: str | None = Non
         "total": len(trainings),
         "trainings": trainings,
         "query": query,
+        "filter": filter_text,
     }
     if not trainings:
         text = (
@@ -210,15 +224,18 @@ async def show_upcoming_trainings(organization: str, from_date: str | None = Non
             "Try a shorter or different name, e.g. an acronym."
         )
     else:
+        # Same matching as the filter box of the widget
+        shown = [t for t in trainings if filter_text.lower() in training_text(t)] if filter_text else trainings
         text = "\n".join(
             [
                 f"Shown to the user: {len(trainings)} trainings from {from_date} of organizations matching {organization!r}"
                 + (" (limit reached)" if len(trainings) >= limit else ""),
-                f"Providers: {top_counts(o for t in trainings for o in t['organizations'])}",
-                f"Modes: {top_counts(t['mode'] or 'unknown' for t in trainings)}",
-                f"Countries: {top_counts(t['country'] or 'unknown' for t in trainings)}",
+                *([f"Filtered on {filter_text!r}: {len(shown)} trainings match"] if filter_text else []),
+                f"Providers: {top_counts(o for t in shown for o in t['organizations'])}",
+                f"Modes: {top_counts(t['mode'] or 'unknown' for t in shown)}",
+                f"Countries: {top_counts(t['country'] or 'unknown' for t in shown)}",
                 "First trainings:",
-                *[training_line(t) for t in trainings[:15]],
+                *[training_line(t) for t in shown[:15]],
             ]
         )
     return CallToolResult(content=[TextContent(type="text", text=text)], structured_content=dict(data))
@@ -228,6 +245,8 @@ apps.add_html_resource(
     "ui://elixir-training/upcoming-trainings.html",
     (WIDGETS / "upcoming-trainings.html").read_text(),
     title="Upcoming trainings",
+    # marked and DOMPurify, to render the markdown descriptions, are loaded from jsDelivr
+    csp=ResourceCsp(resource_domains=["https://cdn.jsdelivr.net"]),
 )
 
 

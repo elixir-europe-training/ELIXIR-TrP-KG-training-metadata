@@ -2,6 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <!-- Markdown rendering of the descriptions, sanitized since they come from external sources -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
     <style>
       /* Colors from the host style variables of the MCP Apps spec when it sends them, so the widget blends in the chat */
       :root {
@@ -123,7 +126,6 @@
         font-size: 14px;
         color: var(--fg);
         text-decoration: none;
-        cursor: pointer;
       }
       .title:hover {
         color: var(--accent);
@@ -140,9 +142,54 @@
         color: var(--accent);
         font-weight: 600;
       }
+      /* Rendered markdown, collapsed to about 3 lines with a fade until expanded */
       .desc {
-        margin: 4px 0;
+        margin: 4px 0 0;
         overflow-wrap: anywhere;
+      }
+      .desc.collapsed {
+        max-height: 4.4em;
+        overflow: hidden;
+        mask-image: linear-gradient(to bottom, #000 55%, transparent);
+      }
+      .desc > :first-child {
+        margin-top: 0;
+      }
+      .desc > :last-child {
+        margin-bottom: 0;
+      }
+      .desc p,
+      .desc ul,
+      .desc ol {
+        margin: 0 0 6px;
+      }
+      .desc ul,
+      .desc ol {
+        padding-left: 20px;
+      }
+      .desc :is(h1, h2, h3, h4, h5, h6) {
+        font-size: 13px;
+        margin: 8px 0 4px;
+      }
+      .desc a {
+        color: var(--accent);
+      }
+      .desc img {
+        display: none;
+      }
+      .desc code {
+        font-size: 12px;
+      }
+      .more {
+        border: none;
+        background: none;
+        padding: 0;
+        color: var(--accent);
+        font-size: 12px;
+        margin-bottom: 4px;
+      }
+      .more:hover {
+        text-decoration: underline;
       }
       .tags {
         display: flex;
@@ -219,6 +266,16 @@
           if (value) document.documentElement.style.setProperty(name, value);
       };
 
+      // Sanitized HTML of a markdown text, links open in a new tab, plain text if the libraries did not load
+      if (window.DOMPurify)
+        DOMPurify.addHook("afterSanitizeAttributes", (node) => {
+          if (node.tagName === "A") node.setAttribute("target", "_blank"), node.setAttribute("rel", "noopener");
+        });
+      const markdown = (text) =>
+        window.marked && window.DOMPurify
+          ? DOMPurify.sanitize(marked.parse(text, { breaks: true }))
+          : `<p style="white-space: pre-line">${esc(text)}</p>`;
+
       // Dates are strings like "2026-05-27 09:00:00 UTC"
       const parseDate = (s) => (s ? new Date(s.slice(0, 10) + "T00:00:00") : null);
       const fmt = (d, opts) => d.toLocaleDateString(undefined, opts);
@@ -279,13 +336,13 @@
           html += `<div class="card">
             <div class="date"><div class="day">${start.getDate()}</div><div class="mon">${fmt(start, { month: "short" })}</div></div>
             <div>
-              <a class="title" data-url="${esc(t.url)}">${esc(t.name)}</a>
+              ${t.url ? `<a class="title" href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.name)}</a>` : `<span class="title">${esc(t.name)}</span>`}
               <div class="meta">
                 <span>${esc(range)}</span>
                 ${t.mode ? `<span class="mode">${esc(t.mode)}</span>` : ""}
                 ${place ? `<span>${esc(place)}</span>` : ""}
               </div>
-              ${t.description ? `<div class="desc">${esc(t.description)}</div>` : ""}
+              ${t.description ? `<div class="desc collapsed">${markdown(t.description)}</div><button class="more" hidden>Show more</button>` : ""}
               <div class="tags">
                 ${t.organizations.map((o) => `<span class="tag" title="Organization">${esc(o)}</span>`).join("")}
                 ${t.keywords.map((k) => `<span class="tag">#${esc(k)}</span>`).join("")}
@@ -295,13 +352,21 @@
           </div>`;
         });
         $("list").innerHTML = html;
+        // "Show more" only for the descriptions cut by the collapsed height
+        for (const desc of document.querySelectorAll(".desc.collapsed")) {
+          const cut = desc.scrollHeight > desc.clientHeight + 2;
+          desc.classList.toggle("collapsed", cut);
+          desc.nextElementSibling.hidden = !cut;
+        }
         resize();
       }
 
       function render() {
         $("title").textContent = `Upcoming trainings · ${data.organization}`;
-        $("sub").textContent = `${data.total} trainings from ${data.fromDate}, harvested from TeSS and GTN`;
+        $("sub").textContent = `${data.total} trainings from ${data.fromDate}`;
         $("query").textContent = data.query;
+        // Filter text prefilled by the model, the user can change it
+        if (data.filter) $("filter").value = data.filter;
         renderFilters();
         renderList();
       }
@@ -309,10 +374,20 @@
       // Height of the body content: the scrollHeight of the document never drops below the iframe height, so it would not shrink
       const resize = () => notify("ui/notifications/size-changed", { height: Math.ceil(document.body.getBoundingClientRect().height) });
 
-      // Links open through the host, the iframe sandbox blocks navigation
+      // Links are real anchors (right click, copy address), but a left click opens them through the host,
+      // since the iframe sandbox can block navigation and popups
       document.addEventListener("click", (e) => {
-        const link = e.target.closest(".title");
-        if (link?.dataset.url) request("ui/open-link", { url: link.dataset.url }).catch(() => window.open(link.dataset.url));
+        const link = e.target.closest("a[href]");
+        if (link && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+          e.preventDefault();
+          request("ui/open-link", { url: link.href }).catch(() => window.open(link.href, "_blank", "noopener"));
+        }
+        const more = e.target.closest(".more");
+        if (more) {
+          const desc = more.previousElementSibling;
+          more.textContent = desc.classList.toggle("collapsed") ? "Show more" : "Show less";
+          resize();
+        }
         const mode = e.target.closest("[data-mode]");
         if (mode) {
           state.mode = state.mode === mode.dataset.mode ? null : mode.dataset.mode;
@@ -340,6 +415,7 @@
           delete pending[m.id];
         } else if (m.method === "ui/notifications/tool-input") {
           $("title").textContent = `Upcoming trainings · ${m.params.arguments?.organization ?? ""}`;
+          if (m.params.arguments?.filter_text) $("filter").value = m.params.arguments.filter_text;
         } else if (m.method === "ui/notifications/tool-result") {
           if (m.params.structuredContent) {
             data = m.params.structuredContent;
