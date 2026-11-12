@@ -52,7 +52,7 @@ cito-bibliography: paper.bib
 event: biohackathon2026
 biohackathon_name: "BioHackathon Europe 2026"
 biohackathon_url:   "https://biohackathon-europe.org/"
-biohackathon_location: "Barcelona, Germany, 2026"
+biohackathon_location: "Barcelona, Spain, 2026"
 group: Project 15
 # URL to project git repo --- should contain the actual paper.md:
 git_url: https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata
@@ -69,12 +69,23 @@ authors_short: Vincent Emonet, Phil Reed, et al.
 
 Citation test [@panouris_2025].
 
+Training registries such as ELIXIR TeSS, Glittr.org and SciLifeLab Training contain a rich body of metadata describing training materials, events, and contributors across the life‑science and biomedical domains. Although this information is represented in RDF, it remains insufficiently interconnected with other knowledge resources and is not easily discoverable or queryable by end users or automated systems. As a result, much of its potential value for learners, trainers, and research infrastructure professionals remains untapped.
+
+The Training Resources AI-driveN Exploration Repository (TRAINER) project delivers training metadata from three registries on one public knowledge graph, ready for people and AI agents. It **integrates** TeSS, Glittr and SciLifeLab, harmonized, following the TRX metadata model[@trx_2026]. 
+It is **interactive**, answering SPARQL queries or plain language questions via its MCP server and interactive widgets. 
+It is **publicly available** (in the short term), providing a live endpoint with example queries, with automatic updates possible. 
+
+We focus on improving data quality, interoperability, and reusability across existing training registries. Author identification and attribution is strengthened by leveraging persistent identifiers such as ORCID, enabling rich, reusable contributor profiles, while shared schemas are used to harmonize metadata. By following SIB best practices for exposing SPARQL endpoints, including example queries and clear schemas, the KG ia FAIR, self-describing, and easily reusable by downstream users and services.
+
+A key innovation is enabling direct interaction with the linked data through a conversational interface. The training KG and servers are temporarily hosted thanks to SIB. For TRAINER to be implemented as a permanent, complementary service to ELIXIR TeSS, further discussions are required regarding hosting arrangements and costs. Such an offer would improve cross‑resource discovery, visibility, and sustainability, supporting reuse by humans and agents.
+
 
 # From training repositories to knowledge graph-based interactive user interfaces
 
 
 
 ## Source registries and metadata models
+3 sources: Tess + GTN already there, scilifelab.se NEW. And now Tess serve dump of the JSON-LD so we dont need to run 30min harvesting that queries 1000s of pages
 
 
 
@@ -95,7 +106,7 @@ Citation test [@panouris_2025].
 ### Tool execution lifecycle
 
 # Putting user stories into practice
-
+User-stories revisited and transformed to runnable SPARQL queries and to visualisation widgets
 
 
 ![Project timeline and validation phases. A link to the full diagram is available at the supplemental information.](./diagrams/project-timeline.cropped.pdf)
@@ -111,9 +122,13 @@ We thank the organizers of the BioHackathon Europe 2026 for organizing the event
 
 ## Supplemental information
 
-- [GitHub repository](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata)
+- Tools deployed publicly
+  - SPARQL endpoint: <https://biosoda.unil.ch/elixir-trainer/sparql>
+  - MCP server: <https://biosoda.unil.ch/elixir-trainer/mcp>
+  - Chat UI that uses the MCP server: <https://biosoda.unil.ch/elixir-trainer/>
+- [GitHub repository](https://github.com/elixir-europe-training/ELIXIR-trainer)
 - [Google sheet](https://docs.google.com/spreadsheets/d/19XxU7RF_A9EwVn52FfFpj4qWr7521ETYnIJ7lcIB4ho/edit?gid=0#gid=0) with user stories
 - Diagrams:
-  - [Figure 5. Project timeline](https://github.com/elixir-europe-training/ELIXIR-TrP-KG-training-metadata/blob/main/paper_2026/diagrams/project-timeline.mmd)
+  - [Figure 5. Project timeline](https://github.com/elixir-europe-training/ELIXIR-trainer/blob/main/paper_2026/diagrams/project-timeline.mmd)
 
 ## References
