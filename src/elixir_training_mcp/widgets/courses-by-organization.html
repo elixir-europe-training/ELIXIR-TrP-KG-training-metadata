@@ -1,0 +1,449 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      /* Colors from the host style variables of the MCP Apps spec when it sends them, so the widget blends in the chat */
+      :root {
+        --fg: var(--color-text-primary, #1f2328);
+        --muted: var(--color-text-secondary, #656d76);
+        --bg: var(--color-background-primary, #ffffff);
+        --panel: var(--color-background-secondary, #f6f8fa);
+        --border: var(--color-border-primary, #d0d7de);
+        --grid: #e1e0d9;
+        --accent: #0b7a75;
+        color-scheme: light;
+      }
+      :root[data-theme="dark"] {
+        --fg: var(--color-text-primary, #e6edf3);
+        --muted: var(--color-text-secondary, #8d96a0);
+        --bg: var(--color-background-primary, #0d1117);
+        --panel: var(--color-background-secondary, #161b22);
+        --border: var(--color-border-primary, #30363d);
+        --grid: #2c2c2a;
+        --accent: #3fc1b8;
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 14px 16px;
+        font: 13px/1.45 var(--font-sans, system-ui, sans-serif);
+        color: var(--fg);
+        background: var(--bg);
+      }
+      h1 {
+        font-size: 16px;
+        margin: 0;
+      }
+      .sub {
+        color: var(--muted);
+        margin: 2px 0 12px;
+      }
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      input,
+      select,
+      button {
+        font: inherit;
+        color: inherit;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 5px 9px;
+      }
+      input {
+        flex: 1;
+        min-width: 140px;
+      }
+      button {
+        cursor: pointer;
+      }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 10px;
+        color: var(--muted);
+        font-size: 11px;
+        margin-bottom: 10px;
+      }
+      .legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .legend i {
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+      }
+      /* One row per organization: label, bar, value at the tip */
+      .chart {
+        max-height: 620px;
+        overflow-y: auto;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: minmax(120px, 34%) minmax(0, 1fr);
+        gap: 10px;
+        align-items: center;
+        padding: 3px 0;
+      }
+      .row:hover {
+        background: var(--panel);
+      }
+      .label {
+        min-width: 0;
+        text-align: right;
+        line-height: 1.2;
+      }
+      .label .name {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .label .url {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .label a {
+        cursor: pointer;
+        color: inherit;
+        text-decoration: none;
+      }
+      .label a:hover {
+        color: var(--accent);
+        text-decoration: underline;
+      }
+      .track {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+        border-left: 1px solid var(--grid);
+      }
+      /* Segments sized exactly to their share, separated by a 2px surface line drawn inside them (a flex gap would
+         shift the widths of small bars), rounded at the data end only */
+      .bar {
+        display: flex;
+        height: 16px;
+      }
+      .bar i {
+        display: block;
+        height: 100%;
+        box-shadow: inset -2px 0 var(--bg);
+      }
+      .bar i:last-child {
+        border-radius: 0 4px 4px 0;
+        box-shadow: none;
+      }
+      .value {
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .row.none {
+        border-top: 1px solid var(--grid);
+        margin-top: 4px;
+        padding-top: 6px;
+      }
+      .row.none .name {
+        font-style: italic;
+        color: var(--muted);
+      }
+      .more {
+        margin-top: 8px;
+      }
+      .empty {
+        color: var(--muted);
+        padding: 20px 0;
+        text-align: center;
+      }
+      .tooltip {
+        position: fixed;
+        pointer-events: none;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 6px 9px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        font-size: 12px;
+        max-width: 280px;
+        display: none;
+        z-index: 10;
+      }
+      .tooltip b {
+        font-variant-numeric: tabular-nums;
+      }
+      details {
+        margin-top: 10px;
+        color: var(--muted);
+      }
+      .table-wrap {
+        overflow-x: auto;
+        max-height: 400px;
+      }
+      table {
+        border-collapse: collapse;
+        font-size: 11px;
+        color: var(--fg);
+        font-variant-numeric: tabular-nums;
+      }
+      th,
+      td {
+        border-bottom: 1px solid var(--grid);
+        padding: 3px 6px;
+        text-align: right;
+        white-space: nowrap;
+      }
+      th:first-child,
+      td:first-child {
+        text-align: left;
+        max-width: 260px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      pre {
+        white-space: pre-wrap;
+        font-size: 11px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Courses by organization</h1>
+    <div class="sub" id="sub">Loading...</div>
+    <div class="toolbar">
+      <select id="year" aria-label="Year"></select>
+      <input id="filter" type="search" placeholder="Filter organizations by name or URL" />
+    </div>
+    <div class="legend" id="legend"></div>
+    <div class="chart" id="chart"></div>
+    <div class="tooltip" id="tooltip"></div>
+    <details>
+      <summary>Table</summary>
+      <div class="table-wrap" id="table"></div>
+    </details>
+    <details>
+      <summary>SPARQL query</summary>
+      <pre id="query"></pre>
+    </details>
+    <script>
+      // Minimal MCP App, speaking the MCP Apps JSON-RPC protocol over postMessage without the SDK
+      let lastId = 0;
+      const pending = {};
+      const request = (method, params) =>
+        new Promise((resolve, reject) => {
+          const id = ++lastId;
+          pending[id] = { resolve, reject };
+          parent.postMessage({ jsonrpc: "2.0", id, method, params }, "*");
+        });
+      const notify = (method, params) => parent.postMessage({ jsonrpc: "2.0", method, params }, "*");
+      const $ = (id) => document.getElementById(id);
+      const esc = (s) =>
+        String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+      const num = (n) => n.toLocaleString();
+
+      const NO_DATE = "No date";
+      const TOP = 25;
+      let data = { organizations: [], years: [] };
+      const state = { year: "", showAll: false };
+
+      // Theme and style variables of the host context
+      const applyContext = (ctx = {}) => {
+        if (ctx.theme) document.documentElement.dataset.theme = ctx.theme;
+        for (const [name, value] of Object.entries(ctx.styles?.variables ?? {}))
+          if (value) document.documentElement.style.setProperty(name, value);
+      };
+      const isDark = () => document.documentElement.dataset.theme === "dark";
+
+      // Course modes are categories: fixed categorical slots, stepped for the dark theme, so a mode keeps its color
+      const MODE_COLORS = {
+        light: { onsite: "#2a78d6", online: "#eb6834", hybrid: "#1baf7a" },
+        dark: { onsite: "#3987e5", online: "#d95926", hybrid: "#199e70" },
+      };
+      const modeColor = (m) => MODE_COLORS[isDark() ? "dark" : "light"][m] ?? (isDark() ? "#52514e" : "#c3c2b7");
+
+      const label = (o) => o.name ?? "No organization";
+      const host = (url) => url?.replace(/^https?:\/\//, "").replace(/\/$/, "") ?? "";
+      /** Courses of an organization per mode, in the selected year or over all years */
+      const byMode = (o) => (state.year ? o.counts[state.year] ?? {} : o.mode_totals);
+      const count = (o) => (state.year ? Object.values(byMode(o)).reduce((a, b) => a + b, 0) : o.total);
+
+      /** Organizations with courses in the selected year and matching the text filter, the most courses first */
+      const visible = () => {
+        const text = $("filter").value.toLowerCase();
+        return data.organizations
+          .filter((o) => count(o) > 0 && (!text || `${o.name ?? "no organization"} ${o.url ?? ""}`.toLowerCase().includes(text)))
+          .sort((a, b) => count(b) - count(a));
+      };
+
+      function renderFilters() {
+        $("year").innerHTML =
+          `<option value="">All years (${num(data.total)})</option>` +
+          [...data.years]
+            .reverse()
+            .sort((a, b) => (a === NO_DATE) - (b === NO_DATE))
+            .map((y) => `<option value="${esc(y)}">${esc(y)} (${num(data.year_totals[y] ?? 0)})</option>`)
+            .join("");
+        $("year").value = state.year;
+      }
+
+      // Legend of the course modes
+      function renderLegend() {
+        $("legend").innerHTML = data.modes
+          .map((m) => `<span><i style="background:${modeColor(m)}"></i>${esc(m)}</span>`)
+          .join("");
+      }
+
+      function renderChart() {
+        const orgs = visible();
+        // Courses without organization are pinned at the bottom, separated from the ranking
+        const none = orgs.find((o) => o.name === null);
+        const ranked = orgs.filter((o) => o !== none);
+        const shown = state.showAll ? ranked : ranked.slice(0, TOP);
+        if (!orgs.length) {
+          $("chart").innerHTML = `<div class="empty">No organizations match the filters</div>`;
+          $("table").innerHTML = "";
+          return resize();
+        }
+        const max = Math.max(...orgs.map(count));
+        const row = (o, cls = "") => {
+          const i = data.organizations.indexOf(o);
+          const modes = byMode(o);
+          const sum = Object.values(modes).reduce((a, b) => a + b, 0);
+          const bar = data.modes
+            .filter((m) => modes[m])
+            .map((m) => `<i data-mode="${esc(m)}" style="width:${(modes[m] / sum) * 100}%;background:${modeColor(m)}"></i>`)
+            .join("");
+          // Small bars keep at least 5px per segment, so the separators do not hide their colors
+          const minWidth = 5 * Object.values(modes).filter(Boolean).length;
+          const name = o.url ? `<a data-url="${esc(o.url)}" title="${esc(o.name)}">${esc(o.name)}</a>` : esc(label(o));
+          return `<div class="row ${cls}" data-org="${i}">
+            <div class="label"><span class="name">${name}</span>${o.url ? `<span class="url">${esc(host(o.url))}</span>` : ""}</div>
+            <div class="track"><div class="bar" style="width:max(${minWidth}px, calc((100% - 48px) * ${count(o) / max}))">${bar}</div><span class="value">${num(count(o))}</span></div>
+          </div>`;
+        };
+        let html = shown.map((o) => row(o)).join("");
+        if (ranked.length > TOP)
+          html += `<button class="more" id="more">${state.showAll ? `Show top ${TOP}` : `Show all ${num(ranked.length)} organizations`}</button>`;
+        if (none) html += row(none, "none");
+        $("chart").innerHTML = html;
+        renderTable([...shown, ...(none ? [none] : [])]);
+        resize();
+      }
+
+      // Table view of the organizations shown in the chart, with a column per mode
+      function renderTable(orgs) {
+        $("table").innerHTML = `<table>
+          <thead><tr><th>Organization</th><th>URL</th>${data.modes.map((m) => `<th>${esc(m)}</th>`).join("")}<th>Total</th></tr></thead>
+          <tbody>${orgs
+            .map((o) => {
+              const modes = byMode(o);
+              return `<tr><td title="${esc(label(o))}">${esc(label(o))}</td><td style="text-align:left">${esc(o.url ?? "")}</td>${data.modes
+                .map((m) => `<td>${modes[m] ? num(modes[m]) : ""}</td>`)
+                .join("")}<td>${num(count(o))}</td></tr>`;
+            })
+            .join("")}</tbody></table>`;
+      }
+
+      function render() {
+        const orgCount = data.organizations.filter((o) => o.name !== null).length;
+        $("sub").textContent = `${num(data.total)} courses from ${num(orgCount)} organizations, by course mode · harvested from TeSS and GTN`;
+        $("query").textContent = data.query;
+        renderFilters();
+        renderLegend();
+        renderChart();
+      }
+
+      // Tooltip of the hovered segment, or of the whole row
+      const tip = $("tooltip");
+      document.addEventListener("mousemove", (e) => {
+        const seg = e.target.closest(".bar i");
+        const row = e.target.closest(".row");
+        if (!row) return (tip.style.display = "none");
+        const o = data.organizations[+row.dataset.org];
+        const lines = [`<div><b>${esc(label(o))}</b></div>`];
+        if (o.url) lines.push(`<div style="color:var(--muted)">${esc(o.url)}</div>`);
+        // Every mode of the organization, the hovered one in bold
+        const modes = byMode(o);
+        for (const m of data.modes.filter((m) => modes[m])) {
+          const n = seg?.dataset.mode === m ? `<b>${num(modes[m])}</b>` : num(modes[m]);
+          lines.push(`<div><i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${modeColor(m)}"></i> ${esc(m)}: ${n}</div>`);
+        }
+        lines.push(`<div>${state.year ? esc(state.year) : "All years"}: <b>${num(count(o))}</b> courses</div>`);
+        tip.innerHTML = lines.join("");
+        tip.style.display = "block";
+        const { width, height } = tip.getBoundingClientRect();
+        tip.style.left = `${Math.min(e.clientX + 12, innerWidth - width - 4)}px`;
+        tip.style.top = `${e.clientY + 14 + height > innerHeight ? e.clientY - height - 8 : e.clientY + 14}px`;
+      });
+      document.addEventListener("mouseleave", () => (tip.style.display = "none"));
+
+      // Height of the body content: the scrollHeight of the document never drops below the iframe height, so it would not shrink
+      const resize = () => notify("ui/notifications/size-changed", { height: Math.ceil(document.body.getBoundingClientRect().height) });
+
+      // Links open through the host, the iframe sandbox blocks navigation
+      document.addEventListener("click", (e) => {
+        const link = e.target.closest("[data-url]");
+        if (link) request("ui/open-link", { url: link.dataset.url }).catch(() => window.open(link.dataset.url));
+        if (e.target.id === "more") {
+          state.showAll = !state.showAll;
+          renderChart();
+        }
+      });
+      $("filter").addEventListener("input", renderChart);
+      $("year").addEventListener("change", (e) => {
+        state.year = e.target.value;
+        renderChart();
+      });
+      for (const d of document.querySelectorAll("details")) d.addEventListener("toggle", resize);
+
+      addEventListener("message", ({ data: m }) => {
+        if (!m || m.jsonrpc !== "2.0") return;
+        if (m.id !== undefined && pending[m.id]) {
+          m.error ? pending[m.id].reject(m.error) : pending[m.id].resolve(m.result);
+          delete pending[m.id];
+        } else if (m.method === "ui/notifications/tool-result") {
+          if (m.params.structuredContent) {
+            data = m.params.structuredContent;
+            state.year = data.year && data.years.includes(data.year) ? data.year : "";
+            $("filter").value = data.organization ?? "";
+            render();
+          } else {
+            $("sub").textContent = m.params.content?.find((c) => c.type === "text")?.text ?? "No result";
+            resize();
+          }
+        } else if (m.method === "ui/notifications/host-context-changed") {
+          applyContext(m.params);
+          // The year ramp depends on the theme
+          if (data.organizations.length) render();
+        }
+      });
+
+      request("ui/initialize", {
+        protocolVersion: "2026-01-26",
+        appInfo: { name: "Courses by organization", version: "0.1.0" },
+        appCapabilities: {},
+      }).then((r) => {
+        applyContext(r.hostContext);
+        notify("ui/notifications/initialized", {});
+      });
+    </script>
+  </body>
+</html>

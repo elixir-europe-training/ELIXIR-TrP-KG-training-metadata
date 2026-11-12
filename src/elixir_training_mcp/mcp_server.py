@@ -35,7 +35,10 @@ To answer a question: search relevant query examples with `get_sparql_examples`,
 To show the upcoming trainings of an organization (e.g. SIB, VIB, EMBL-EBI), use `show_upcoming_trainings`: it shows
 them to the user in an interactive view, and returns a summary.
 To show where instructors teach, or the instructors of a country, use `show_instructors_map`: it shows a map of the
-instructors by country, filterable by topic, to the user."""
+instructors by country, filterable by topic, to the user.
+To compare the number of courses of organizations, overall or in a year, and their onsite or online share, use
+`show_courses_by_organization`: it shows a bar chart of the courses per organization split by course mode, filterable
+by year, to the user."""
 
 SPARQL_GUIDELINES = """## SPARQL query guidelines
 - Base the query on the examples and classes schemas, never use classes or predicates not found in them
@@ -413,6 +416,170 @@ apps.add_html_resource(
     title="Instructors map",
     # d3 and the countries of Natural Earth (world-atlas) are loaded from jsDelivr
     csp=ResourceCsp(resource_domains=["https://cdn.jsdelivr.net"], connect_domains=["https://cdn.jsdelivr.net"]),
+)
+
+
+# Data sent to the widget in `structuredContent`, as read by `widgets/courses-by-organization.html`
+NO_DATE = "No date"
+NO_MODE = "unknown"
+# Order of the course modes in the stacked bars, other modes come after
+MODES = ["onsite", "online", "hybrid"]
+
+
+class OrganizationCourses(TypedDict):
+    # `None` for the courses without provider
+    name: str | None
+    url: str | None
+    # Number of courses per start year (or `NO_DATE`) and course mode
+    counts: dict[str, dict[str, int]]
+    # Distinct courses per mode and in total over all years
+    mode_totals: dict[str, int]
+    total: int
+
+
+class CoursesByOrganizationData(TypedDict):
+    year: str | None
+    organization: str | None
+    years: list[str]
+    modes: list[str]
+    # Distinct courses per year, a course can have many providers
+    year_totals: dict[str, int]
+    organizations: list[OrganizationCourses]
+    total: int
+    query: str
+
+
+# Courses with the year they start, their mode and their providers. The names of each provider are concatenated in a subquery, an
+# organization IRI can have many names (e.g. the ROR ID of SIB)
+COURSES_BY_ORGANIZATION_QUERY = """PREFIX schema: <https://schema.org/>
+SELECT ?course ?year ?mode ?orgNames ?orgUrl WHERE {
+  ?course a schema:Course .
+  OPTIONAL {
+    ?course schema:hasCourseInstance ?instance .
+    OPTIONAL { ?instance schema:startDate ?start }
+    OPTIONAL { ?instance schema:courseMode ?mode }
+  }
+  OPTIONAL {
+    ?course schema:provider ?org .
+    {
+      SELECT ?org (GROUP_CONCAT(DISTINCT ?n; separator="|") AS ?orgNames) (SAMPLE(?u) AS ?orgUrl) WHERE {
+        ?org schema:name ?n .
+        OPTIONAL { ?org schema:url ?u }
+      } GROUP BY ?org
+    }
+  }
+  BIND(SUBSTR(STR(?start), 1, 4) AS ?year)
+}"""
+
+
+def to_courses_by_organization(rows: list[dict[str, str]]) -> list[OrganizationCourses]:
+    """Courses per organization, year and mode, organizations identified by their name and URL. Providers with many
+    names (only IRIs) take their shortest name"""
+    # (name, url) -> year -> mode -> course IRIs
+    courses: dict[tuple[str | None, str | None], dict[str, dict[str, set[str]]]] = {}
+    for raw in rows:
+        row = {k: html.unescape(v) for k, v in raw.items()}
+        names = [" ".join(n.split()) for n in row.get("orgNames", "").split("|") if n.strip()]
+        name = min(names, key=len) if names else None
+        url = ((row.get("orgUrl") or "").strip() or None) if name else None
+        year = row.get("year") or NO_DATE
+        mode = row.get("mode") or NO_MODE
+        courses.setdefault((name, url), {}).setdefault(year, {}).setdefault(mode, set()).add(row["course"])
+    orgs: list[OrganizationCourses] = []
+    for (name, url), by_year in courses.items():
+        by_mode: dict[str, set[str]] = {}
+        for modes in by_year.values():
+            for mode, c in modes.items():
+                by_mode.setdefault(mode, set()).update(c)
+        orgs.append(
+            {
+                "name": name,
+                "url": url,
+                "counts": {y: {m: len(c) for m, c in modes.items()} for y, modes in sorted(by_year.items())},
+                "mode_totals": {m: len(c) for m, c in by_mode.items()},
+                "total": len(set().union(*by_mode.values())),
+            }
+        )
+    return sorted(orgs, key=lambda o: -o["total"])
+
+
+def org_label(o: OrganizationCourses) -> str:
+    return f"{o['name']} ({o['url']})" if o["name"] and o["url"] else o["name"] or "No organization"
+
+
+def mode_order(mode: str) -> tuple[int, str]:
+    return (MODES.index(mode) if mode in MODES else len(MODES) + (mode == NO_MODE), mode)
+
+
+@apps.tool(resource_uri="ui://elixir-training/courses-by-organization.html", annotations=READ_ONLY)
+async def show_courses_by_organization(year: int | None = None, organization: str | None = None) -> CallToolResult:
+    """Show a bar chart of the number of courses provided by each organization to the user, split by course mode
+    (onsite, online, hybrid), with a dropdown to filter on the year they start. Organizations are identified by their name and URL, and courses
+    without provider are shown as "No organization". Only a summary is returned to you, do not repeat it in full.
+
+    Args:
+        year: Year to select first in the dropdown (e.g. 2025), all years by default
+        organization: Show only the organizations whose name or URL contains this text, case-insensitively
+            (e.g. "ELIXIR", "SIB", "carpentry")
+    """
+    organization = organization.strip() if organization else None
+    try:
+        res = await query_sparql(COURSES_BY_ORGANIZATION_QUERY)
+    except httpx.HTTPError as e:
+        raise ToolError(f"Could not query the SPARQL endpoint: {e!r}") from e
+    rows = bindings(res)
+    orgs = to_courses_by_organization(rows)
+    # Years in order, courses without start date last
+    by_year: dict[str, set[str]] = {}
+    for r in rows:
+        by_year.setdefault(r.get("year") or NO_DATE, set()).add(r["course"])
+    years = sorted(by_year, key=lambda y: (y == NO_DATE, y))
+    modes = sorted({m for o in orgs for m in o["mode_totals"]}, key=mode_order)
+    # Years are strings in the data, as the keys of the counts
+    selected = str(year) if year else None
+    data: CoursesByOrganizationData = {
+        "year": selected,
+        "organization": organization,
+        "years": years,
+        "modes": modes,
+        "year_totals": {y: len(by_year[y]) for y in years},
+        "organizations": orgs,
+        "total": len({r["course"] for r in rows}),
+        "query": COURSES_BY_ORGANIZATION_QUERY,
+    }
+
+    # Summary for the model, with the same initial filters as the widget
+    def by_mode(o: OrganizationCourses) -> dict[str, int]:
+        return o["counts"].get(selected, {}) if selected else o["mode_totals"]
+
+    def count(o: OrganizationCourses) -> int:
+        return sum(by_mode(o).values()) if selected else o["total"]
+
+    def line(o: OrganizationCourses) -> str:
+        split = ", ".join(f"{m} {n}" for m, n in sorted(by_mode(o).items(), key=lambda x: mode_order(x[0])))
+        return f"- {org_label(o)}: {count(o)} ({split})"
+
+    kept = [
+        o for o in orgs if count(o) and (not organization or organization.lower() in f"{o['name']} {o['url']}".lower())
+    ]
+    no_org = next((o for o in orgs if o["name"] is None), None)
+    dated = [y for y in years if y != NO_DATE]
+    lines = [
+        f"Shown to the user: bar chart of {data['total']} courses from {len(orgs) - bool(no_org)} organizations, "
+        + (f"in {year}" if year else f"from {dated[0]} to {dated[-1]}" if dated else "")
+        + ", split by course mode"
+        + (f", filtered on organizations matching {organization!r} ({len(kept)})" if organization else ""),
+        f"Courses without organization{f' in {year}' if year else ''}: {count(no_org) if no_org else 0}",
+        "Organizations with the most courses:",
+        *[line(o) for o in sorted(kept, key=lambda o: -count(o))[:15] if o["name"]],
+    ]
+    return CallToolResult(content=[TextContent(type="text", text="\n".join(lines))], structured_content=dict(data))
+
+
+apps.add_html_resource(
+    "ui://elixir-training/courses-by-organization.html",
+    (WIDGETS / "courses-by-organization.html").read_text(),
+    title="Courses by organization",
 )
 
 
