@@ -1,9 +1,14 @@
 # Qlever SPARQL endpoint serving the harvested data/*.ttl files on http://localhost:7001 (or ${QLEVER_PORT})
 # The index is rebuilt from data/*.ttl on every `docker compose up`
+# scripts/weekly-update.sh harvests the sources and swaps in a new index every week, see README
 services:
   # One-shot job: build the Qlever index from all Turtle files in data/
   # with a full-text index on all literals (-W) scored with BM25 (-S bm25)
   # Each file is loaded in its own named graph: ${GRAPH_BASE}<filename without .ttl>
+  # The steps run are set by INDEX_STEPS (default "build swap"):
+  # - build: build the new index in /index/next, the server can keep serving /index/live meanwhile
+  # - swap: move /index/next to /index/live, keeping the current index in /index/prev (the server must be stopped)
+  # - rollback: restore /index/prev to /index/live (the server must be stopped)
   index:
     image: adfreiburg/qlever:latest
     user: root # named volumes are owned by root
@@ -11,9 +16,22 @@ services:
     command:
       - |
         set -e
-        rm -rf /index/*
-        args=(); for f in /input/*.ttl; do args+=(-f "$$f" -g "$${GRAPH_BASE}$$(basename "$$f" .ttl)"); done
-        cd /index && qlever-index -i training -F ttl -p false -W -S bm25 "$${args[@]}"
+        build() {
+          rm -rf /index/next && mkdir /index/next
+          args=(); for f in /input/*.ttl; do args+=(-f "$$f" -g "$${GRAPH_BASE}$$(basename "$$f" .ttl)"); done
+          (cd /index/next && qlever-index -i training -F ttl -p false -W -S bm25 "$${args[@]}")
+        }
+        swap() {
+          # Remove the files of the previous layout, where the index was directly in /index
+          find /index -maxdepth 1 -type f -delete
+          rm -rf /index/prev
+          if [ -d /index/live ]; then mv /index/live /index/prev; fi
+          mv /index/next /index/live
+        }
+        rollback() {
+          rm -rf /index/live && mv /index/prev /index/live
+        }
+        for step in $${INDEX_STEPS:-build swap}; do echo "Index step: $$step"; $$step; done
         # The server writes logs next to the index files, and runs as the non-root qlever user
         chown -R qlever:qlever /index
     environment:
@@ -29,7 +47,7 @@ services:
     entrypoint: ["qlever-server"]
     command:
       - "-i"
-      - "/index/training"
+      - "/index/live/training"
       - "-p"
       - "7001"
       - "-t"
@@ -42,7 +60,7 @@ services:
       - "-a"
       - "${QLEVER_ACCESS_TOKEN:?Set QLEVER_ACCESS_TOKEN in .env}"
       - "--persist-updates"
-    working_dir: /index
+    working_dir: /index/live
     ports:
       - "${QLEVER_PORT:-7001}:7001"
     volumes:
@@ -112,6 +130,14 @@ services:
       # The first start downloads the embedding model
       start_period: 20m
     restart: unless-stopped
+
+  # One-shot job, only run by scripts/weekly-update.sh: harvest the sources in data/, see harvest/run.py
+  harvest:
+    build: .
+    profiles: [jobs]
+    command: ["elixir-trainer-harvest"]
+    volumes:
+      - ./data:/app/data
 
 volumes:
   index:

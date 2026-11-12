@@ -9,7 +9,9 @@ The package lives under `src/elixir_training_mcp/`:
 - `sparql.py`: SPARQL queries to the endpoint, loading the examples and the VoID schema from their named graphs.
 - `vectordb.py`: embedded LanceDB index of the examples and classes schemas, with a fastembed embedding function registered in the LanceDB registry, searched with hybrid search.
 - `config.py`: settings from environment variables or `.env`.
-- `harvest/`: harvesters of TeSS, GTN and the SciLifeLab Training Portal producing the `data/*.ttl` files loaded in Qlever by `compose.yml`.
+- `harvest/`: harvesters of TeSS, GTN and the SciLifeLab Training Portal producing the `data/*.ttl` files loaded in Qlever by `compose.yml`. `harvest/run.py` (`elixir-trainer-harvest`) runs them all, validating each output in `data/staging/` before replacing the previous file.
+
+`scripts/weekly-update.sh` is run weekly by cron on the server: it harvests, swaps in a new Qlever index, and reports failures as GitHub issues with `scripts/report-failure.sh`, which start the `.github/workflows/fix-harvest.yml` workflow.
 
 SPARQL examples are in `docs/sparql-examples.ttl`, the VoID generation query in `docs/generate-void.ru`.
 
