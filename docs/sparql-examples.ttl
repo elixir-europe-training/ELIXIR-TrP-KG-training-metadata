@@ -455,7 +455,7 @@ ORDER BY DESC(?courses)""" ;
     schema:keywords "course", "provider", "date", "year", "aggregation", "statistics" ;
     schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
 
-ex:18 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+ex:20 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
     rdfs:comment "Using an ROR id, use wikidata to see if the course contributor works for an ELIXIR node"@en ;
     sh:prefixes _:sparql_examples_prefixes ;
     sh:select """PREFIX schema: <https://schema.org/>
