@@ -136,6 +136,7 @@ The user-stories defined in 2025 were revisited and refreshed, including a more 
 # Future work
 
 (TODO: What would be required to make this a live ELIXIR service? What are the options here eg embed within ELIXIR TeSS or standalone site? How could this be used beyond ELIXIR? What features will be developed next? What other opportunities are there eg dashboard for TeSS?)
+(TODO: Could implement some kind of self repair of the SPARQL queries, to align with changes in the data source structure.)
 
 
 ## Acknowledgements
@@ -152,6 +153,7 @@ We thank the organizers of the BioHackathon Europe 2026 for putting on the event
 - [GitHub repository](https://github.com/elixir-europe-training/ELIXIR-trainer)
 - [Google sheet](https://docs.google.com/spreadsheets/d/19XxU7RF_A9EwVn52FfFpj4qWr7521ETYnIJ7lcIB4ho/edit?gid=0#gid=0) with user stories
 - Diagrams:
+  - (TODO: all the Mermaid diagrams, maybe some PNGs too)
   - [Figure 5. Project timeline](https://github.com/elixir-europe-training/ELIXIR-trainer/blob/main/paper_2026/diagrams/project-timeline.mmd)
 
 ## References
