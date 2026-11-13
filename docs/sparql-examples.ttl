@@ -12,7 +12,7 @@ _:sparql_examples_prefixes
     a owl:Ontology ;
     rdfs:comment """SPARQL query examples to search the ELIXIR training materials harvested from TeSS and GTN.""" ;
     owl:imports sh: ;
-    sh:declare _:prefix_rdf, _:prefix_rdfs, _:prefix_xsd, _:prefix_schema, _:prefix_dct, _:prefix_edam .
+    sh:declare _:prefix_rdf, _:prefix_rdfs, _:prefix_xsd, _:prefix_schema, _:prefix_dct, _:prefix_edam, _:prefix_qlss .
 
 _:prefix_rdf sh:prefix "rdf" ;
     sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI .
@@ -26,6 +26,8 @@ _:prefix_dct sh:prefix "dct" ;
     sh:namespace "http://purl.org/dc/terms/"^^xsd:anyURI .
 _:prefix_edam sh:prefix "edam" ;
     sh:namespace "http://edamontology.org/"^^xsd:anyURI .
+_:prefix_qlss sh:prefix "qlss" ;
+    sh:namespace "https://qlever.cs.uni-freiburg.de/textSearch/"^^xsd:anyURI .
 
 # Examples of queries over the harvested training data
 
@@ -485,3 +487,112 @@ WHERE {
     schema:keywords "course", "provider", "ELIXIR", "ROR", "wikidata" ;
     schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> ;
     spex:federatesWith <https://query.wikidata.org/sparql>, <https://sib-people-rdf.jerven-bolleman.workers.dev/sparql> .
+
+ex:21 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Find the courses and learning resources about a topic, e.g. proteomics, ranked by the BM25 relevance of their description with the QLever full-text search"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+PREFIX qlss: <https://qlever.cs.uni-freiburg.de/textSearch/>
+
+SELECT ?resource ?type ?name ?url (MAX(?score) AS ?relevance)
+WHERE {
+  ?resource schema:description ?description ;
+    a ?type ;
+    schema:name ?name .
+  VALUES ?type { schema:Course schema:LearningResource }
+  OPTIONAL { ?resource schema:url ?url }
+  # Full-text search on the descriptions, scored with BM25
+  SERVICE qlss: {
+    _:config qlss:textVariable ?text ;
+      qlss:contains [ qlss:word "proteomics" ; qlss:score ?score ] ;
+      qlss:contains [ qlss:entity ?description ] .
+  }
+}
+GROUP BY ?resource ?type ?name ?url
+ORDER BY DESC(?relevance)
+LIMIT 20""" ;
+    schema:keywords "course", "learning resource", "topic", "full-text search", "relevance", "BM25" ;
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
+
+ex:22 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Find the upcoming courses whose description contains words starting with a prefix, e.g. metagenom* for metagenome, metagenomics or metagenomic, with the QLever full-text search"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+PREFIX qlss: <https://qlever.cs.uni-freiburg.de/textSearch/>
+
+SELECT ?course ?name ?startDate ?courseMode ?country (MAX(?score) AS ?relevance)
+WHERE {
+  ?course a schema:Course ;
+    schema:name ?name ;
+    schema:description ?description ;
+    schema:hasCourseInstance ?instance .
+  ?instance schema:startDate ?startDate .
+  OPTIONAL { ?instance schema:courseMode ?courseMode }
+  OPTIONAL { ?instance schema:location/schema:address/schema:addressCountry ?country }
+  FILTER(STR(?startDate) >= SUBSTR(STR(NOW()), 1, 10))
+  # Prefix search: words starting with "metagenom" (metagenome, metagenomics, metagenomic...)
+  SERVICE qlss: {
+    _:config qlss:textVariable ?text ;
+      qlss:contains [ qlss:word "metagenom*" ; qlss:score ?score ] ;
+      qlss:contains [ qlss:entity ?description ] .
+  }
+}
+GROUP BY ?course ?name ?startDate ?courseMode ?country
+ORDER BY ?startDate""" ;
+    schema:keywords "course", "upcoming", "date", "topic", "full-text search", "prefix search" ;
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
+
+ex:23 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Get the organizations providing the most trainings whose description contains several words, e.g. machine and learning, with the QLever full-text search"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+PREFIX qlss: <https://qlever.cs.uni-freiburg.de/textSearch/>
+
+SELECT ?providerKey (SAMPLE(?providerName) AS ?label) (COUNT(DISTINCT ?resource) AS ?trainings)
+WHERE {
+  ?resource schema:description ?description ;
+    schema:provider ?provider .
+  ?provider schema:name ?providerName .
+  # Providers without IRI are blank nodes, one per resource: they are grouped by name
+  BIND(IF(isBlank(?provider), ?providerName, STR(?provider)) AS ?providerKey)
+  # Both words must appear in the same description
+  SERVICE qlss: {
+    _:config qlss:textVariable ?text ;
+      qlss:contains [ qlss:word "machine" ] ;
+      qlss:contains [ qlss:word "learning" ] ;
+      qlss:contains [ qlss:entity ?description ] .
+  }
+}
+GROUP BY ?providerKey
+ORDER BY DESC(?trainings)
+LIMIT 20""" ;
+    schema:keywords "provider", "organization", "topic", "full-text search", "aggregation", "statistics" ;
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
+
+ex:24 a sh:SPARQLExecutable, sh:SPARQLSelectExecutable ;
+    rdfs:comment "Find the authors, contributors and instructors identified by their ORCID who made the most trainings on a topic, e.g. single-cell, with the QLever full-text search"@en ;
+    sh:prefixes _:sparql_examples_prefixes ;
+    sh:select """PREFIX schema: <https://schema.org/>
+PREFIX qlss: <https://qlever.cs.uni-freiburg.de/textSearch/>
+
+SELECT ?person (SAMPLE(?personName) AS ?label) (COUNT(DISTINCT ?resource) AS ?resources) (GROUP_CONCAT(DISTINCT ?name; separator=" | ") AS ?titles)
+WHERE {
+  ?resource schema:name ?name ;
+    schema:description ?description ;
+    schema:author|schema:contributor|schema:instructor ?person .
+  ?person schema:name ?personName .
+  # Authors, contributors and instructors identified by their ORCID
+  FILTER(STRSTARTS(STR(?person), "https://orcid.org/"))
+  SERVICE qlss: {
+    _:config qlss:textVariable ?text ;
+      # "single-cell" is indexed as the 2 words "single" and "cell"
+      qlss:contains [ qlss:word "single" ] ;
+      qlss:contains [ qlss:word "cell" ] ;
+      qlss:contains [ qlss:entity ?description ] .
+  }
+}
+GROUP BY ?person
+ORDER BY DESC(?resources)
+LIMIT 20""" ;
+    schema:keywords "person", "author", "instructor", "ORCID", "topic", "full-text search" ;
+    schema:target <https://biosoda.unil.ch/elixir-trainer/sparql> .
