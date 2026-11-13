@@ -100,8 +100,8 @@ app.include_router(
         themeSwitch=True,
         welcome=(
             "## Find trainings in the life sciences\nThe agent queries a knowledge graph of the courses, events and "
-            "materials harvested from [ELIXIR TeSS](https://tess.elixir-europe.org) and the "
-            "[Galaxy Training Network](https://training.galaxyproject.org) with SPARQL."
+            "materials harvested from [ELIXIR TeSS](https://tess.elixir-europe.org), [Glittr](https://glittr.org) and the "
+            "[SciLifeLab Training Portal](https://training.scilifelab.se/) with SPARQL."
         ),
         placeholder="Ask about trainings",
         examples=[
