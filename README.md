@@ -147,7 +147,7 @@ When deployed behind a reverse proxy, add its public hostname to `ALLOWED_HOSTS`
 4. Stop Qlever, swap the indexes (the current one is kept in `/index/prev`), and start Qlever. If it is not healthy, the previous index is restored. This is the only downtime, a few seconds
 5. Reload the VoID and SPARQL examples graphs, and recreate the `api` to reindex them
 
-Each failure opens a GitHub issue labelled `harvest-failure` (or comments on the open issue with the same error). This starts the [`fix-harvest`](.github/workflows/fix-harvest.yml) workflow: Claude looks for the cause, and a pull request with the fix is opened for review by @vemonet and @psmero. If the cause is not in the code, Claude explains it in a comment on the issue. Merged fixes are deployed by the next weekly run.
+Each failure opens a GitHub issue labelled `harvest-failure` (or comments on the open issue with the same error). This starts the [`fix-harvest`](.github/workflows/fix-harvest.yml) workflow: Claude looks for the cause, and a pull request with the fix is opened for review by @vemonet and @psmeros. If the cause is not in the code, Claude explains it in a comment on the issue. Merged fixes are deployed by the next weekly run.
 
 > [!CAUTION]
 >

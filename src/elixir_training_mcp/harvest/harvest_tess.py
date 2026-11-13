@@ -177,7 +177,7 @@ def harvest_tess_data(repo_url: str, resource_types: list[str], output: Path = O
     with httpx.Client(follow_redirects=True, timeout=300, headers={"User-Agent": USER_AGENT}) as client:
         for resource_type in resource_types:
             # TODO: remove, deliberate break to test the fix-harvest pipeline, the dump URL ends with .jsonld
-            dump_url = f"{base_url}/{resource_type}.json-ld"
+            dump_url = f"{base_url}/{resource_type}.jsonld"
             print(f"Downloading {dump_url}")
             response = client.get(dump_url, headers={"accept": JSONLD_ACCEPT})
             response.raise_for_status()
